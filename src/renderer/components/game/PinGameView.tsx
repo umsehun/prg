@@ -38,12 +38,13 @@ const PinGameView: React.FC<PinGameViewProps> = ({
   const timeMsRef = useRef(0);
 
   // Physics system
-  const { 
-    knives, 
-    throwKnife: physicsThrowKnife, 
-    getKnivesPositions, 
+  const {
+    knives,
+    throwKnife: physicsThrowKnife,
+    getKnivesPositions,
     setHitCallback,
-    setActiveNotes 
+    setActiveNotes,
+    setJudgmentWindows
   } = useKnifePhysics({
     targetRadius: 80,
     velocity: 400,
@@ -72,8 +73,29 @@ const PinGameView: React.FC<PinGameViewProps> = ({
         time: note.time * 1000 // Convert to milliseconds
       }));
       setActiveNotes(physicsNotes);
+
+      // Calculate dynamic judgment windows based on chart difficulty
+      const OD = chart.metadata?.overallDifficulty ?? 5;
+
+      // Calculate OD-based windows (using osu! standard formula)
+      const w300 = 80 - 6 * OD; // KOOL window
+      const w100 = 140 - 8 * OD; // COOL window  
+      const w50 = 200 - 10 * OD; // GOOD window
+      const wMiss = Math.max(w50 + 40, w100 + 20); // MISS window
+
+      const judgmentWindows = {
+        KOOL: Math.max(w300, 15), // minimum 15ms
+        COOL: Math.max(w100, 50), // minimum 50ms
+        GOOD: Math.max(w50, 100), // minimum 100ms
+        MISS: Math.max(wMiss, 150) // minimum 150ms
+      };
+
+      console.log('[PinGameView] Setting judgment windows:', judgmentWindows);
+
+      // Send judgment windows to physics worker
+      setJudgmentWindows(judgmentWindows);
     }
-  }, [chart, setActiveNotes]);
+  }, [chart, setActiveNotes, setJudgmentWindows]);
 
   // Handle physics hit callback
   useEffect(() => {
@@ -94,7 +116,7 @@ const PinGameView: React.FC<PinGameViewProps> = ({
 
     const interval = setInterval(() => {
       const currentTime = timeMsRef.current;
-      
+
       // Find notes that should have approach circles
       const upcomingNotes = chart.notes.filter(note => {
         const noteTimeMs = note.time * 1000;
@@ -107,7 +129,7 @@ const PinGameView: React.FC<PinGameViewProps> = ({
         const noteTimeMs = note.time * 1000;
         const timeUntilNote = noteTimeMs - currentTime;
         const scale = Math.max(0.1, timeUntilNote / APPROACH_TIME);
-        
+
         return {
           id: `circle-${note.time}`,
           noteTime: noteTimeMs,
@@ -151,19 +173,32 @@ const PinGameView: React.FC<PinGameViewProps> = ({
 
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center bg-gray-900">
-      {/* Game area */}
-      <div className="relative w-full h-full flex items-center justify-center">
-        {/* Rotating target */}
-        <div 
-          className="absolute w-40 h-40 rounded-full border-4 border-white flex items-center justify-center"
+      {/* Game area - centered container */}
+      <div className="relative flex items-center justify-center" style={{ width: '100vw', height: '100vh' }}>
+
+        {/* Target container - absolute positioned center */}
+        <div
+          className="absolute flex items-center justify-center"
           style={{
-            animation: 'spin 5s linear infinite'
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: `${TARGET_RADIUS * 2}px`,
+            height: `${TARGET_RADIUS * 2}px`
           }}
         >
-          <div className="text-white text-lg font-bold">TARGET</div>
+          {/* Rotating target */}
+          <div
+            className="w-full h-full rounded-full border-4 border-white flex items-center justify-center"
+            style={{
+              animation: 'spin 5s linear infinite'
+            }}
+          >
+            <div className="text-white text-lg font-bold">TARGET</div>
+          </div>
         </div>
 
-        {/* Approach circles */}
+        {/* Approach circles - same positioning as target */}
         {approachCircles.map(circle => (
           <ApproachCircle
             key={circle.id}
@@ -173,15 +208,15 @@ const PinGameView: React.FC<PinGameViewProps> = ({
           />
         ))}
 
-        {/* Knives */}
+        {/* Knives - positioned relative to center */}
         {knifePositions.map(({ knife, position }) => (
           <div
             key={knife.id}
             className="absolute w-4 h-16 bg-gray-300"
             style={{
-              left: `calc(50% + ${position.x}px)`,
-              top: `calc(50% + ${position.y}px)`,
-              transform: `translate(-50%, -50%) rotate(${position.rotation}deg)`,
+              left: '50%',
+              top: '50%',
+              transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px) rotate(${position.rotation}deg)`,
               transformOrigin: 'center center'
             }}
           />

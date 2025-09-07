@@ -15,8 +15,8 @@ const STICK_DEPTH = 10;
 const FLYING_ROTATION_DEG = 0;
 const STUCK_ROTATION_OFFSET = -90;
 const TOTAL_FLIGHT_TIME = 0.30;
-// Judgment timing windows (in milliseconds)
-const JUDGMENT_WINDOWS = {
+// Judgment timing windows (in milliseconds) - can be updated dynamically
+let JUDGMENT_WINDOWS = {
     KOOL: 50,
     COOL: 100,
     GOOD: 150,
@@ -170,6 +170,12 @@ self.onmessage = (e)=>{
                     time: note.time,
                     noteId: "note-".concat(index, "-").concat(note.time)
                 }));
+            break;
+        case 'SET_JUDGMENT_WINDOWS':
+            console.log('[physics.worker] Setting judgment windows:', payload.windows);
+            JUDGMENT_WINDOWS = {
+                ...payload.windows
+            };
             break;
         case 'RESET':
             console.log('[physics.worker] Resetting knives and notes');

@@ -1,29 +1,39 @@
-// src/renderer/types/ipc.d.ts
-import type { PinChart, ChartMetadata, GameUpdateArgs } from '../../shared/types';
+// src/types/ipc.d.ts
+import { Chart, GameUpdateArgs, Note, Settings } from '../shared/types';
+
+export interface IpcApi {
+  // Game control
+  startGame: (chart: Chart, gameMode: string) => void;
+  stopGame: () => void;
+  handleKeyPress: (column: number) => void;
+  handlePinPress: (currentTimeSec?: number) => void;
+  loadChart: (chartPath: string) => Promise<Chart | null>;
+
+  // Event listeners
+  onGameUpdate: (callback: (args: GameUpdateArgs) => void) => () => void;
+  onNoteUpdate: (callback: (notes: Note[]) => void) => () => void;
+  onPlayMusic: (callback: (args: { musicPath: string }) => void) => () => void;
+  onStopMusic: (callback: () => void) => () => void;
+
+  // Settings
+  getSetting: <K extends keyof Settings>(key: K) => Promise<Settings[K]>;
+  setSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
+
+  // Assets
+  loadAsset: (assetPath: string) => Promise<ArrayBuffer>;
+  assetExists: (assetPath: string) => Promise<boolean>;
+
+  // Chart import
+  importAllOszFiles: (assetsPath?: string) => Promise<{
+    imported: number;
+    skipped: number;
+    errors: string[];
+  }>;
+}
 
 declare global {
   interface Window {
-    electron: {
-      // Generic invoke with typed return
-      invoke<T = unknown>(channel: string, ...args: unknown[]): Promise<T>;
-
-      // Game update stream from main -> renderer
-      onGameUpdate(cb: (args: GameUpdateArgs) => void): () => void;
-
-      // Input -> main judgment
-      handlePinPress(currentTimeSec: number): void;
-
-      // Initialize game with chart
-      initializeGame(chart: PinChart): void;
-
-      // Library discovery
-      discoverCharts(): Promise<ChartMetadata[]>;
-
-      // Settings access (loose typing to avoid importing main types)
-      getSetting(key: string): Promise<number>;
-      setSetting(key: string, value: number): void;
-    };
+    electron: IpcApi;
   }
 }
 
-export {};

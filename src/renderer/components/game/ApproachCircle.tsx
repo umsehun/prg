@@ -17,6 +17,9 @@ const ApproachCircle: React.FC<ApproachCircleProps> = ({ radius, scale, opacity 
       style={{
         width: `${size}px`,
         height: `${size}px`,
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
         opacity,
         boxShadow: '0 0 16px rgba(255,255,255,0.35)'
       }}

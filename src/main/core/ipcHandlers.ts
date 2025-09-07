@@ -219,7 +219,7 @@ export function registerIpcHandlers(): void {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.warn(`[AssetLoader] Asset not found, using fallback: ${assetUri}`, errorMessage);
-      
+
       // Create a silent audio buffer for missing sound files
       if (assetUri.includes('.wav') || assetUri.includes('.mp3') || assetUri.includes('.ogg')) {
         // Return a minimal WAV header for silent audio (44 bytes + minimal data)
@@ -241,7 +241,7 @@ export function registerIpcHandlers(): void {
         console.log(`[AssetLoader] Returning silent audio buffer for: ${assetUri}`);
         return silentWav;
       }
-      
+
       // For other file types, still throw error
       throw new Error(`Asset not found: ${assetUri}`);
     }

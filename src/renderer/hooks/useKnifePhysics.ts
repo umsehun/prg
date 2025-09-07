@@ -108,6 +108,14 @@ export const useKnifePhysics = ({
         }
     }, []);
 
+    // 판정 윈도우 설정
+    const setJudgmentWindows = useCallback((windows: { KOOL: number; COOL: number; GOOD: number; MISS: number }) => {
+        console.log('[useKnifePhysics] Setting judgment windows:', windows);
+        if (workerRef.current) {
+            workerRef.current.postMessage({ type: 'SET_JUDGMENT_WINDOWS', payload: { windows } });
+        }
+    }, []);
+
     // 게임 리셋
     const resetKnives = useCallback(() => {
         if (workerRef.current) {
@@ -127,6 +135,7 @@ export const useKnifePhysics = ({
         resetKnives,
         stuckKnivesCount,
         setHitCallback,
-        setActiveNotes
+        setActiveNotes,
+        setJudgmentWindows
     };
 };
