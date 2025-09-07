@@ -217,7 +217,32 @@ export function registerIpcHandlers(): void {
       console.log(`[AssetLoader] Successfully loaded asset: ${assetUri} -> ${fullPath}`);
       return data;
     } catch (error) {
-      console.error(`[AssetLoader] Asset not found: ${assetUri}`, error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.warn(`[AssetLoader] Asset not found, using fallback: ${assetUri}`, errorMessage);
+      
+      // Create a silent audio buffer for missing sound files
+      if (assetUri.includes('.wav') || assetUri.includes('.mp3') || assetUri.includes('.ogg')) {
+        // Return a minimal WAV header for silent audio (44 bytes + minimal data)
+        const silentWav = Buffer.from([
+          0x52, 0x49, 0x46, 0x46, // "RIFF"
+          0x24, 0x00, 0x00, 0x00, // File size - 8
+          0x57, 0x41, 0x56, 0x45, // "WAVE"
+          0x66, 0x6D, 0x74, 0x20, // "fmt "
+          0x10, 0x00, 0x00, 0x00, // Subchunk1Size
+          0x01, 0x00,             // AudioFormat (PCM)
+          0x01, 0x00,             // NumChannels (1)
+          0x44, 0xAC, 0x00, 0x00, // SampleRate (44100)
+          0x44, 0xAC, 0x00, 0x00, // ByteRate
+          0x01, 0x00,             // BlockAlign
+          0x08, 0x00,             // BitsPerSample (8)
+          0x64, 0x61, 0x74, 0x61, // "data"
+          0x00, 0x00, 0x00, 0x00  // Subchunk2Size (0 = silence)
+        ]);
+        console.log(`[AssetLoader] Returning silent audio buffer for: ${assetUri}`);
+        return silentWav;
+      }
+      
+      // For other file types, still throw error
       throw new Error(`Asset not found: ${assetUri}`);
     }
   });

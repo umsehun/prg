@@ -877,6 +877,216 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }
 }),
+"[project]/src/renderer/hooks/physics.worker.ts (static in ecmascript)", ((__turbopack_context__) => {
+
+__turbopack_context__.v("/_next/static/media/physics.worker.f98ae696.ts");}),
+"[project]/src/renderer/hooks/physics.worker.ts [app-client] (ecmascript, worker loader)", ((__turbopack_context__) => {
+
+__turbopack_context__.v(__turbopack_context__.b([
+  "static/chunks/src_renderer_hooks_physics_worker_ts_a1b3ec4e._.js",
+  "static/chunks/src_renderer_hooks_physics_worker_ts_b3f8fcd6._.js",
+  "static/chunks/turbopack-src_renderer_hooks_physics_worker_ts_cb33b361._.js"
+]));
+}),
+"[project]/src/renderer/hooks/useKnifePhysics.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "useKnifePhysics",
+    ()=>useKnifePhysics
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+const __TURBOPACK__import$2e$meta__ = {
+    get url () {
+        return `file://${__turbopack_context__.P("src/renderer/hooks/useKnifePhysics.ts")}`;
+    }
+};
+var _s = __turbopack_context__.k.signature();
+;
+const useKnifePhysics = (param)=>{
+    let { targetRadius, velocity = 400, rotationSpeed = 540, isGameActive } = param;
+    _s();
+    const [knives, setKnives] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const workerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const knifeIdCounter = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(0);
+    const hitCallbackRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "useKnifePhysics.useEffect": ()=>{
+            console.log('[useKnifePhysics] Initializing physics worker...');
+            try {
+                const worker = new Worker(__turbopack_context__.r("[project]/src/renderer/hooks/physics.worker.ts [app-client] (ecmascript, worker loader)"));
+                workerRef.current = worker;
+                console.log('[useKnifePhysics] Worker created, sending INIT message');
+                worker.postMessage({
+                    type: 'INIT',
+                    payload: {
+                        targetRadius,
+                        velocity,
+                        rotationSpeed
+                    }
+                });
+                worker.onmessage = ({
+                    "useKnifePhysics.useEffect": (e)=>{
+                        const { type, payload } = e.data;
+                        console.log('[useKnifePhysics] Worker message:', type, payload);
+                        if (type === 'UPDATE') {
+                            setKnives(payload.knives);
+                        } else if (type === 'HIT') {
+                            console.log('[useKnifePhysics] Hit detected:', payload);
+                            if (hitCallbackRef.current) {
+                                hitCallbackRef.current(payload);
+                            }
+                        }
+                    }
+                })["useKnifePhysics.useEffect"];
+                worker.onerror = ({
+                    "useKnifePhysics.useEffect": (error)=>{
+                        console.error('[useKnifePhysics] Worker error:', error);
+                    }
+                })["useKnifePhysics.useEffect"];
+                return ({
+                    "useKnifePhysics.useEffect": ()=>{
+                        console.log('[useKnifePhysics] Terminating worker');
+                        worker.terminate();
+                    }
+                })["useKnifePhysics.useEffect"];
+            } catch (error) {
+                console.error('[useKnifePhysics] Failed to create worker:', error);
+            }
+        }
+    }["useKnifePhysics.useEffect"], [
+        targetRadius,
+        velocity,
+        rotationSpeed
+    ]);
+    // 칼 던지기
+    const throwKnife = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "useKnifePhysics.useCallback[throwKnife]": ()=>{
+            console.log('[useKnifePhysics] throwKnife called, isGameActive:', isGameActive, 'worker:', !!workerRef.current);
+            if (!isGameActive || !workerRef.current) {
+                console.log('[useKnifePhysics] Cannot throw knife - game inactive or no worker');
+                return;
+            }
+            const newKnife = {
+                id: knifeIdCounter.current++,
+                isStuck: false,
+                stuckAngle: 0,
+                thrownAt: Date.now(),
+                position: {
+                    x: 0,
+                    y: 250,
+                    rotation: 0
+                } // Initial position
+            };
+            console.log('[useKnifePhysics] Throwing knife:', newKnife);
+            workerRef.current.postMessage({
+                type: 'THROW',
+                payload: {
+                    knife: newKnife
+                }
+            });
+        }
+    }["useKnifePhysics.useCallback[throwKnife]"], [
+        isGameActive
+    ]);
+    // 모든 칼 위치 계산 (워커로부터 받은 데이터를 그대로 사용)
+    const getKnivesPositions = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "useKnifePhysics.useCallback[getKnivesPositions]": ()=>{
+            return knives.map({
+                "useKnifePhysics.useCallback[getKnivesPositions]": (knife)=>({
+                        knife,
+                        position: knife.position // 워커가 계산한 위치 정보 사용
+                    })
+            }["useKnifePhysics.useCallback[getKnivesPositions]"]);
+        }
+    }["useKnifePhysics.useCallback[getKnivesPositions]"], [
+        knives
+    ]);
+    // 판정 콜백 설정
+    const setHitCallback = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "useKnifePhysics.useCallback[setHitCallback]": (callback)=>{
+            hitCallbackRef.current = callback;
+        }
+    }["useKnifePhysics.useCallback[setHitCallback]"], []);
+    // 노트 데이터 설정 (판정을 위해 필요)
+    const setActiveNotes = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "useKnifePhysics.useCallback[setActiveNotes]": (notes)=>{
+            console.log('[useKnifePhysics] Setting active notes:', notes.length);
+            if (workerRef.current) {
+                workerRef.current.postMessage({
+                    type: 'SET_NOTES',
+                    payload: {
+                        notes
+                    }
+                });
+            }
+        }
+    }["useKnifePhysics.useCallback[setActiveNotes]"], []);
+    // 게임 리셋
+    const resetKnives = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "useKnifePhysics.useCallback[resetKnives]": ()=>{
+            if (workerRef.current) {
+                workerRef.current.postMessage({
+                    type: 'RESET'
+                });
+            }
+            setKnives([]);
+            knifeIdCounter.current = 0;
+        }
+    }["useKnifePhysics.useCallback[resetKnives]"], []);
+    // 꽂힌 칼 개수
+    const stuckKnivesCount = knives.filter((knife)=>knife.isStuck).length;
+    return {
+        knives,
+        throwKnife,
+        getKnivesPositions,
+        resetKnives,
+        stuckKnivesCount,
+        setHitCallback,
+        setActiveNotes
+    };
+};
+_s(useKnifePhysics, "ZkCguHWTzuuXHT8Va0LzIpBvl9Q=");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/renderer/components/game/ApproachCircle.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+// src/renderer/components/game/ApproachCircle.tsx
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+'use client';
+;
+const ApproachCircle = (param)=>{
+    let { radius, scale, opacity } = param;
+    const size = radius * 2 * scale;
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "absolute rounded-full border-4 border-white/80 pointer-events-none",
+        style: {
+            width: "".concat(size, "px"),
+            height: "".concat(size, "px"),
+            opacity,
+            boxShadow: '0 0 16px rgba(255,255,255,0.35)'
+        }
+    }, void 0, false, {
+        fileName: "[project]/src/renderer/components/game/ApproachCircle.tsx",
+        lineNumber: 15,
+        columnNumber: 5
+    }, ("TURBOPACK compile-time value", void 0));
+};
+_c = ApproachCircle;
+const __TURBOPACK__default__export__ = ApproachCircle;
+var _c;
+__turbopack_context__.k.register(_c, "ApproachCircle");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
 "[project]/src/renderer/components/game/JudgmentDisplay.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
@@ -1233,178 +1443,21 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }
 }),
-"[project]/src/renderer/hooks/physics.worker.ts (static in ecmascript)", ((__turbopack_context__) => {
-
-__turbopack_context__.v("/_next/static/media/physics.worker.8bd127d3.ts");}),
-"[project]/src/renderer/hooks/physics.worker.ts [app-client] (ecmascript, worker loader)", ((__turbopack_context__) => {
-
-__turbopack_context__.v(__turbopack_context__.b([
-  "static/chunks/src_renderer_hooks_physics_worker_ts_a1b3ec4e._.js",
-  "static/chunks/src_renderer_hooks_physics_worker_ts_b3f8fcd6._.js",
-  "static/chunks/turbopack-src_renderer_hooks_physics_worker_ts_cb33b361._.js"
-]));
-}),
-"[project]/src/renderer/hooks/useKnifePhysics.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
-"use strict";
-
-__turbopack_context__.s([
-    "useKnifePhysics",
-    ()=>useKnifePhysics
-]);
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
-const __TURBOPACK__import$2e$meta__ = {
-    get url () {
-        return `file://${__turbopack_context__.P("src/renderer/hooks/useKnifePhysics.ts")}`;
-    }
-};
-var _s = __turbopack_context__.k.signature();
-;
-const useKnifePhysics = (param)=>{
-    let { targetRadius, velocity = 400, rotationSpeed = 540, isGameActive } = param;
-    _s();
-    const [knives, setKnives] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
-    const workerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
-    const knifeIdCounter = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(0);
-    const hitCallbackRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "useKnifePhysics.useEffect": ()=>{
-            console.log('[useKnifePhysics] Initializing physics worker...');
-            try {
-                const worker = new Worker(__turbopack_context__.r("[project]/src/renderer/hooks/physics.worker.ts [app-client] (ecmascript, worker loader)"));
-                workerRef.current = worker;
-                console.log('[useKnifePhysics] Worker created, sending INIT message');
-                worker.postMessage({
-                    type: 'INIT',
-                    payload: {
-                        targetRadius,
-                        velocity,
-                        rotationSpeed
-                    }
-                });
-                worker.onmessage = ({
-                    "useKnifePhysics.useEffect": (e)=>{
-                        const { type, payload } = e.data;
-                        console.log('[useKnifePhysics] Worker message:', type, payload);
-                        if (type === 'UPDATE') {
-                            setKnives(payload.knives);
-                        } else if (type === 'HIT') {
-                            console.log('[useKnifePhysics] Hit detected at time:', payload.hitTime);
-                            if (hitCallbackRef.current) {
-                                hitCallbackRef.current(payload.hitTime);
-                            }
-                        }
-                    }
-                })["useKnifePhysics.useEffect"];
-                worker.onerror = ({
-                    "useKnifePhysics.useEffect": (error)=>{
-                        console.error('[useKnifePhysics] Worker error:', error);
-                    }
-                })["useKnifePhysics.useEffect"];
-                return ({
-                    "useKnifePhysics.useEffect": ()=>{
-                        console.log('[useKnifePhysics] Terminating worker');
-                        worker.terminate();
-                    }
-                })["useKnifePhysics.useEffect"];
-            } catch (error) {
-                console.error('[useKnifePhysics] Failed to create worker:', error);
-            }
-        }
-    }["useKnifePhysics.useEffect"], [
-        targetRadius,
-        velocity,
-        rotationSpeed
-    ]);
-    // 칼 던지기
-    const throwKnife = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "useKnifePhysics.useCallback[throwKnife]": ()=>{
-            console.log('[useKnifePhysics] throwKnife called, isGameActive:', isGameActive, 'worker:', !!workerRef.current);
-            if (!isGameActive || !workerRef.current) {
-                console.log('[useKnifePhysics] Cannot throw knife - game inactive or no worker');
-                return;
-            }
-            const newKnife = {
-                id: knifeIdCounter.current++,
-                isStuck: false,
-                stuckAngle: 0,
-                thrownAt: Date.now(),
-                position: {
-                    x: 0,
-                    y: 250,
-                    rotation: 0
-                } // Initial position
-            };
-            console.log('[useKnifePhysics] Throwing knife:', newKnife);
-            workerRef.current.postMessage({
-                type: 'THROW',
-                payload: {
-                    knife: newKnife
-                }
-            });
-        }
-    }["useKnifePhysics.useCallback[throwKnife]"], [
-        isGameActive
-    ]);
-    // 모든 칼 위치 계산 (워커로부터 받은 데이터를 그대로 사용)
-    const getKnivesPositions = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "useKnifePhysics.useCallback[getKnivesPositions]": ()=>{
-            return knives.map({
-                "useKnifePhysics.useCallback[getKnivesPositions]": (knife)=>({
-                        knife,
-                        position: knife.position // 워커가 계산한 위치 정보 사용
-                    })
-            }["useKnifePhysics.useCallback[getKnivesPositions]"]);
-        }
-    }["useKnifePhysics.useCallback[getKnivesPositions]"], [
-        knives
-    ]);
-    // 판정 콜백 설정
-    const setHitCallback = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "useKnifePhysics.useCallback[setHitCallback]": (callback)=>{
-            hitCallbackRef.current = callback;
-        }
-    }["useKnifePhysics.useCallback[setHitCallback]"], []);
-    // 게임 리셋
-    const resetKnives = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "useKnifePhysics.useCallback[resetKnives]": ()=>{
-            if (workerRef.current) {
-                workerRef.current.postMessage({
-                    type: 'RESET'
-                });
-            }
-            setKnives([]);
-            knifeIdCounter.current = 0;
-        }
-    }["useKnifePhysics.useCallback[resetKnives]"], []);
-    // 꽂힌 칼 개수
-    const stuckKnivesCount = knives.filter((knife)=>knife.isStuck).length;
-    return {
-        knives,
-        throwKnife,
-        getKnivesPositions,
-        resetKnives,
-        stuckKnivesCount,
-        setHitCallback
-    };
-};
-_s(useKnifePhysics, "9ZFL0zcu+ID0rmbGtDJQvlyf4go=");
-if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
-    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
-}
-}),
 "[project]/src/renderer/components/game/PinGameView.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
-// src/renderer/components/game/PinGameView.tsx
+// src/renderer/components/game/PinGameView.tsx - 정리된 버전
 __turbopack_context__.s([
     "default",
     ()=>__TURBOPACK__default__export__
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/styled-jsx/style.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useKnifePhysics$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/hooks/useKnifePhysics.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$ApproachCircle$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/components/game/ApproachCircle.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$JudgmentDisplay$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/components/game/JudgmentDisplay.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$AudioService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/lib/AudioService.ts [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useKnifePhysics$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/hooks/useKnifePhysics.ts [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
 'use client';
@@ -1412,233 +1465,123 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+;
+;
 const PinGameView = (param)=>{
     let { chart, onPinThrow, score, combo, judgment, noteSpeed } = param;
+    var _chart_notes;
     _s();
-    const [isThrowingKnife, setIsThrowingKnife] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    // Game state
     const [approachCircles, setApproachCircles] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [isThrowingKnife, setIsThrowingKnife] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const timeMsRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(0);
-    const targetRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
-    // 접근 시간 계산 (노트 속도에 따라 조정) - useMemo로 안정화
-    const APPROACH_TIME = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
-        "PinGameView.useMemo[APPROACH_TIME]": ()=>Math.max(400, 2000 - noteSpeed)
-    }["PinGameView.useMemo[APPROACH_TIME]"], [
-        noteSpeed
-    ]);
-    const TARGET_RADIUS = 128;
-    // 물리 엔진 초기화
-    const { knives, throwKnife: physicsThrowKnife, getKnivesPositions, resetKnives, stuckKnivesCount, setHitCallback } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useKnifePhysics$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useKnifePhysics"])({
-        targetRadius: TARGET_RADIUS,
+    // Physics system
+    const { knives, throwKnife: physicsThrowKnife, getKnivesPositions, setHitCallback, setActiveNotes } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useKnifePhysics$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useKnifePhysics"])({
+        targetRadius: 80,
         velocity: 400,
         rotationSpeed: 540,
-        isGameActive: true // Always active for now to debug
+        isGameActive: true
     });
-    // 디버깅 로그 추가
+    // Constants for approach circles
+    const APPROACH_TIME = 2000; // ms for circle to shrink
+    const TARGET_RADIUS = 80;
+    // Update game time
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "PinGameView.useEffect": ()=>{
-            var _chart_notes;
-            console.log('[PinGameView] Chart:', chart === null || chart === void 0 ? void 0 : chart.title);
-            console.log('[PinGameView] Knives count:', knives.length);
-            console.log('[PinGameView] Approach circles count:', approachCircles.length);
-            console.log('[PinGameView] Current time:', timeMsRef.current);
-            console.log('[PinGameView] Stuck knives count:', stuckKnivesCount);
-            console.log('[PinGameView] Notes in chart:', (chart === null || chart === void 0 ? void 0 : (_chart_notes = chart.notes) === null || _chart_notes === void 0 ? void 0 : _chart_notes.length) || 0);
-            console.log('[PinGameView] Audio service time:', __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$AudioService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["audioService"].getCurrentTime());
-        }
-    }["PinGameView.useEffect"], [
-        chart,
-        knives.length,
-        approachCircles.length,
-        stuckKnivesCount
-    ]);
-    // 접근 원 생성 로직 디버깅
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "PinGameView.useEffect": ()=>{
-            if (!(chart === null || chart === void 0 ? void 0 : chart.notes)) return;
-            const currentTimeMs = timeMsRef.current;
-            const upcomingNotes = chart.notes.filter({
-                "PinGameView.useEffect.upcomingNotes": (note)=>{
-                    const noteStartTime = note.time * 1000 - APPROACH_TIME;
-                    const noteEndTime = note.time * 1000 + 1000; // 1초 여유
-                    return currentTimeMs >= noteStartTime && currentTimeMs <= noteEndTime;
-                }
-            }["PinGameView.useEffect.upcomingNotes"]);
-            console.log('[PinGameView] Current time:', currentTimeMs, 'Upcoming notes:', upcomingNotes.length);
-            if (upcomingNotes.length > 0) {
-                console.log('[PinGameView] First upcoming note:', upcomingNotes[0]);
-            }
-        }
-    }["PinGameView.useEffect"], [
-        chart,
-        timeMsRef.current
-    ]);
-    // Set up internal timer for rendering, driven by the audio service
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "PinGameView.useEffect": ()=>{
-            let rafId;
-            const tick = {
-                "PinGameView.useEffect.tick": ()=>{
+            const interval = setInterval({
+                "PinGameView.useEffect.interval": ()=>{
                     timeMsRef.current = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$AudioService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["audioService"].getCurrentTime() * 1000;
-                    rafId = requestAnimationFrame(tick);
                 }
-            }["PinGameView.useEffect.tick"];
-            rafId = requestAnimationFrame(tick);
+            }["PinGameView.useEffect.interval"], 16);
             return ({
-                "PinGameView.useEffect": ()=>cancelAnimationFrame(rafId)
+                "PinGameView.useEffect": ()=>clearInterval(interval)
             })["PinGameView.useEffect"];
         }
     }["PinGameView.useEffect"], []);
-    // Clean up approach circles
+    // Initialize physics system with chart notes
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "PinGameView.useEffect": ()=>{
-            const intervalId = setInterval({
-                "PinGameView.useEffect.intervalId": ()=>{
-                    const currentTime = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$AudioService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["audioService"].getCurrentTime() * 1000;
-                    setApproachCircles({
-                        "PinGameView.useEffect.intervalId": (prevCircles)=>{
-                            const updatedCircles = prevCircles.map({
-                                "PinGameView.useEffect.intervalId.updatedCircles": (circle)=>({
-                                        ...circle,
-                                        scale: Math.max(0.1, 1 - (currentTime - circle.startTime) / APPROACH_TIME)
-                                    })
-                            }["PinGameView.useEffect.intervalId.updatedCircles"]).filter({
-                                "PinGameView.useEffect.intervalId.updatedCircles": (circle)=>currentTime - circle.startTime < APPROACH_TIME
-                            }["PinGameView.useEffect.intervalId.updatedCircles"]);
-                            // Only update if there's a meaningful change
-                            if (updatedCircles.length !== prevCircles.length || updatedCircles.some({
-                                "PinGameView.useEffect.intervalId": (circle, i)=>prevCircles[i] && Math.abs(circle.scale - prevCircles[i].scale) > 0.01
-                            }["PinGameView.useEffect.intervalId"])) {
-                                return updatedCircles;
-                            }
-                            return prevCircles;
-                        }
-                    }["PinGameView.useEffect.intervalId"]);
-                }
-            }["PinGameView.useEffect.intervalId"], 150);
-            return ({
-                "PinGameView.useEffect": ()=>clearInterval(intervalId)
-            })["PinGameView.useEffect"];
-        }
-    }["PinGameView.useEffect"], [
-        APPROACH_TIME
-    ]);
-    // Generate approach circles with interval-based updates
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "PinGameView.useEffect": ()=>{
-            if (!(chart === null || chart === void 0 ? void 0 : chart.notes)) {
-                console.log('[PinGameView] No chart or notes available');
-                return;
+            if (chart === null || chart === void 0 ? void 0 : chart.notes) {
+                console.log('[PinGameView] Setting active notes for physics:', chart.notes.length);
+                // Convert chart notes to physics format (time in milliseconds)
+                const physicsNotes = chart.notes.map({
+                    "PinGameView.useEffect.physicsNotes": (note)=>({
+                            time: note.time * 1000 // Convert to milliseconds
+                        })
+                }["PinGameView.useEffect.physicsNotes"]);
+                setActiveNotes(physicsNotes);
             }
-            console.log('[PinGameView] Setting up approach circle generation for', chart.notes.length, 'notes');
-            const intervalId = setInterval({
-                "PinGameView.useEffect.intervalId": ()=>{
-                    const currentTimeMs = timeMsRef.current;
-                    // FORCE CREATE APPROACH CIRCLES FOR DEBUGGING - Create circles for the first few notes regardless of timing
-                    const debugNotes = chart.notes.slice(0, 3);
-                    console.log('[PinGameView] FORCE DEBUG: Creating circles for first 3 notes at time:', currentTimeMs);
-                    const debugCircles = debugNotes.map({
-                        "PinGameView.useEffect.intervalId.debugCircles": (note, index)=>({
-                                id: "debug-circle-".concat(note.time, "-").concat(index),
-                                noteTime: note.time * 1000,
-                                startTime: currentTimeMs,
-                                uniqueKey: "debug-".concat(note.time, "-").concat(currentTimeMs, "-").concat(index),
-                                scale: 1
-                            })
-                    }["PinGameView.useEffect.intervalId.debugCircles"]);
-                    setApproachCircles({
-                        "PinGameView.useEffect.intervalId": (prev)=>{
-                            if (prev.length === 0) {
-                                console.log('[PinGameView] FORCE DEBUG: Adding', debugCircles.length, 'debug approach circles');
-                                return debugCircles;
-                            }
-                            return prev;
-                        }
-                    }["PinGameView.useEffect.intervalId"]);
-                    // Original logic for upcoming notes
-                    const upcomingNotes = chart.notes.filter({
-                        "PinGameView.useEffect.intervalId.upcomingNotes": (note)=>{
-                            const noteTimeMs = note.time * 1000;
-                            const isUpcoming = noteTimeMs > currentTimeMs && noteTimeMs <= currentTimeMs + APPROACH_TIME;
-                            return isUpcoming;
-                        }
-                    }["PinGameView.useEffect.intervalId.upcomingNotes"]);
-                    if (upcomingNotes.length > 0) {
-                        console.log('[PinGameView] Found', upcomingNotes.length, 'upcoming notes at time:', currentTimeMs);
+        }
+    }["PinGameView.useEffect"], [
+        chart,
+        setActiveNotes
+    ]);
+    // Handle physics hit callback
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PinGameView.useEffect": ()=>{
+            const handleHit = {
+                "PinGameView.useEffect.handleHit": (hitData)=>{
+                    console.log('[PinGameView] Physics hit:', hitData);
+                    // hitData now contains: { hitTime, timingError, judgment, noteId, accuracy }
+                    if (hitData.judgment) {
+                        onPinThrow(hitData.judgment);
                     }
-                    const newCircles = upcomingNotes.map({
-                        "PinGameView.useEffect.intervalId.newCircles": (note)=>({
-                                id: "circle-".concat(note.time),
-                                noteTime: note.time * 1000,
-                                startTime: currentTimeMs,
-                                uniqueKey: "".concat(note.time, "-").concat(currentTimeMs),
-                                scale: 1
-                            })
-                    }["PinGameView.useEffect.intervalId.newCircles"]);
-                    setApproachCircles({
-                        "PinGameView.useEffect.intervalId": (prev)=>{
-                            const existingIds = new Set(prev.map({
-                                "PinGameView.useEffect.intervalId": (c)=>c.id
-                            }["PinGameView.useEffect.intervalId"]));
-                            const filteredNew = newCircles.filter({
-                                "PinGameView.useEffect.intervalId.filteredNew": (c)=>!existingIds.has(c.id)
-                            }["PinGameView.useEffect.intervalId.filteredNew"]);
-                            if (filteredNew.length > 0) {
-                                console.log('[PinGameView] Adding', filteredNew.length, 'new approach circles');
-                                return [
-                                    ...prev,
-                                    ...filteredNew
-                                ];
-                            }
-                            return prev;
-                        }
-                    }["PinGameView.useEffect.intervalId"]);
                 }
-            }["PinGameView.useEffect.intervalId"], 100); // Check every 100ms for new notes
-            return ({
-                "PinGameView.useEffect": ()=>clearInterval(intervalId)
-            })["PinGameView.useEffect"];
+            }["PinGameView.useEffect.handleHit"];
+            setHitCallback(handleHit);
         }
     }["PinGameView.useEffect"], [
-        chart === null || chart === void 0 ? void 0 : chart.notes,
-        APPROACH_TIME
-    ]);
-    // GameController와 연동하여 판정 처리
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "PinGameView.useEffect": ()=>{
-            setHitCallback({
-                "PinGameView.useEffect": (hitTime)=>{
-                    // 물리 엔진에서 칼이 목표물에 도달했을 때 GameController의 판정 로직 호출
-                    onPinThrow(); // 이미 onPinThrow가 GameController.handlePinPress를 호출함
-                }
-            }["PinGameView.useEffect"]);
-        }
-    }["PinGameView.useEffect"], [
-        onPinThrow,
-        setHitCallback
-    ]);
-    // FORCE THROW KNIFE FOR DEBUGGING - Throw a knife every 2 seconds
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "PinGameView.useEffect": ()=>{
-            console.log('[PinGameView] Setting up auto knife throwing for debugging');
-            const intervalId = setInterval({
-                "PinGameView.useEffect.intervalId": ()=>{
-                    console.log('[PinGameView] FORCE DEBUG: Throwing knife automatically');
-                    physicsThrowKnife();
-                }
-            }["PinGameView.useEffect.intervalId"], 2000);
-            return ({
-                "PinGameView.useEffect": ()=>clearInterval(intervalId)
-            })["PinGameView.useEffect"];
-        }
-    }["PinGameView.useEffect"], [
-        physicsThrowKnife,
+        setHitCallback,
         onPinThrow
     ]);
+    // Generate approach circles for upcoming notes
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PinGameView.useEffect": ()=>{
+            if (!(chart === null || chart === void 0 ? void 0 : chart.notes)) return;
+            const interval = setInterval({
+                "PinGameView.useEffect.interval": ()=>{
+                    const currentTime = timeMsRef.current;
+                    // Find notes that should have approach circles
+                    const upcomingNotes = chart.notes.filter({
+                        "PinGameView.useEffect.interval.upcomingNotes": (note)=>{
+                            const noteTimeMs = note.time * 1000;
+                            const timeUntilNote = noteTimeMs - currentTime;
+                            return timeUntilNote > 0 && timeUntilNote <= APPROACH_TIME;
+                        }
+                    }["PinGameView.useEffect.interval.upcomingNotes"]);
+                    // Create approach circles for new notes
+                    const newCircles = upcomingNotes.map({
+                        "PinGameView.useEffect.interval.newCircles": (note)=>{
+                            const noteTimeMs = note.time * 1000;
+                            const timeUntilNote = noteTimeMs - currentTime;
+                            const scale = Math.max(0.1, timeUntilNote / APPROACH_TIME);
+                            return {
+                                id: "circle-".concat(note.time),
+                                noteTime: noteTimeMs,
+                                startTime: currentTime - (APPROACH_TIME - timeUntilNote),
+                                scale
+                            };
+                        }
+                    }["PinGameView.useEffect.interval.newCircles"]);
+                    setApproachCircles(newCircles);
+                }
+            }["PinGameView.useEffect.interval"], 100);
+            return ({
+                "PinGameView.useEffect": ()=>clearInterval(interval)
+            })["PinGameView.useEffect"];
+        }
+    }["PinGameView.useEffect"], [
+        chart,
+        APPROACH_TIME
+    ]);
+    // Handle knife throwing
     const handleThrowKnife = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "PinGameView.useCallback[handleThrowKnife]": ()=>{
             if (isThrowingKnife) return;
+            console.log('[PinGameView] Throwing knife at time:', timeMsRef.current);
             setIsThrowingKnife(true);
-            physicsThrowKnife(); // 물리 엔진에서 칼 던지기 (판정은 칼이 도달할 때 자동 처리)
+            physicsThrowKnife();
+            // Reset throwing state
             setTimeout({
                 "PinGameView.useCallback[handleThrowKnife]": ()=>setIsThrowingKnife(false)
             }["PinGameView.useCallback[handleThrowKnife]"], 150);
@@ -1647,414 +1590,205 @@ const PinGameView = (param)=>{
         isThrowingKnife,
         physicsThrowKnife
     ]);
-    const handleKeyDown = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "PinGameView.useCallback[handleKeyDown]": (event)=>{
-            console.log('[PinGameView] Key pressed:', event.code, event.key);
-            if (event.code === 'KeyS' && !isThrowingKnife) {
-                console.log('[PinGameView] S key pressed - throwing knife!');
-                handleThrowKnife();
-            }
-        }
-    }["PinGameView.useCallback[handleKeyDown]"], [
-        isThrowingKnife,
-        handleThrowKnife
-    ]);
+    // Keyboard input
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "PinGameView.useEffect": ()=>{
+            const handleKeyDown = {
+                "PinGameView.useEffect.handleKeyDown": (event)=>{
+                    if (event.code === 'KeyS' && !isThrowingKnife) {
+                        handleThrowKnife();
+                    }
+                }
+            }["PinGameView.useEffect.handleKeyDown"];
             window.addEventListener('keydown', handleKeyDown);
             return ({
                 "PinGameView.useEffect": ()=>window.removeEventListener('keydown', handleKeyDown)
             })["PinGameView.useEffect"];
         }
     }["PinGameView.useEffect"], [
-        handleKeyDown
+        handleThrowKnife,
+        isThrowingKnife
     ]);
-    // FORCE CONSOLE LOG ON EVERY RENDER
-    console.log('[PinGameView RENDER] Component is rendering!', {
-        chart: !!chart,
-        knivesCount: knives.length,
-        circlesCount: approachCircles.length,
-        gameTime: timeMsRef.current
-    });
+    // Get knife positions for rendering
+    const knifePositions = getKnivesPositions();
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "min-h-screen relative overflow-hidden flex flex-col items-center justify-center",
-        style: {
-            // FORCE VISIBLE BACKGROUND
-            backgroundColor: 'rgba(255, 0, 0, 0.5)',
-            border: '10px solid yellow',
-            zIndex: 9999
-        },
+        className: "jsx-532d500bfc6d5d04" + " " + "min-h-screen relative overflow-hidden flex flex-col items-center justify-center bg-gray-900",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "fixed top-0 left-0 w-full bg-red-500 text-white p-6 z-50",
-                style: {
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    boxShadow: '0 0 50px rgba(255, 0, 0, 1)',
-                    zIndex: 99999
-                },
+                className: "jsx-532d500bfc6d5d04" + " " + "relative w-full h-full flex items-center justify-center",
                 children: [
-                    "🎯 PinGameView IS RENDERING! Time: ",
-                    timeMsRef.current.toFixed(0),
-                    "ms | Knives: ",
-                    knives.length,
-                    " | Circles: ",
-                    approachCircles.length
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            animation: 'spin 5s linear infinite'
+                        },
+                        className: "jsx-532d500bfc6d5d04" + " " + "absolute w-40 h-40 rounded-full border-4 border-white flex items-center justify-center",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "jsx-532d500bfc6d5d04" + " " + "text-white text-lg font-bold",
+                            children: "TARGET"
+                        }, void 0, false, {
+                            fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                            lineNumber: 163,
+                            columnNumber: 11
+                        }, ("TURBOPACK compile-time value", void 0))
+                    }, void 0, false, {
+                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                        lineNumber: 157,
+                        columnNumber: 9
+                    }, ("TURBOPACK compile-time value", void 0)),
+                    approachCircles.map((circle)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$ApproachCircle$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                            radius: TARGET_RADIUS,
+                            scale: circle.scale,
+                            opacity: Math.max(0.3, circle.scale)
+                        }, circle.id, false, {
+                            fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                            lineNumber: 168,
+                            columnNumber: 11
+                        }, ("TURBOPACK compile-time value", void 0))),
+                    knifePositions.map((param)=>{
+                        let { knife, position } = param;
+                        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            style: {
+                                left: "calc(50% + ".concat(position.x, "px)"),
+                                top: "calc(50% + ".concat(position.y, "px)"),
+                                transform: "translate(-50%, -50%) rotate(".concat(position.rotation, "deg)"),
+                                transformOrigin: 'center center'
+                            },
+                            className: "jsx-532d500bfc6d5d04" + " " + "absolute w-4 h-16 bg-gray-300"
+                        }, knife.id, false, {
+                            fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                            lineNumber: 178,
+                            columnNumber: 11
+                        }, ("TURBOPACK compile-time value", void 0));
+                    })
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                lineNumber: 248,
+                lineNumber: 155,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "absolute top-8 left-8 text-white z-20 bg-black/30 p-4 rounded-xl backdrop-blur-sm border border-white/10 shadow-lg",
+                className: "jsx-532d500bfc6d5d04" + " " + "absolute top-4 left-4 text-white text-lg",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "text-3xl font-bold tracking-tighter",
+                        className: "jsx-532d500bfc6d5d04",
                         children: [
                             "Score: ",
                             score
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 262,
+                        lineNumber: 193,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "text-xl mt-1",
+                        className: "jsx-532d500bfc6d5d04",
                         children: [
                             "Combo: ",
                             combo
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 263,
-                        columnNumber: 9
-                    }, ("TURBOPACK compile-time value", void 0))
-                ]
-            }, void 0, true, {
-                fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                lineNumber: 261,
-                columnNumber: 7
-            }, ("TURBOPACK compile-time value", void 0)),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "relative w-96 h-96 flex items-center justify-center",
-                children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "absolute inset-0 flex items-center justify-center",
-                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "w-64 h-64 bg-red-500/20 rounded-full border-4 border-red-500 shadow-lg",
-                            style: {
-                                boxShadow: '0 0 30px rgba(239, 68, 68, 0.5)'
-                            }
-                        }, void 0, false, {
-                            fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                            lineNumber: 270,
-                            columnNumber: 11
-                        }, ("TURBOPACK compile-time value", void 0))
-                    }, void 0, false, {
-                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 269,
-                        columnNumber: 9
-                    }, ("TURBOPACK compile-time value", void 0)),
-                    approachCircles.map((circle)=>{
-                        const nowMs = timeMsRef.current;
-                        const timeElapsed = nowMs - circle.startTime;
-                        const progress = Math.min(1, timeElapsed / APPROACH_TIME);
-                        // Start large and shrink to target size (ensure perfect circle)
-                        const maxSize = 400;
-                        const minSize = 256; // Target circle size
-                        const currentSize = maxSize - progress * (maxSize - minSize);
-                        // Fade out as it approaches the target
-                        const opacity = Math.max(0.4, 1 - progress * 0.6);
-                        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "absolute inset-0 flex items-center justify-center pointer-events-none",
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "rounded-full border-4 border-blue-400",
-                                style: {
-                                    width: "".concat(currentSize, "px"),
-                                    height: "".concat(currentSize, "px"),
-                                    opacity,
-                                    boxShadow: "0 0 20px rgba(96, 165, 250, ".concat(opacity * 0.8, ")"),
-                                    transition: 'none',
-                                    aspectRatio: '1',
-                                    flexShrink: 0
-                                }
-                            }, void 0, false, {
-                                fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                lineNumber: 295,
-                                columnNumber: 15
-                            }, ("TURBOPACK compile-time value", void 0))
-                        }, circle.uniqueKey, false, {
-                            fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                            lineNumber: 291,
-                            columnNumber: 13
-                        }, ("TURBOPACK compile-time value", void 0));
-                    }),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "absolute inset-0 flex items-center justify-center pointer-events-none z-50",
-                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "rounded-full border-8 border-yellow-400 animate-pulse",
-                            style: {
-                                width: '300px',
-                                height: '300px',
-                                opacity: 1.0,
-                                boxShadow: '0 0 50px rgba(255, 255, 0, 1.0), inset 0 0 30px rgba(255, 255, 0, 0.3)',
-                                backgroundColor: 'rgba(255, 255, 0, 0.4)',
-                                transform: 'scale(1.1)'
-                            },
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "absolute inset-4 rounded-full border-4 border-red-500 bg-red-500/20"
-                            }, void 0, false, {
-                                fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                lineNumber: 324,
-                                columnNumber: 13
-                            }, ("TURBOPACK compile-time value", void 0))
-                        }, void 0, false, {
-                            fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                            lineNumber: 313,
-                            columnNumber: 11
-                        }, ("TURBOPACK compile-time value", void 0))
-                    }, void 0, false, {
-                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 312,
+                        lineNumber: 194,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "absolute top-0 left-0 bg-red-500 text-white p-4 z-50 text-lg font-bold",
+                        className: "jsx-532d500bfc6d5d04",
                         children: [
-                            "PinGameView is rendering!",
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
-                                fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                lineNumber: 331,
-                                columnNumber: 11
-                            }, ("TURBOPACK compile-time value", void 0)),
-                            "Circles: ",
-                            approachCircles.length,
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
-                                fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                lineNumber: 332,
-                                columnNumber: 11
-                            }, ("TURBOPACK compile-time value", void 0)),
                             "Knives: ",
-                            knives.length,
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
-                                fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                lineNumber: 333,
-                                columnNumber: 11
-                            }, ("TURBOPACK compile-time value", void 0)),
-                            "Time: ",
-                            timeMsRef.current.toFixed(0),
-                            "ms"
+                            knives.length
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 329,
-                        columnNumber: 9
-                    }, ("TURBOPACK compile-time value", void 0)),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        ref: targetRef,
-                        className: "absolute inset-0 flex items-center justify-center z-10 animate-spin",
-                        style: {
-                            animationDuration: '3s',
-                            animationTimingFunction: 'linear'
-                        },
-                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "w-8 h-8 bg-gray-600 rounded-full border-2 border-gray-400 shadow-lg"
-                        }, void 0, false, {
-                            fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                            lineNumber: 343,
-                            columnNumber: 11
-                        }, ("TURBOPACK compile-time value", void 0))
-                    }, void 0, false, {
-                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 337,
-                        columnNumber: 9
-                    }, ("TURBOPACK compile-time value", void 0)),
-                    getKnivesPositions().map((param)=>{
-                        let { knife, position } = param;
-                        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "absolute left-1/2 top-1/2 z-20",
-                            style: {
-                                // Center first, then move to (x,y), then rotate
-                                transform: "translate(-50%, -50%) translate(".concat(position.x, "px, ").concat(position.y, "px) rotate(").concat(position.rotation, "deg)")
-                            },
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
-                                width: "18",
-                                height: "64",
-                                viewBox: "0 0 18 64",
-                                fill: "none",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
-                                        d: "M9 2 L16 34 L2 34 Z",
-                                        fill: "#d1d5db",
-                                        stroke: "#e5e7eb",
-                                        strokeWidth: "1"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                        lineNumber: 357,
-                                        columnNumber: 15
-                                    }, ("TURBOPACK compile-time value", void 0)),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("rect", {
-                                        x: "3",
-                                        y: "34",
-                                        width: "12",
-                                        height: "4",
-                                        rx: "2",
-                                        fill: "#9ca3af"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                        lineNumber: 358,
-                                        columnNumber: 15
-                                    }, ("TURBOPACK compile-time value", void 0)),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("rect", {
-                                        x: "5.5",
-                                        y: "38",
-                                        width: "7",
-                                        height: "18",
-                                        rx: "2",
-                                        fill: "#92400e"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                        lineNumber: 359,
-                                        columnNumber: 15
-                                    }, ("TURBOPACK compile-time value", void 0)),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
-                                        cx: "9",
-                                        cy: "58",
-                                        r: "4",
-                                        fill: "#78350f"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                        lineNumber: 360,
-                                        columnNumber: 15
-                                    }, ("TURBOPACK compile-time value", void 0))
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                lineNumber: 356,
-                                columnNumber: 13
-                            }, ("TURBOPACK compile-time value", void 0))
-                        }, knife.id, false, {
-                            fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                            lineNumber: 348,
-                            columnNumber: 11
-                        }, ("TURBOPACK compile-time value", void 0));
-                    }),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "absolute left-1/2 top-1/2 z-20 animate-bounce",
-                        style: {
-                            transform: "translate(-50%, -50%) translate(0px, 100px) rotate(0deg)",
-                            filter: 'drop-shadow(0 0 10px rgba(255, 0, 0, 0.8))'
-                        },
-                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
-                            width: "24",
-                            height: "80",
-                            viewBox: "0 0 24 80",
-                            fill: "none",
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
-                                    d: "M12 2 L20 40 L4 40 Z",
-                                    fill: "#ff0000",
-                                    stroke: "#ffffff",
-                                    strokeWidth: "2"
-                                }, void 0, false, {
-                                    fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                    lineNumber: 374,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("rect", {
-                                    x: "4",
-                                    y: "40",
-                                    width: "16",
-                                    height: "6",
-                                    rx: "3",
-                                    fill: "#ff0000",
-                                    stroke: "#ffffff",
-                                    strokeWidth: "1"
-                                }, void 0, false, {
-                                    fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                    lineNumber: 375,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("rect", {
-                                    x: "7",
-                                    y: "46",
-                                    width: "10",
-                                    height: "24",
-                                    rx: "3",
-                                    fill: "#cc0000",
-                                    stroke: "#ffffff",
-                                    strokeWidth: "1"
-                                }, void 0, false, {
-                                    fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                    lineNumber: 376,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
-                                    cx: "12",
-                                    cy: "72",
-                                    r: "6",
-                                    fill: "#990000",
-                                    stroke: "#ffffff",
-                                    strokeWidth: "1"
-                                }, void 0, false, {
-                                    fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                    lineNumber: 377,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0))
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                            lineNumber: 373,
-                            columnNumber: 11
-                        }, ("TURBOPACK compile-time value", void 0))
-                    }, void 0, false, {
-                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 366,
-                        columnNumber: 9
-                    }, ("TURBOPACK compile-time value", void 0)),
-                    combo > 2 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "absolute -bottom-20 text-5xl font-black text-yellow-300 animate-pulse z-30",
-                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                            style: {
-                                textShadow: '0 0 15px rgba(253, 224, 71, 0.8)'
-                            },
-                            children: [
-                                combo,
-                                " COMBO!"
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                            lineNumber: 384,
-                            columnNumber: 13
-                        }, ("TURBOPACK compile-time value", void 0))
-                    }, void 0, false, {
-                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 383,
-                        columnNumber: 11
-                    }, ("TURBOPACK compile-time value", void 0)),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$JudgmentDisplay$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                        judgment: judgment
-                    }, void 0, false, {
-                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 391,
+                        lineNumber: 195,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                lineNumber: 267,
+                lineNumber: 192,
                 columnNumber: 7
-            }, ("TURBOPACK compile-time value", void 0))
+            }, ("TURBOPACK compile-time value", void 0)),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$JudgmentDisplay$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                judgment: judgment
+            }, void 0, false, {
+                fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                lineNumber: 199,
+                columnNumber: 7
+            }, ("TURBOPACK compile-time value", void 0)),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "jsx-532d500bfc6d5d04" + " " + "absolute bottom-4 left-4 text-white text-sm",
+                children: "Press S to throw knife"
+            }, void 0, false, {
+                fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                lineNumber: 202,
+                columnNumber: 7
+            }, ("TURBOPACK compile-time value", void 0)),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "jsx-532d500bfc6d5d04" + " " + "absolute top-4 right-4 bg-black/50 text-white p-2 text-sm rounded",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "jsx-532d500bfc6d5d04",
+                        children: [
+                            "Chart: ",
+                            chart === null || chart === void 0 ? void 0 : chart.title
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                        lineNumber: 208,
+                        columnNumber: 9
+                    }, ("TURBOPACK compile-time value", void 0)),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "jsx-532d500bfc6d5d04",
+                        children: [
+                            "Notes: ",
+                            (chart === null || chart === void 0 ? void 0 : (_chart_notes = chart.notes) === null || _chart_notes === void 0 ? void 0 : _chart_notes.length) || 0
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                        lineNumber: 209,
+                        columnNumber: 9
+                    }, ("TURBOPACK compile-time value", void 0)),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "jsx-532d500bfc6d5d04",
+                        children: [
+                            "Time: ",
+                            (timeMsRef.current / 1000).toFixed(1),
+                            "s"
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                        lineNumber: 210,
+                        columnNumber: 9
+                    }, ("TURBOPACK compile-time value", void 0)),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "jsx-532d500bfc6d5d04",
+                        children: [
+                            "Circles: ",
+                            approachCircles.length
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                        lineNumber: 211,
+                        columnNumber: 9
+                    }, ("TURBOPACK compile-time value", void 0))
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                lineNumber: 207,
+                columnNumber: 7
+            }, ("TURBOPACK compile-time value", void 0)),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                id: "532d500bfc6d5d04",
+                children: "@keyframes spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}"
+            }, void 0, false, void 0, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-        lineNumber: 238,
+        lineNumber: 153,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(PinGameView, "mMHbF5Ox8gjqoS+PmQ5C4vLyjzM=", false, function() {
+_s(PinGameView, "j3CptftLF5rYp60SgaLKtmNMOLw=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useKnifePhysics$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useKnifePhysics"]
     ];
@@ -2136,42 +1870,6 @@ function hitAlpha(nowMs, spawnTimeMs, preemptMs) {
     // smoothstep
     return x * x * (3 - 2 * x);
 }
-if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
-    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
-}
-}),
-"[project]/src/renderer/components/game/ApproachCircle.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
-"use strict";
-
-// src/renderer/components/game/ApproachCircle.tsx
-__turbopack_context__.s([
-    "default",
-    ()=>__TURBOPACK__default__export__
-]);
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
-'use client';
-;
-const ApproachCircle = (param)=>{
-    let { radius, scale, opacity } = param;
-    const size = radius * 2 * scale;
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "absolute rounded-full border-4 border-white/80 pointer-events-none",
-        style: {
-            width: "".concat(size, "px"),
-            height: "".concat(size, "px"),
-            opacity,
-            boxShadow: '0 0 16px rgba(255,255,255,0.35)'
-        }
-    }, void 0, false, {
-        fileName: "[project]/src/renderer/components/game/ApproachCircle.tsx",
-        lineNumber: 15,
-        columnNumber: 5
-    }, ("TURBOPACK compile-time value", void 0));
-};
-_c = ApproachCircle;
-const __TURBOPACK__default__export__ = ApproachCircle;
-var _c;
-__turbopack_context__.k.register(_c, "ApproachCircle");
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }
@@ -4941,4 +4639,4 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 }),
 ]);
 
-//# sourceMappingURL=src_renderer_e61345f3._.js.map
+//# sourceMappingURL=src_renderer_d87a737f._.js.map

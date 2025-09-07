@@ -410,8 +410,11 @@ class ChartImportService {
             })),
             gameMode: (() => {
                 console.log(`[ChartImportService] PARSED MODE DEBUG:`, parsed.mode);
-                console.log(`[ChartImportService] Will set gameMode to:`, (parsed.mode === 0) ? 'osu' : 'pin');
-                return (parsed.mode === 0) ? 'osu' : 'pin';
+                // Default to 'pin' mode for our knife-throwing game
+                // Only use 'osu' mode if explicitly requested or in special cases
+                const gameMode = 'pin'; // Default to pin mode for all charts
+                console.log(`[ChartImportService] Setting gameMode to: ${gameMode} (always pin for knife game)`);
+                return gameMode;
             })(),
             metadata: {
                 version: difficulty.version,

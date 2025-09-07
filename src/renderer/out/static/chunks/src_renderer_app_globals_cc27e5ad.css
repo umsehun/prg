@@ -937,6 +937,10 @@
     bottom: calc(var(--spacing) * 0);
   }
 
+  .bottom-4 {
+    bottom: calc(var(--spacing) * 4);
+  }
+
   .bottom-12 {
     bottom: calc(var(--spacing) * 12);
   }
@@ -1248,6 +1252,10 @@
 
   .w-2\/3 {
     width: 66.6667%;
+  }
+
+  .w-4 {
+    width: calc(var(--spacing) * 4);
   }
 
   .w-5 {
@@ -1691,6 +1699,10 @@
 
   .bg-cyan-400 {
     background-color: var(--color-cyan-400);
+  }
+
+  .bg-gray-300 {
+    background-color: var(--color-gray-300);
   }
 
   .bg-gray-600 {

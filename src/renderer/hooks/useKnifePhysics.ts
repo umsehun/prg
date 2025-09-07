@@ -30,7 +30,7 @@ export const useKnifePhysics = ({
     const [knives, setKnives] = useState<Knife[]>([]);
     const workerRef = useRef<Worker | null>(null);
     const knifeIdCounter = useRef(0);
-    const hitCallbackRef = useRef<((hitTime: number) => void) | null>(null);
+    const hitCallbackRef = useRef<((hitData: any) => void) | null>(null);
 
     useEffect(() => {
         console.log('[useKnifePhysics] Initializing physics worker...');
@@ -47,9 +47,9 @@ export const useKnifePhysics = ({
                 if (type === 'UPDATE') {
                     setKnives(payload.knives);
                 } else if (type === 'HIT') {
-                    console.log('[useKnifePhysics] Hit detected at time:', payload.hitTime);
+                    console.log('[useKnifePhysics] Hit detected:', payload);
                     if (hitCallbackRef.current) {
-                        hitCallbackRef.current(payload.hitTime);
+                        hitCallbackRef.current(payload);
                     }
                 }
             };
@@ -96,8 +96,16 @@ export const useKnifePhysics = ({
     }, [knives]);
 
     // 판정 콜백 설정
-    const setHitCallback = useCallback((callback: (hitTime: number) => void) => {
+    const setHitCallback = useCallback((callback: (hitData: any) => void) => {
         hitCallbackRef.current = callback;
+    }, []);
+
+    // 노트 데이터 설정 (판정을 위해 필요)
+    const setActiveNotes = useCallback((notes: Array<{ time: number }>) => {
+        console.log('[useKnifePhysics] Setting active notes:', notes.length);
+        if (workerRef.current) {
+            workerRef.current.postMessage({ type: 'SET_NOTES', payload: { notes } });
+        }
     }, []);
 
     // 게임 리셋
@@ -118,6 +126,7 @@ export const useKnifePhysics = ({
         getKnivesPositions,
         resetKnives,
         stuckKnivesCount,
-        setHitCallback
+        setHitCallback,
+        setActiveNotes
     };
 };

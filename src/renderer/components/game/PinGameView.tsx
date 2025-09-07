@@ -1,26 +1,26 @@
-// src/renderer/components/game/PinGameView.tsx
+// src/renderer/components/game/PinGameView.tsx - 정리된 버전
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useKnifePhysics } from '../../hooks/useKnifePhysics';
+import ApproachCircle from './ApproachCircle';
 import JudgmentDisplay from './JudgmentDisplay';
 import { Note, Judgment, PinChart } from '../../../shared/types';
 import { audioService } from '../../lib/AudioService';
-import { useKnifePhysics } from '../../hooks/useKnifePhysics';
 
 interface PinGameViewProps {
-  chart: PinChart | null;
-  onPinThrow: () => void;
+  chart: PinChart;
+  onPinThrow: (judgment: Judgment) => void;
   score: number;
   combo: number;
   judgment: Judgment | null;
   noteSpeed: number;
 }
 
-interface ApproachCircle {
+interface ApproachCircleData {
   id: string;
   noteTime: number;
   startTime: number;
-  uniqueKey: string;
   scale: number;
 }
 
@@ -30,366 +30,194 @@ const PinGameView: React.FC<PinGameViewProps> = ({
   score,
   combo,
   judgment,
-  noteSpeed,
+  noteSpeed
 }) => {
+  // Game state
+  const [approachCircles, setApproachCircles] = useState<ApproachCircleData[]>([]);
   const [isThrowingKnife, setIsThrowingKnife] = useState(false);
-  const [approachCircles, setApproachCircles] = useState<ApproachCircle[]>([]);
-  const timeMsRef = useRef<number>(0);
-  const targetRef = useRef<HTMLDivElement>(null);
+  const timeMsRef = useRef(0);
 
-  // 접근 시간 계산 (노트 속도에 따라 조정) - useMemo로 안정화
-  const APPROACH_TIME = useMemo(() => Math.max(400, 2000 - noteSpeed), [noteSpeed]);
-  const TARGET_RADIUS = 128;
-
-  // 물리 엔진 초기화
-  const {
-    knives,
-    throwKnife: physicsThrowKnife,
-    getKnivesPositions,
-    resetKnives,
-    stuckKnivesCount,
-    setHitCallback
+  // Physics system
+  const { 
+    knives, 
+    throwKnife: physicsThrowKnife, 
+    getKnivesPositions, 
+    setHitCallback,
+    setActiveNotes 
   } = useKnifePhysics({
-    targetRadius: TARGET_RADIUS,
+    targetRadius: 80,
     velocity: 400,
     rotationSpeed: 540,
-    isGameActive: true // Always active for now to debug
+    isGameActive: true
   });
 
-  // 디버깅 로그 추가
-  useEffect(() => {
-    console.log('[PinGameView] Chart:', chart?.title);
-    console.log('[PinGameView] Knives count:', knives.length);
-    console.log('[PinGameView] Approach circles count:', approachCircles.length);
-    console.log('[PinGameView] Current time:', timeMsRef.current);
-    console.log('[PinGameView] Stuck knives count:', stuckKnivesCount);
-    console.log('[PinGameView] Notes in chart:', chart?.notes?.length || 0);
-    console.log('[PinGameView] Audio service time:', audioService.getCurrentTime());
-  }, [chart, knives.length, approachCircles.length, stuckKnivesCount]);
+  // Constants for approach circles
+  const APPROACH_TIME = 2000; // ms for circle to shrink
+  const TARGET_RADIUS = 80;
 
-  // 접근 원 생성 로직 디버깅
+  // Update game time
+  useEffect(() => {
+    const interval = setInterval(() => {
+      timeMsRef.current = audioService.getCurrentTime() * 1000;
+    }, 16);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Initialize physics system with chart notes
+  useEffect(() => {
+    if (chart?.notes) {
+      console.log('[PinGameView] Setting active notes for physics:', chart.notes.length);
+      // Convert chart notes to physics format (time in milliseconds)
+      const physicsNotes = chart.notes.map(note => ({
+        time: note.time * 1000 // Convert to milliseconds
+      }));
+      setActiveNotes(physicsNotes);
+    }
+  }, [chart, setActiveNotes]);
+
+  // Handle physics hit callback
+  useEffect(() => {
+    const handleHit = (hitData: any) => {
+      console.log('[PinGameView] Physics hit:', hitData);
+      // hitData now contains: { hitTime, timingError, judgment, noteId, accuracy }
+      if (hitData.judgment) {
+        onPinThrow(hitData.judgment);
+      }
+    };
+
+    setHitCallback(handleHit);
+  }, [setHitCallback, onPinThrow]);
+
+  // Generate approach circles for upcoming notes
   useEffect(() => {
     if (!chart?.notes) return;
 
-    const currentTimeMs = timeMsRef.current;
-    const upcomingNotes = chart.notes.filter(note => {
-      const noteStartTime = note.time * 1000 - APPROACH_TIME;
-      const noteEndTime = note.time * 1000 + 1000; // 1초 여유
-      return currentTimeMs >= noteStartTime && currentTimeMs <= noteEndTime;
-    });
-
-    console.log('[PinGameView] Current time:', currentTimeMs, 'Upcoming notes:', upcomingNotes.length);
-    
-    if (upcomingNotes.length > 0) {
-      console.log('[PinGameView] First upcoming note:', upcomingNotes[0]);
-    }
-  }, [chart, timeMsRef.current]);
-
-  // Set up internal timer for rendering, driven by the audio service
-  useEffect(() => {
-    let rafId: number;
-    const tick = () => {
-      timeMsRef.current = audioService.getCurrentTime() * 1000;
-      rafId = requestAnimationFrame(tick);
-    };
-    rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
-  }, []);
-
-  // Clean up approach circles
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      const currentTime = audioService.getCurrentTime() * 1000;
-
-      setApproachCircles(prevCircles => {
-        const updatedCircles = prevCircles.map(circle => ({
-          ...circle,
-          scale: Math.max(0.1, 1 - (currentTime - circle.startTime) / APPROACH_TIME)
-        })).filter(circle => currentTime - circle.startTime < APPROACH_TIME);
-
-        // Only update if there's a meaningful change
-        if (updatedCircles.length !== prevCircles.length ||
-          updatedCircles.some((circle, i) => prevCircles[i] && Math.abs(circle.scale - prevCircles[i].scale) > 0.01)) {
-          return updatedCircles;
-        }
-        return prevCircles;
-      });
-    }, 150);
-
-    return () => clearInterval(intervalId);
-  }, [APPROACH_TIME]);
-
-  // Generate approach circles with interval-based updates
-  useEffect(() => {
-    if (!chart?.notes) {
-      console.log('[PinGameView] No chart or notes available');
-      return;
-    }
-
-    console.log('[PinGameView] Setting up approach circle generation for', chart.notes.length, 'notes');
-
-    const intervalId = setInterval(() => {
-      const currentTimeMs = timeMsRef.current;
+    const interval = setInterval(() => {
+      const currentTime = timeMsRef.current;
       
-      // FORCE CREATE APPROACH CIRCLES FOR DEBUGGING - Create circles for the first few notes regardless of timing
-      const debugNotes = chart.notes.slice(0, 3);
-      console.log('[PinGameView] FORCE DEBUG: Creating circles for first 3 notes at time:', currentTimeMs);
-      
-      const debugCircles = debugNotes.map((note: Note, index: number) => ({
-        id: `debug-circle-${note.time}-${index}`,
-        noteTime: note.time * 1000,
-        startTime: currentTimeMs,
-        uniqueKey: `debug-${note.time}-${currentTimeMs}-${index}`,
-        scale: 1,
-      }));
-
-      setApproachCircles((prev) => {
-        if (prev.length === 0) {
-          console.log('[PinGameView] FORCE DEBUG: Adding', debugCircles.length, 'debug approach circles');
-          return debugCircles;
-        }
-        return prev;
-      });
-      
-      // Original logic for upcoming notes
-      const upcomingNotes = chart.notes.filter((note: Note) => {
+      // Find notes that should have approach circles
+      const upcomingNotes = chart.notes.filter(note => {
         const noteTimeMs = note.time * 1000;
-        const isUpcoming = noteTimeMs > currentTimeMs && noteTimeMs <= currentTimeMs + APPROACH_TIME;
-        return isUpcoming;
+        const timeUntilNote = noteTimeMs - currentTime;
+        return timeUntilNote > 0 && timeUntilNote <= APPROACH_TIME;
       });
 
-      if (upcomingNotes.length > 0) {
-        console.log('[PinGameView] Found', upcomingNotes.length, 'upcoming notes at time:', currentTimeMs);
-      }
-
-      const newCircles = upcomingNotes.map((note: Note) => ({
-        id: `circle-${note.time}`,
-        noteTime: note.time * 1000,
-        startTime: currentTimeMs,
-        uniqueKey: `${note.time}-${currentTimeMs}`,
-        scale: 1,
-      }));
-
-      setApproachCircles((prev) => {
-        const existingIds = new Set(prev.map((c: ApproachCircle) => c.id));
-        const filteredNew = newCircles.filter((c: ApproachCircle) => !existingIds.has(c.id));
+      // Create approach circles for new notes
+      const newCircles: ApproachCircleData[] = upcomingNotes.map(note => {
+        const noteTimeMs = note.time * 1000;
+        const timeUntilNote = noteTimeMs - currentTime;
+        const scale = Math.max(0.1, timeUntilNote / APPROACH_TIME);
         
-        if (filteredNew.length > 0) {
-          console.log('[PinGameView] Adding', filteredNew.length, 'new approach circles');
-          return [...prev, ...filteredNew];
-        }
-        return prev;
+        return {
+          id: `circle-${note.time}`,
+          noteTime: noteTimeMs,
+          startTime: currentTime - (APPROACH_TIME - timeUntilNote),
+          scale
+        };
       });
-    }, 100); // Check every 100ms for new notes
 
-    return () => clearInterval(intervalId);
-  }, [chart?.notes, APPROACH_TIME]);
+      setApproachCircles(newCircles);
+    }, 100);
 
-  // GameController와 연동하여 판정 처리
-  useEffect(() => {
-    setHitCallback((hitTime: number) => {
-      // 물리 엔진에서 칼이 목표물에 도달했을 때 GameController의 판정 로직 호출
-      onPinThrow(); // 이미 onPinThrow가 GameController.handlePinPress를 호출함
-    });
-  }, [onPinThrow, setHitCallback]);
+    return () => clearInterval(interval);
+  }, [chart, APPROACH_TIME]);
 
-  // FORCE THROW KNIFE FOR DEBUGGING - Throw a knife every 2 seconds
-  useEffect(() => {
-    console.log('[PinGameView] Setting up auto knife throwing for debugging');
-    const intervalId = setInterval(() => {
-      console.log('[PinGameView] FORCE DEBUG: Throwing knife automatically');
-      physicsThrowKnife();
-    }, 2000);
-
-    return () => clearInterval(intervalId);
-  }, [physicsThrowKnife, onPinThrow]);
-
+  // Handle knife throwing
   const handleThrowKnife = useCallback(() => {
     if (isThrowingKnife) return;
 
+    console.log('[PinGameView] Throwing knife at time:', timeMsRef.current);
     setIsThrowingKnife(true);
-    physicsThrowKnife(); // 물리 엔진에서 칼 던지기 (판정은 칼이 도달할 때 자동 처리)
-    
+    physicsThrowKnife();
+
+    // Reset throwing state
     setTimeout(() => setIsThrowingKnife(false), 150);
   }, [isThrowingKnife, physicsThrowKnife]);
 
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    console.log('[PinGameView] Key pressed:', event.code, event.key);
-    if (event.code === 'KeyS' && !isThrowingKnife) {
-      console.log('[PinGameView] S key pressed - throwing knife!');
-      handleThrowKnife();
-    }
-  }, [isThrowingKnife, handleThrowKnife]);
-
+  // Keyboard input
   useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.code === 'KeyS' && !isThrowingKnife) {
+        handleThrowKnife();
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
+  }, [handleThrowKnife, isThrowingKnife]);
 
-  // FORCE CONSOLE LOG ON EVERY RENDER
-  console.log('[PinGameView RENDER] Component is rendering!', {
-    chart: !!chart,
-    knivesCount: knives.length,
-    circlesCount: approachCircles.length,
-    gameTime: timeMsRef.current
-  });
+  // Get knife positions for rendering
+  const knifePositions = getKnivesPositions();
 
   return (
-    <div 
-      className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center"
-      style={{
-        // FORCE VISIBLE BACKGROUND
-        backgroundColor: 'rgba(255, 0, 0, 0.5)', // Red background to verify visibility
-        border: '10px solid yellow', // Yellow border to make it obvious
-        zIndex: 9999, // Force to top
-      }}
-    >
-      {/* MEGA DEBUG OVERLAY - ALWAYS VISIBLE */}
-      <div 
-        className="fixed top-0 left-0 w-full bg-red-500 text-white p-6 z-50"
-        style={{ 
-          fontSize: '24px', 
-          fontWeight: 'bold',
-          boxShadow: '0 0 50px rgba(255, 0, 0, 1)',
-          zIndex: 99999
-        }}
-      >
-        🎯 PinGameView IS RENDERING! Time: {timeMsRef.current.toFixed(0)}ms | Knives: {knives.length} | Circles: {approachCircles.length}
-      </div>
-
-      {/* UI Overlay */}
-      <div className="absolute top-8 left-8 text-white z-20 bg-black/30 p-4 rounded-xl backdrop-blur-sm border border-white/10 shadow-lg">
-        <div className="text-3xl font-bold tracking-tighter">Score: {score}</div>
-        <div className="text-xl mt-1">Combo: {combo}</div>
-      </div>
-
-      {/* Game Area */}
-      <div className="relative w-96 h-96 flex items-center justify-center">
-        {/* Target Circle (Hit Circle) */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div
-            className="w-64 h-64 bg-red-500/20 rounded-full border-4 border-red-500 shadow-lg"
-            style={{ boxShadow: '0 0 30px rgba(239, 68, 68, 0.5)' }}
-          />
-        </div>
-
-        {/* Approach Circles (osu! style) - FORCE VISIBLE FOR DEBUG */}
-        {approachCircles.map(circle => {
-          const nowMs = timeMsRef.current;
-          const timeElapsed = nowMs - circle.startTime;
-          const progress = Math.min(1, timeElapsed / APPROACH_TIME);
-
-          // Start large and shrink to target size (ensure perfect circle)
-          const maxSize = 400;
-          const minSize = 256; // Target circle size
-          const currentSize = maxSize - (progress * (maxSize - minSize));
-
-          // Fade out as it approaches the target
-          const opacity = Math.max(0.4, 1 - progress * 0.6);
-
-          return (
-            <div
-              key={circle.uniqueKey}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none"
-            >
-              <div
-                className="rounded-full border-4 border-blue-400"
-                style={{
-                  width: `${currentSize}px`,
-                  height: `${currentSize}px`,
-                  opacity,
-                  boxShadow: `0 0 20px rgba(96, 165, 250, ${opacity * 0.8})`,
-                  transition: 'none',
-                  aspectRatio: '1',
-                  flexShrink: 0,
-                }}
-              />
-            </div>
-          );
-        })}
-        
-        {/* FORCE RENDER TEST CIRCLE - ALWAYS VISIBLE - ENHANCED */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-          <div
-            className="rounded-full border-8 border-yellow-400 animate-pulse"
-            style={{
-              width: '300px',
-              height: '300px',
-              opacity: 1.0,
-              boxShadow: '0 0 50px rgba(255, 255, 0, 1.0), inset 0 0 30px rgba(255, 255, 0, 0.3)',
-              backgroundColor: 'rgba(255, 255, 0, 0.4)',
-              transform: 'scale(1.1)',
-            }}
-          >
-            <div className="absolute inset-4 rounded-full border-4 border-red-500 bg-red-500/20" />
-          </div>
-        </div>
-        
-        {/* DEBUG TEXT OVERLAY */}
-        <div className="absolute top-0 left-0 bg-red-500 text-white p-4 z-50 text-lg font-bold">
-          PinGameView is rendering!
-          <br />Circles: {approachCircles.length}
-          <br />Knives: {knives.length}
-          <br />Time: {timeMsRef.current.toFixed(0)}ms
-        </div>
-
-        {/* Rotating Pin (Knife Hit style) */}
-        <div
-          ref={targetRef}
-          className="absolute inset-0 flex items-center justify-center z-10 animate-spin"
-          style={{ animationDuration: '3s', animationTimingFunction: 'linear' }}
-        >
-          {/* Pin center */}
-          <div className="w-8 h-8 bg-gray-600 rounded-full border-2 border-gray-400 shadow-lg" />
-        </div>
-
-        {/* Knives - 물리 엔진에서 관리 */}
-        {getKnivesPositions().map(({ knife, position }) => (
-          <div
-            key={knife.id}
-            className="absolute left-1/2 top-1/2 z-20"
-            style={{
-              // Center first, then move to (x,y), then rotate
-              transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px) rotate(${position.rotation}deg)`,
-            }}
-          >
-            <svg width="18" height="64" viewBox="0 0 18 64" fill="none">
-              <path d="M9 2 L16 34 L2 34 Z" fill="#d1d5db" stroke="#e5e7eb" strokeWidth="1" />
-              <rect x="3" y="34" width="12" height="4" rx="2" fill="#9ca3af" />
-              <rect x="5.5" y="38" width="7" height="18" rx="2" fill="#92400e" />
-              <circle cx="9" cy="58" r="4" fill="#78350f" />
-            </svg>
-          </div>
-        ))}
-        
-        {/* FORCE RENDER TEST KNIFE - ALWAYS VISIBLE - ENHANCED */}
-        <div
-          className="absolute left-1/2 top-1/2 z-20 animate-bounce"
+    <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center bg-gray-900">
+      {/* Game area */}
+      <div className="relative w-full h-full flex items-center justify-center">
+        {/* Rotating target */}
+        <div 
+          className="absolute w-40 h-40 rounded-full border-4 border-white flex items-center justify-center"
           style={{
-            transform: `translate(-50%, -50%) translate(0px, 100px) rotate(0deg)`,
-            filter: 'drop-shadow(0 0 10px rgba(255, 0, 0, 0.8))',
+            animation: 'spin 5s linear infinite'
           }}
         >
-          <svg width="24" height="80" viewBox="0 0 24 80" fill="none">
-            <path d="M12 2 L20 40 L4 40 Z" fill="#ff0000" stroke="#ffffff" strokeWidth="2" />
-            <rect x="4" y="40" width="16" height="6" rx="3" fill="#ff0000" stroke="#ffffff" strokeWidth="1" />
-            <rect x="7" y="46" width="10" height="24" rx="3" fill="#cc0000" stroke="#ffffff" strokeWidth="1" />
-            <circle cx="12" cy="72" r="6" fill="#990000" stroke="#ffffff" strokeWidth="1" />
-          </svg>
+          <div className="text-white text-lg font-bold">TARGET</div>
         </div>
 
-        {/* Combo Display */}
-        {combo > 2 && (
-          <div className="absolute -bottom-20 text-5xl font-black text-yellow-300 animate-pulse z-30">
-            <span style={{ textShadow: '0 0 15px rgba(253, 224, 71, 0.8)' }}>
-              {combo} COMBO!
-            </span>
-          </div>
-        )}
+        {/* Approach circles */}
+        {approachCircles.map(circle => (
+          <ApproachCircle
+            key={circle.id}
+            radius={TARGET_RADIUS}
+            scale={circle.scale}
+            opacity={Math.max(0.3, circle.scale)}
+          />
+        ))}
 
-        {/* Judgment Display */}
-        <JudgmentDisplay judgment={judgment as Judgment | null} />
+        {/* Knives */}
+        {knifePositions.map(({ knife, position }) => (
+          <div
+            key={knife.id}
+            className="absolute w-4 h-16 bg-gray-300"
+            style={{
+              left: `calc(50% + ${position.x}px)`,
+              top: `calc(50% + ${position.y}px)`,
+              transform: `translate(-50%, -50%) rotate(${position.rotation}deg)`,
+              transformOrigin: 'center center'
+            }}
+          />
+        ))}
       </div>
+
+      {/* UI Elements */}
+      <div className="absolute top-4 left-4 text-white text-lg">
+        <div>Score: {score}</div>
+        <div>Combo: {combo}</div>
+        <div>Knives: {knives.length}</div>
+      </div>
+
+      {/* Judgment Display */}
+      <JudgmentDisplay judgment={judgment} />
+
+      {/* Instructions */}
+      <div className="absolute bottom-4 left-4 text-white text-sm">
+        Press S to throw knife
+      </div>
+
+      {/* Simple debug info */}
+      <div className="absolute top-4 right-4 bg-black/50 text-white p-2 text-sm rounded">
+        <div>Chart: {chart?.title}</div>
+        <div>Notes: {chart?.notes?.length || 0}</div>
+        <div>Time: {(timeMsRef.current / 1000).toFixed(1)}s</div>
+        <div>Circles: {approachCircles.length}</div>
+      </div>
+
+      {/* CSS for spinning animation */}
+      <style jsx>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

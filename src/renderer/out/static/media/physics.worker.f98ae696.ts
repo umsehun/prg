@@ -8,7 +8,7 @@ let velocity = 400;
 let rotationSpeed = 540;
 
 // Active notes for timing judgment (will be set from main thread)
-let activeNotes: Array<{ time: number, noteId: string }> = [];
+let activeNotes: Array<{time: number, noteId: string}> = [];
 
 const KNIFE_TIP_OFFSET = 32;
 const STICK_DEPTH = 10;
@@ -18,40 +18,40 @@ const TOTAL_FLIGHT_TIME = 0.30;
 
 // Judgment timing windows (in milliseconds)
 const JUDGMENT_WINDOWS = {
-    KOOL: 50,   // ±50ms = Perfect hit
-    COOL: 100,  // ±100ms = Great hit  
-    GOOD: 150,  // ±150ms = Good hit
-    MISS: 200   // ±200ms = Miss (beyond this is automatic miss)
+  KOOL: 50,   // ±50ms = Perfect hit
+  COOL: 100,  // ±100ms = Great hit  
+  GOOD: 150,  // ±150ms = Good hit
+  MISS: 200   // ±200ms = Miss (beyond this is automatic miss)
 };
 
 // Calculate what judgment should be given based on timing error
 const getJudgment = (timingError: number): 'KOOL' | 'COOL' | 'GOOD' | 'MISS' => {
-    const absError = Math.abs(timingError);
-    if (absError <= JUDGMENT_WINDOWS.KOOL) return 'KOOL';
-    if (absError <= JUDGMENT_WINDOWS.COOL) return 'COOL';
-    if (absError <= JUDGMENT_WINDOWS.GOOD) return 'GOOD';
-    return 'MISS';
+  const absError = Math.abs(timingError);
+  if (absError <= JUDGMENT_WINDOWS.KOOL) return 'KOOL';
+  if (absError <= JUDGMENT_WINDOWS.COOL) return 'COOL';  
+  if (absError <= JUDGMENT_WINDOWS.GOOD) return 'GOOD';
+  return 'MISS';
 };
 
 // Find the closest note to current time for judgment
-const findClosestNote = (currentTimeMs: number): { note: any, timingError: number } | null => {
-    if (activeNotes.length === 0) return null;
-
-    let closestNote = null;
-    let smallestError = Infinity;
-
-    for (const note of activeNotes) {
-        const timingError = currentTimeMs - note.time;
-        const absError = Math.abs(timingError);
-
-        // Only consider notes within miss window
-        if (absError <= JUDGMENT_WINDOWS.MISS && absError < smallestError) {
-            smallestError = absError;
-            closestNote = { note, timingError };
-        }
+const findClosestNote = (currentTimeMs: number): {note: any, timingError: number} | null => {
+  if (activeNotes.length === 0) return null;
+  
+  let closestNote = null;
+  let smallestError = Infinity;
+  
+  for (const note of activeNotes) {
+    const timingError = currentTimeMs - note.time;
+    const absError = Math.abs(timingError);
+    
+    // Only consider notes within miss window
+    if (absError <= JUDGMENT_WINDOWS.MISS && absError < smallestError) {
+      smallestError = absError;
+      closestNote = { note, timingError };
     }
-
-    return closestNote;
+  }
+  
+  return closestNote;
 };
 
 const calculateKnifePosition = (knife: Knife): KnifePosition => {
@@ -96,11 +96,11 @@ const updatePhysics = () => {
             const targetRotationNow = (currentTime / 1000 * 120) % 360;
             const stickPointOnCircle = 90;
             const newStuckAngle = stickPointOnCircle - targetRotationNow;
-
+            
             // Calculate judgment based on timing
             const currentTimeMs = currentTime;
             const closestNoteData = findClosestNote(currentTimeMs);
-
+            
             if (closestNoteData) {
                 const judgment = getJudgment(closestNoteData.timingError);
                 hitDetails = {
@@ -110,7 +110,7 @@ const updatePhysics = () => {
                     noteId: closestNoteData.note.noteId,
                     accuracy: Math.max(0, 100 - (Math.abs(closestNoteData.timingError) / JUDGMENT_WINDOWS.MISS) * 100)
                 };
-
+                
                 console.log(`[physics.worker] Hit judgment: ${judgment}, timing error: ${closestNoteData.timingError}ms, accuracy: ${hitDetails.accuracy.toFixed(1)}%`);
             } else {
                 // No note to hit - still register as miss
@@ -123,7 +123,7 @@ const updatePhysics = () => {
                 };
                 console.log('[physics.worker] Hit but no note available - MISS');
             }
-
+            
             hitOccurred = true;
             return { ...knife, isStuck: true, stuckAngle: newStuckAngle };
         }
@@ -135,7 +135,7 @@ const updatePhysics = () => {
     }
 
     // Update knife positions
-    const updatedKnives = knives.map(k => ({ ...k, position: calculateKnifePosition(k) }));
+    const updatedKnives = knives.map(k => ({...k, position: calculateKnifePosition(k)}));
     self.postMessage({ type: 'UPDATE', payload: { knives: updatedKnives } });
 };
 

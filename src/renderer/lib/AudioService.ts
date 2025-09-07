@@ -104,10 +104,10 @@ export class AudioService {
       // Use IPC to load audio asset - consistent with other asset loading
       const audioBuffer = await (window as any).electron.loadAsset(audioPath);
       const arrayBuffer = audioBuffer.buffer.slice(
-        audioBuffer.byteOffset, 
+        audioBuffer.byteOffset,
         audioBuffer.byteOffset + audioBuffer.byteLength
       );
-      
+
       // Try to decode audio data, but handle failures gracefully
       try {
         const buffer = await this.audioContext!.decodeAudioData(arrayBuffer);

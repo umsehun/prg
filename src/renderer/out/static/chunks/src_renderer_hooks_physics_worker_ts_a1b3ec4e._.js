@@ -8,11 +8,47 @@ let knives = [];
 let targetRadius = 0;
 let velocity = 400;
 let rotationSpeed = 540;
+// Active notes for timing judgment (will be set from main thread)
+let activeNotes = [];
 const KNIFE_TIP_OFFSET = 32;
 const STICK_DEPTH = 10;
 const FLYING_ROTATION_DEG = 0;
 const STUCK_ROTATION_OFFSET = -90;
 const TOTAL_FLIGHT_TIME = 0.30;
+// Judgment timing windows (in milliseconds)
+const JUDGMENT_WINDOWS = {
+    KOOL: 50,
+    COOL: 100,
+    GOOD: 150,
+    MISS: 200 // ±200ms = Miss (beyond this is automatic miss)
+};
+// Calculate what judgment should be given based on timing error
+const getJudgment = (timingError)=>{
+    const absError = Math.abs(timingError);
+    if (absError <= JUDGMENT_WINDOWS.KOOL) return 'KOOL';
+    if (absError <= JUDGMENT_WINDOWS.COOL) return 'COOL';
+    if (absError <= JUDGMENT_WINDOWS.GOOD) return 'GOOD';
+    return 'MISS';
+};
+// Find the closest note to current time for judgment
+const findClosestNote = (currentTimeMs)=>{
+    if (activeNotes.length === 0) return null;
+    let closestNote = null;
+    let smallestError = Infinity;
+    for (const note of activeNotes){
+        const timingError = currentTimeMs - note.time;
+        const absError = Math.abs(timingError);
+        // Only consider notes within miss window
+        if (absError <= JUDGMENT_WINDOWS.MISS && absError < smallestError) {
+            smallestError = absError;
+            closestNote = {
+                note,
+                timingError
+            };
+        }
+    }
+    return closestNote;
+};
 const calculateKnifePosition = (knife)=>{
     const currentTime = Date.now();
     const elapsed = (currentTime - knife.thrownAt) / 1000;
@@ -44,6 +80,7 @@ const calculateKnifePosition = (knife)=>{
 const updatePhysics = ()=>{
     const currentTime = Date.now();
     let hitOccurred = false;
+    let hitDetails = null;
     knives = knives.map((knife)=>{
         if (knife.isStuck) return knife;
         const elapsed = (currentTime - knife.thrownAt) / 1000;
@@ -52,10 +89,35 @@ const updatePhysics = ()=>{
         const progress = Math.min(1, elapsed / TOTAL_FLIGHT_TIME);
         const easedProgress = progress * (2 - progress);
         const y = startY - easedProgress * totalDistance;
+        // Check if knife hits target
         if (y <= targetRadius) {
             const targetRotationNow = currentTime / 1000 * 120 % 360;
             const stickPointOnCircle = 90;
             const newStuckAngle = stickPointOnCircle - targetRotationNow;
+            // Calculate judgment based on timing
+            const currentTimeMs = currentTime;
+            const closestNoteData = findClosestNote(currentTimeMs);
+            if (closestNoteData) {
+                const judgment = getJudgment(closestNoteData.timingError);
+                hitDetails = {
+                    hitTime: currentTime / 1000,
+                    timingError: closestNoteData.timingError,
+                    judgment,
+                    noteId: closestNoteData.note.noteId,
+                    accuracy: Math.max(0, 100 - Math.abs(closestNoteData.timingError) / JUDGMENT_WINDOWS.MISS * 100)
+                };
+                console.log("[physics.worker] Hit judgment: ".concat(judgment, ", timing error: ").concat(closestNoteData.timingError, "ms, accuracy: ").concat(hitDetails.accuracy.toFixed(1), "%"));
+            } else {
+                // No note to hit - still register as miss
+                hitDetails = {
+                    hitTime: currentTime / 1000,
+                    timingError: 999,
+                    judgment: 'MISS',
+                    noteId: null,
+                    accuracy: 0
+                };
+                console.log('[physics.worker] Hit but no note available - MISS');
+            }
             hitOccurred = true;
             return {
                 ...knife,
@@ -65,19 +127,21 @@ const updatePhysics = ()=>{
         }
         return knife;
     }).filter((knife)=>currentTime - knife.thrownAt < 5000);
-    if (hitOccurred) {
+    if (hitOccurred && hitDetails) {
         self.postMessage({
             type: 'HIT',
-            hitTime: currentTime / 1000
+            payload: hitDetails
         });
     }
+    // Update knife positions
+    const updatedKnives = knives.map((k)=>({
+            ...k,
+            position: calculateKnifePosition(k)
+        }));
     self.postMessage({
         type: 'UPDATE',
         payload: {
-            knives: knives.map((k)=>({
-                    ...k,
-                    position: calculateKnifePosition(k)
-                }))
+            knives: updatedKnives
         }
     });
 };
@@ -100,9 +164,17 @@ self.onmessage = (e)=>{
             console.log('[physics.worker] Adding knife:', payload.knife);
             knives.push(payload.knife);
             break;
+        case 'SET_NOTES':
+            console.log('[physics.worker] Setting active notes:', payload.notes.length);
+            activeNotes = payload.notes.map((note, index)=>({
+                    time: note.time,
+                    noteId: "note-".concat(index, "-").concat(note.time)
+                }));
+            break;
         case 'RESET':
-            console.log('[physics.worker] Resetting knives');
+            console.log('[physics.worker] Resetting knives and notes');
             knives = [];
+            activeNotes = [];
             break;
     }
 };
