@@ -22,6 +22,13 @@ export interface IpcApi {
   // Assets
   loadAsset: (assetPath: string) => Promise<ArrayBuffer>;
   assetExists: (assetPath: string) => Promise<boolean>;
+
+  // Chart import
+  importAllOszFiles: (assetsPath?: string) => Promise<{
+    imported: number;
+    skipped: number;
+    errors: string[];
+  }>;
 }
 
 declare global {

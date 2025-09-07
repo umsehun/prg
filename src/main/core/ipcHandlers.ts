@@ -45,8 +45,8 @@ export function registerIpcHandlers(): void {
   });
 
   // Chart import
-  
-ipcMain.handle('discover-charts', async () => {
+
+  ipcMain.handle('discover-charts', async () => {
     return await discoverCharts();
   });
 
@@ -102,22 +102,22 @@ ipcMain.handle('discover-charts', async () => {
     try {
       const importService = ChartImportService.getInstance();
       const library = await importService.getLibrary();
-      
+
       console.log(`[Debug] Looking for chart with ID: ${chartMetadata.id}`);
       console.log(`[Debug] Available chart IDs:`, library.map(c => c.id));
-      
+
       // chartMetadata.id로 OSZ 차트 찾기 (정확한 매칭)
       const oszChart = library.find(chart => chart.id === chartMetadata.id);
-      
+
       if (!oszChart) {
         throw new Error(`OSZ chart not found for id: ${chartMetadata.id}. Available IDs: ${library.map(c => c.id).join(', ')}`);
       }
-      
+
       // 사용 가능한 난이도 중 첫 번째 유효한 것 선택
       console.log(`[Debug] Chart has ${oszChart.difficulties.length} difficulties`);
-      
+
       let pinChart = null;
-      
+
       // Use specified difficulty index or try all difficulties
       if (difficultyIndex !== undefined && difficultyIndex >= 0 && difficultyIndex < oszChart.difficulties.length) {
         console.log(`[Debug] Converting specified difficulty ${difficultyIndex}: ${oszChart.difficulties[difficultyIndex]?.name || 'Unnamed'}`);
@@ -142,7 +142,7 @@ ipcMain.handle('discover-charts', async () => {
           }
         }
       }
-      
+
       if (!pinChart) {
         throw new Error(`Failed to convert any difficulty.`);
       }
@@ -240,5 +240,26 @@ ipcMain.handle('discover-charts', async () => {
 
     // The key is now guaranteed to be keyof Settings, and value has been checked.
     void SettingsManager.set(key, value as Settings[keyof Settings]);
+  });
+
+  // Chart auto-import handler
+  ipcMain.handle('import-all-osz-files', async (_, assetsPath?: string) => {
+    try {
+      // Use default public/assets path if not provided
+      const defaultAssetsPath = path.join(app.getAppPath(), '..', '..', 'public', 'assets');
+      const targetPath = assetsPath || defaultAssetsPath;
+
+      console.log(`[IPC] Starting batch OSZ import from: ${targetPath}`);
+
+      const chartImportService = ChartImportService.getInstance();
+      const result = await chartImportService.importAllFromDirectory(targetPath);
+
+      console.log(`[IPC] Batch import completed: ${result.imported} imported, ${result.skipped} skipped`);
+
+      return result;
+    } catch (error) {
+      console.error('[IPC] Failed to import OSZ files:', error);
+      throw error;
+    }
   });
 }

@@ -454,8 +454,36 @@ const SelectScene = ({ onBack, onStartGame })=>{
     const { charts, selectedChartId, setSelectedChart, setCurrentScene, loadCharts } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$store$2f$gameStore$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])();
     const [selectedDifficultyIndex, setSelectedDifficultyIndex] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(0);
     const [availableDifficulties, setAvailableDifficulties] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [isImporting, setIsImporting] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    // Auto-import OSZ files when component mounts
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
-        loadCharts();
+        const autoImportOszFiles = async ()=>{
+            try {
+                setIsImporting(true);
+                console.log('[SelectScene] Starting auto-import of OSZ files...');
+                const result = await window.electron.importAllOszFiles();
+                if (result.imported > 0) {
+                    console.log(`[SelectScene] Auto-imported ${result.imported} new charts`);
+                    // Reload charts to show newly imported ones
+                    await loadCharts();
+                } else if (result.skipped > 0) {
+                    console.log(`[SelectScene] ${result.skipped} charts already existed`);
+                }
+                if (result.errors.length > 0) {
+                    console.warn('[SelectScene] Some charts failed to import:', result.errors);
+                }
+            } catch (error) {
+                console.error('[SelectScene] Failed to auto-import OSZ files:', error);
+            } finally{
+                setIsImporting(false);
+            }
+        };
+        // Start auto-import, then load existing charts
+        autoImportOszFiles().then(()=>{
+            if (!isImporting) {
+                loadCharts();
+            }
+        });
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // Only run once on mount to prevent infinite re-renders
     const selectedChart = charts.find((c)=>c.id === selectedChartId);
@@ -512,7 +540,7 @@ const SelectScene = ({ onBack, onStartGame })=>{
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$AnimatedSceneBackground$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                lineNumber: 80,
+                lineNumber: 114,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -526,15 +554,48 @@ const SelectScene = ({ onBack, onStartGame })=>{
                                 style: {
                                     color: 'var(--neon-cyan)'
                                 },
-                                children: "SELECT MUSIC"
-                            }, void 0, false, {
+                                children: [
+                                    "SELECT MUSIC",
+                                    isImporting && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "text-sm font-normal text-yellow-400 ml-3",
+                                        children: "(Importing OSZ files...)"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
+                                        lineNumber: 122,
+                                        columnNumber: 15
+                                    }, ("TURBOPACK compile-time value", void 0))
+                                ]
+                            }, void 0, true, {
                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                lineNumber: 85,
+                                lineNumber: 119,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "flex-1 overflow-y-auto pr-2 space-y-2 max-h-[calc(85vh-120px)]",
-                                children: charts.map((chart)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                children: isImporting && charts.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "text-center py-8",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                            className: "text-gray-400",
+                                            children: "Loading charts..."
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
+                                            lineNumber: 130,
+                                            columnNumber: 17
+                                        }, ("TURBOPACK compile-time value", void 0)),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mx-auto mt-4"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
+                                            lineNumber: 131,
+                                            columnNumber: 17
+                                        }, ("TURBOPACK compile-time value", void 0))
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
+                                    lineNumber: 129,
+                                    columnNumber: 15
+                                }, ("TURBOPACK compile-time value", void 0)) : charts.map((chart)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                         onClick: ()=>setSelectedChart(chart.id),
                                         className: `w-full text-left p-4 rounded-lg transition-all duration-300 transform hover:scale-102 ${selectedChartId === chart.id ? 'neon-glow-magenta border-2' : 'bg-white/10 hover:bg-white/20 border border-transparent hover:border-cyan-400'}`,
                                         style: {
@@ -550,32 +611,32 @@ const SelectScene = ({ onBack, onStartGame })=>{
                                                 children: chart.title
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                                lineNumber: 102,
-                                                columnNumber: 17
+                                                lineNumber: 147,
+                                                columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 className: "text-sm text-gray-400 truncate",
                                                 children: chart.artist
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                                lineNumber: 105,
-                                                columnNumber: 17
+                                                lineNumber: 150,
+                                                columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, chart.id, true, {
                                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                        lineNumber: 90,
-                                        columnNumber: 15
+                                        lineNumber: 135,
+                                        columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0)))
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                lineNumber: 88,
+                                lineNumber: 127,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                        lineNumber: 84,
+                        lineNumber: 118,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -594,12 +655,12 @@ const SelectScene = ({ onBack, onStartGame })=>{
                                             title: selectedChart.title
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                            lineNumber: 117,
+                                            lineNumber: 163,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                        lineNumber: 115,
+                                        lineNumber: 161,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -610,7 +671,7 @@ const SelectScene = ({ onBack, onStartGame })=>{
                                         children: selectedChart.title
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                        lineNumber: 122,
+                                        lineNumber: 168,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -621,7 +682,7 @@ const SelectScene = ({ onBack, onStartGame })=>{
                                         children: selectedChart.artist
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                        lineNumber: 124,
+                                        lineNumber: 170,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     availableDifficulties.length > 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -635,7 +696,7 @@ const SelectScene = ({ onBack, onStartGame })=>{
                                                 children: "Select Difficulty"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                                lineNumber: 129,
+                                                lineNumber: 175,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -650,24 +711,24 @@ const SelectScene = ({ onBack, onStartGame })=>{
                                                         children: difficulty
                                                     }, index, false, {
                                                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                                        lineNumber: 134,
+                                                        lineNumber: 180,
                                                         columnNumber: 23
                                                     }, ("TURBOPACK compile-time value", void 0)))
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                                lineNumber: 132,
+                                                lineNumber: 178,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                        lineNumber: 128,
+                                        lineNumber: 174,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                lineNumber: 114,
+                                lineNumber: 160,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "flex-grow flex items-center justify-center",
@@ -676,12 +737,12 @@ const SelectScene = ({ onBack, onStartGame })=>{
                                     children: "Select a song to begin"
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                    lineNumber: 155,
+                                    lineNumber: 201,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                lineNumber: 154,
+                                lineNumber: 200,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -697,7 +758,7 @@ const SelectScene = ({ onBack, onStartGame })=>{
                                         children: "← Back to Menu"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                        lineNumber: 161,
+                                        lineNumber: 207,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -712,31 +773,31 @@ const SelectScene = ({ onBack, onStartGame })=>{
                                         children: "GAME START"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                        lineNumber: 168,
+                                        lineNumber: 214,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                lineNumber: 160,
+                                lineNumber: 206,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                        lineNumber: 112,
+                        lineNumber: 158,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                lineNumber: 82,
+                lineNumber: 116,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-        lineNumber: 79,
+        lineNumber: 113,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

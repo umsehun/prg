@@ -7,6 +7,7 @@ import JSZip from 'jszip';
 import AdmZip from 'adm-zip';
 import { BeatmapDecoder } from 'osu-parsers';
 import { pathService } from './PathService';
+import { VideoConverter } from './VideoConverter';
 import { logger } from '../../shared/logger';
 import type { OszChart, PinChart, Note } from '../../shared/types';
 
@@ -86,7 +87,7 @@ export class ChartImportService {
   private getSupportedExtensions(): { [category: string]: string[] } {
     return {
       audio: ['.mp3', '.wav', '.ogg', '.flac', '.m4a', '.aac'],
-      video: ['.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv'],
+      video: ['.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv', '.m4v', '.3gp', '.ogv', '.divx'],
       image: ['.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff', '.webp'],
       chart: ['.osu', '.osb'],
       other: ['.txt', '.ini', '.cfg', '.json']
@@ -321,7 +322,39 @@ export class ChartImportService {
       }
 
       const videoFile = this.findVideoFile(extractedFiles, specifiedVideoFile);
-      const finalVideoUri = videoFile ? `media://${chartId}/${videoFile}` : undefined;
+      let finalVideoUri: string | undefined;
+      
+      if (videoFile) {
+        const videoPath = path.join(extractPath, videoFile);
+        const videoExt = path.extname(videoFile).toLowerCase();
+        
+        if (VideoConverter.isSupportedVideoFormat(videoFile)) {
+          // Try to convert video to MP4 if it's not already MP4
+          if (videoExt !== '.mp4') {
+            logger.info(`[ChartImportService] Converting video ${videoExt} to MP4: ${videoFile}`);
+            const mp4Path = path.join(extractPath, path.parse(videoFile).name + '.mp4');
+            const convertSuccess = await VideoConverter.convertToMp4(videoPath, mp4Path);
+            
+            if (convertSuccess) {
+              // Use the converted MP4 file
+              const mp4Filename = path.parse(videoFile).name + '.mp4';
+              finalVideoUri = `media://${chartId}/${mp4Filename}`;
+              logger.info(`[ChartImportService] ✓ Video converted to MP4: ${mp4Filename}`);
+            } else {
+              // Fallback to original file if conversion failed
+              finalVideoUri = `media://${chartId}/${videoFile}`;
+              logger.warn(`[ChartImportService] ⚠ Video conversion failed, using original: ${videoFile}`);
+            }
+          } else {
+            // Already MP4, use as-is
+            finalVideoUri = `media://${chartId}/${videoFile}`;
+            logger.info(`[ChartImportService] ✓ Video already in MP4 format: ${videoFile}`);
+          }
+        } else {
+          logger.warn(`[ChartImportService] ⚠ Unsupported video format: ${videoExt} for ${videoFile}`);
+          finalVideoUri = `media://${chartId}/${videoFile}`;
+        }
+      }
 
       // 오디오 파일 검증
       const audioFilename = beatmap.general.audioFilename;
@@ -718,5 +751,87 @@ export class ChartImportService {
     }
 
     return noteCount;
+  }
+
+  /**
+   * Import all OSZ files from the public/assets directory
+   * @param assetsPath - Path to the public/assets directory
+   * @returns Promise<{ imported: number, skipped: number, errors: string[] }>
+   */
+  public async importAllFromDirectory(assetsPath: string): Promise<{
+    imported: number;
+    skipped: number;
+    errors: string[];
+  }> {
+    const result = {
+      imported: 0,
+      skipped: 0,
+      errors: [] as string[]
+    };
+
+    try {
+      logger.info(`[ChartImportService] Scanning directory: ${assetsPath}`);
+
+      // Get all subdirectories
+      const entries = await fs.readdir(assetsPath, { withFileTypes: true });
+      const subdirs = entries.filter(entry => entry.isDirectory());
+
+      // Load existing library to check for duplicates
+      const existingCharts = await this.getLibrary();
+      const existingIds = new Set(existingCharts.map((chart: OszChart) => chart.id));
+
+      for (const subdir of subdirs) {
+        const subdirPath = path.join(assetsPath, subdir.name);
+
+        try {
+          // Look for OSZ files in the subdirectory
+          const subdirEntries = await fs.readdir(subdirPath);
+          const oszFiles = subdirEntries.filter(file => file.toLowerCase().endsWith('.osz'));
+
+          if (oszFiles.length === 0) {
+            logger.info(`[ChartImportService] No OSZ files found in ${subdir.name}`);
+            continue;
+          }
+
+          for (const oszFile of oszFiles) {
+            const oszPath = path.join(subdirPath, oszFile);
+
+            try {
+              logger.info(`[ChartImportService] Processing ${oszFile}...`);
+
+              // Try to import the OSZ file
+              const importedChart = await this.importOszFile(oszPath);
+
+              if (importedChart && existingIds.has(importedChart.id)) {
+                logger.info(`[ChartImportService] Skipped duplicate chart: ${importedChart.id}`);
+                result.skipped++;
+              } else if (importedChart) {
+                logger.info(`[ChartImportService] ✓ Imported ${importedChart.title} by ${importedChart.artist}`);
+                result.imported++;
+              }
+
+            } catch (error) {
+              const errorMsg = error instanceof Error ? error.message : String(error);
+              logger.error(`[ChartImportService] Failed to import ${oszFile}: ${errorMsg}`);
+              result.errors.push(`${oszFile}: ${errorMsg}`);
+            }
+          }
+
+        } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : String(error);
+          logger.error(`[ChartImportService] Failed to scan directory ${subdir.name}: ${errorMsg}`);
+          result.errors.push(`Directory ${subdir.name}: ${errorMsg}`);
+        }
+      }
+
+      logger.info(`[ChartImportService] Batch import completed: ${result.imported} imported, ${result.skipped} skipped, ${result.errors.length} errors`);
+
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      logger.error(`[ChartImportService] Failed to scan assets directory: ${errorMsg}`);
+      result.errors.push(`Directory scan failed: ${errorMsg}`);
+    }
+
+    return result;
   }
 }

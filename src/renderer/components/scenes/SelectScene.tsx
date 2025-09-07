@@ -15,9 +15,43 @@ const SelectScene: React.FC<SelectSceneProps> = ({ onBack, onStartGame }) => {
   const { charts, selectedChartId, setSelectedChart, setCurrentScene, loadCharts } = useGameStore();
   const [selectedDifficultyIndex, setSelectedDifficultyIndex] = useState<number>(0);
   const [availableDifficulties, setAvailableDifficulties] = useState<string[]>([]);
+  const [isImporting, setIsImporting] = useState<boolean>(false);
 
+  // Auto-import OSZ files when component mounts
   useEffect(() => {
-    loadCharts();
+    const autoImportOszFiles = async () => {
+      try {
+        setIsImporting(true);
+        console.log('[SelectScene] Starting auto-import of OSZ files...');
+
+        const result = await (window as any).electron.importAllOszFiles();
+
+        if (result.imported > 0) {
+          console.log(`[SelectScene] Auto-imported ${result.imported} new charts`);
+          // Reload charts to show newly imported ones
+          await loadCharts();
+        } else if (result.skipped > 0) {
+          console.log(`[SelectScene] ${result.skipped} charts already existed`);
+        }
+
+        if (result.errors.length > 0) {
+          console.warn('[SelectScene] Some charts failed to import:', result.errors);
+        }
+
+      } catch (error) {
+        console.error('[SelectScene] Failed to auto-import OSZ files:', error);
+      } finally {
+        setIsImporting(false);
+      }
+    };
+
+    // Start auto-import, then load existing charts
+    autoImportOszFiles().then(() => {
+      if (!isImporting) {
+        loadCharts();
+      }
+    });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount to prevent infinite re-renders
 
@@ -84,27 +118,39 @@ const SelectScene: React.FC<SelectSceneProps> = ({ onBack, onStartGame }) => {
         <div className="w-1/3 flex flex-col">
           <h2 className="text-3xl font-black mb-4 neon-glow-cyan" style={{ color: 'var(--neon-cyan)' }}>
             SELECT MUSIC
+            {isImporting && (
+              <span className="text-sm font-normal text-yellow-400 ml-3">
+                (Importing OSZ files...)
+              </span>
+            )}
           </h2>
           <div className="flex-1 overflow-y-auto pr-2 space-y-2 max-h-[calc(85vh-120px)]">
-            {charts.map((chart) => (
-              <button
-                key={chart.id}
-                onClick={() => setSelectedChart(chart.id)}
-                className={`w-full text-left p-4 rounded-lg transition-all duration-300 transform hover:scale-102 ${selectedChartId === chart.id
-                  ? 'neon-glow-magenta border-2'
-                  : 'bg-white/10 hover:bg-white/20 border border-transparent hover:border-cyan-400'
-                  }`}
-                style={{
-                  backgroundColor: selectedChartId === chart.id ? 'rgba(255, 0, 255, 0.2)' : undefined,
-                  borderColor: selectedChartId === chart.id ? 'var(--neon-magenta)' : undefined
-                }}
-              >
-                <p className="font-bold text-lg truncate" style={{
-                  color: selectedChartId === chart.id ? 'var(--neon-magenta)' : 'white'
-                }}>{chart.title}</p>
-                <p className="text-sm text-gray-400 truncate">{chart.artist}</p>
-              </button>
-            ))}
+            {isImporting && charts.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-400">Loading charts...</p>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mx-auto mt-4"></div>
+              </div>
+            ) : (
+              charts.map((chart) => (
+                <button
+                  key={chart.id}
+                  onClick={() => setSelectedChart(chart.id)}
+                  className={`w-full text-left p-4 rounded-lg transition-all duration-300 transform hover:scale-102 ${selectedChartId === chart.id
+                    ? 'neon-glow-magenta border-2'
+                    : 'bg-white/10 hover:bg-white/20 border border-transparent hover:border-cyan-400'
+                    }`}
+                  style={{
+                    backgroundColor: selectedChartId === chart.id ? 'rgba(255, 0, 255, 0.2)' : undefined,
+                    borderColor: selectedChartId === chart.id ? 'var(--neon-magenta)' : undefined
+                  }}
+                >
+                  <p className="font-bold text-lg truncate" style={{
+                    color: selectedChartId === chart.id ? 'var(--neon-magenta)' : 'white'
+                  }}>{chart.title}</p>
+                  <p className="text-sm text-gray-400 truncate">{chart.artist}</p>
+                </button>
+              ))
+            )}
           </div>
         </div>
 

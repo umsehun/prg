@@ -49,5 +49,6 @@ const api = {
     setSetting: (key, value) => ipcRenderer.send('setSetting', key, value),
     loadAsset: (assetPath) => ipcRenderer.invoke('load-asset', assetPath),
     assetExists: (assetPath) => ipcRenderer.invoke('asset-exists', assetPath),
+    importAllOszFiles: (assetsPath) => ipcRenderer.invoke('import-all-osz-files', assetsPath),
 };
 contextBridge.exposeInMainWorld('electron', api);

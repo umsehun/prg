@@ -94,5 +94,15 @@ export declare class ChartImportService {
      */
     private parseOsuMetadata;
     private countNotes;
+    /**
+     * Import all OSZ files from the public/assets directory
+     * @param assetsPath - Path to the public/assets directory
+     * @returns Promise<{ imported: number, skipped: number, errors: string[] }>
+     */
+    importAllFromDirectory(assetsPath: string): Promise<{
+        imported: number;
+        skipped: number;
+        errors: string[];
+    }>;
 }
 //# sourceMappingURL=ChartImportService.d.ts.map

@@ -6,7 +6,7 @@ import { pathToFileURL } from 'url';
 class PathService {
   private static instance: PathService;
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): PathService {
     if (!PathService.instance) {
@@ -25,7 +25,7 @@ class PathService {
     if (path.isAbsolute(uri)) {
       return uri;
     }
-    
+
     // If it doesn't seem to be a URI, return it as-is but warn the user.
     if (!uri.includes('://')) {
       console.warn(`[PathService] Received a non-URI path to resolve: "${uri}". This may indicate an issue. Passing through.`);
@@ -67,15 +67,15 @@ class PathService {
    */
   public getAssetUrl(uri: string): string {
     if (!uri) return '';
-    
+
     // If it's already a file:// URL, return as-is
     if (uri.startsWith('file://')) {
       return uri;
     }
-    
+
     // Resolve to absolute path first
     const absolutePath = this.resolve(uri);
-    
+
     // Convert to file:// URL
     return pathToFileURL(absolutePath).href;
   }

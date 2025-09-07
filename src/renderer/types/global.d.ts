@@ -9,6 +9,11 @@ declare global {
       handlePinPress: (currentTimeSec?: number) => void;
       loadAsset: (assetPath: string) => Promise<ArrayBuffer>;
       assetExists: (assetPath: string) => Promise<boolean>;
+      importAllOszFiles: (assetsPath?: string) => Promise<{
+        imported: number;
+        skipped: number;
+        errors: string[];
+      }>;
     };
   }
 }

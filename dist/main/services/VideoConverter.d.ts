@@ -1,15 +1,22 @@
 /**
- * Video converter service - currently disabled
- * TODO: Re-implement when fluent-ffmpeg type issues are resolved
+ * Video converter service - converts all video formats to MP4 using ffmpeg
  */
 export declare class VideoConverter {
+    private static readonly SUPPORTED_VIDEO_FORMATS;
     /**
-     * Convert a video file to MP4 format
-     * Currently disabled - using original video files directly
+     * Check if ffmpeg is available on the system
+     */
+    static checkFfmpegAvailable(): Promise<boolean>;
+    /**
+     * Convert a video file to MP4 format using ffmpeg
      */
     static convertToMp4(inputPath: string, outputPath: string): Promise<boolean>;
     /**
-     * Check if video needs conversion (always false for now)
+     * Check if video format is supported for conversion
+     */
+    static isSupportedVideoFormat(filePath: string): boolean;
+    /**
+     * Check if video needs conversion
      */
     static needsConversion(videoPath: string): boolean;
     /**
@@ -17,7 +24,7 @@ export declare class VideoConverter {
      */
     static getMp4Path(videoPath: string): string;
     /**
-     * Ensure MP4 version exists (currently returns original path)
+     * Ensure MP4 version exists for all supported video formats
      */
     static ensureMp4(videoPath: string): Promise<string | null>;
 }

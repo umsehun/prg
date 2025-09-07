@@ -220,4 +220,21 @@ function registerIpcHandlers() {
         // The key is now guaranteed to be keyof Settings, and value has been checked.
         void SettingsManager_1.default.set(key, value);
     });
+    // Chart auto-import handler
+    electron_1.ipcMain.handle('import-all-osz-files', async (_, assetsPath) => {
+        try {
+            // Use default public/assets path if not provided
+            const defaultAssetsPath = path_1.default.join(electron_1.app.getAppPath(), '..', '..', 'public', 'assets');
+            const targetPath = assetsPath || defaultAssetsPath;
+            console.log(`[IPC] Starting batch OSZ import from: ${targetPath}`);
+            const chartImportService = ChartImportService_1.ChartImportService.getInstance();
+            const result = await chartImportService.importAllFromDirectory(targetPath);
+            console.log(`[IPC] Batch import completed: ${result.imported} imported, ${result.skipped} skipped`);
+            return result;
+        }
+        catch (error) {
+            console.error('[IPC] Failed to import OSZ files:', error);
+            throw error;
+        }
+    });
 }
