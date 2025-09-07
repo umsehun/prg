@@ -40,11 +40,11 @@ class PathService {
 
     switch (scheme) {
       case 'media': {
-        const chartsPath = path.join(app.getPath('userData'), 'charts');
+        const chartsPath = path.join('/Users/user/Library/Application Support/prg', 'charts');
         return path.join(chartsPath, rest);
       }
       case 'user': {
-        const userDataPath = app.getPath('userData');
+        const userDataPath = '/Users/user/Library/Application Support/prg';
         return path.join(userDataPath, rest);
       }
       case 'asset': {

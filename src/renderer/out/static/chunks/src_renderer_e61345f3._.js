@@ -567,7 +567,7 @@ const SelectScene = (param)=>{
         }
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "min-h-screen bg-theme-bg flex flex-col items-center justify-center p-8 text-theme-text-light",
+        className: "min-h-screen cyber-bg-animated flex flex-col items-center justify-center p-4 text-white",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$AnimatedSceneBackground$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
@@ -575,13 +575,16 @@ const SelectScene = (param)=>{
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "w-full max-w-6xl h-[70vh] bg-black/30 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/10 flex p-8 z-10",
+                className: "w-full max-w-7xl h-[85vh] game-card flex p-6 z-10 gap-6",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "w-1/3 pr-6 border-r border-white/10 overflow-y-auto",
+                        className: "w-1/3 flex flex-col",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                                className: "text-3xl font-black mb-6 text-theme-accent",
+                                className: "text-3xl font-black mb-4 neon-glow-cyan",
+                                style: {
+                                    color: 'var(--neon-cyan)'
+                                },
                                 children: "SELECT MUSIC"
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
@@ -589,36 +592,43 @@ const SelectScene = (param)=>{
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "space-y-2",
+                                className: "flex-1 overflow-y-auto pr-2 space-y-2 max-h-[calc(85vh-120px)]",
                                 children: charts.map((chart)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                         onClick: ()=>setSelectedChart(chart.id),
-                                        className: "w-full text-left p-4 rounded-lg transition-all duration-200 ".concat(selectedChartId === chart.id ? 'bg-theme-primary/30 border-l-4 border-theme-primary' : 'bg-white/5 hover:bg-white/10'),
+                                        className: "w-full text-left p-4 rounded-lg transition-all duration-300 transform hover:scale-102 ".concat(selectedChartId === chart.id ? 'neon-glow-magenta border-2' : 'bg-white/10 hover:bg-white/20 border border-transparent hover:border-cyan-400'),
+                                        style: {
+                                            backgroundColor: selectedChartId === chart.id ? 'rgba(255, 0, 255, 0.2)' : undefined,
+                                            borderColor: selectedChartId === chart.id ? 'var(--neon-magenta)' : undefined
+                                        },
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "font-bold text-lg",
+                                                className: "font-bold text-lg truncate",
+                                                style: {
+                                                    color: selectedChartId === chart.id ? 'var(--neon-magenta)' : 'white'
+                                                },
                                                 children: chart.title
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                                lineNumber: 97,
+                                                lineNumber: 102,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "text-sm text-white/60",
+                                                className: "text-sm text-gray-400 truncate",
                                                 children: chart.artist
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                                lineNumber: 98,
+                                                lineNumber: 105,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, chart.id, true, {
                                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                        lineNumber: 88,
+                                        lineNumber: 90,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)))
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                lineNumber: 86,
+                                lineNumber: 88,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
@@ -628,143 +638,152 @@ const SelectScene = (param)=>{
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "w-2/3 pl-8 flex flex-col justify-between",
+                        className: "w-2/3 flex flex-col justify-between",
                         children: [
                             selectedChart ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "flex-grow flex flex-col items-center justify-center text-center",
+                                className: "flex-grow flex flex-col items-center justify-center text-center px-4",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "relative w-full max-w-lg h-48 rounded-lg shadow-lg mb-8 border-2 border-white/20 overflow-hidden",
+                                        className: "relative w-full max-w-lg h-48 rounded-xl shadow-2xl mb-6 border-2 neon-glow-green overflow-hidden",
+                                        style: {
+                                            borderColor: 'var(--neon-green)'
+                                        },
                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$BannerImage$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                                             bannerPath: selectedChart.bannerPath || '',
                                             title: selectedChart.title
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                            lineNumber: 109,
+                                            lineNumber: 117,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                        lineNumber: 108,
-                                        columnNumber: 15
-                                    }, ("TURBOPACK compile-time value", void 0)),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                                        className: "text-5xl font-extrabold tracking-tight",
-                                        children: selectedChart.title
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                        lineNumber: 114,
-                                        columnNumber: 15
-                                    }, ("TURBOPACK compile-time value", void 0)),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                        className: "text-2xl text-white/70 mt-2",
-                                        children: selectedChart.artist
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
                                         lineNumber: 115,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
-                                    (()=>{
-                                        console.log('[UI DEBUG] availableDifficulties.length:', availableDifficulties.length);
-                                        return null;
-                                    })(),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+                                        className: "text-4xl font-extrabold tracking-tight mb-2 neon-glow-pulse",
+                                        style: {
+                                            color: 'var(--neon-cyan)'
+                                        },
+                                        children: selectedChart.title
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
+                                        lineNumber: 122,
+                                        columnNumber: 15
+                                    }, ("TURBOPACK compile-time value", void 0)),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "text-xl text-gray-300 mb-6",
+                                        style: {
+                                            color: 'var(--neon-yellow)'
+                                        },
+                                        children: selectedChart.artist
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
+                                        lineNumber: 124,
+                                        columnNumber: 15
+                                    }, ("TURBOPACK compile-time value", void 0)),
                                     availableDifficulties.length > 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "mt-8 w-full max-w-md",
+                                        className: "w-full max-w-md",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                                className: "text-xl font-bold mb-4 text-theme-accent",
+                                                className: "text-xl font-bold mb-4 neon-glow-green",
+                                                style: {
+                                                    color: 'var(--neon-green)'
+                                                },
                                                 children: "Select Difficulty"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                                lineNumber: 124,
+                                                lineNumber: 129,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "grid grid-cols-1 gap-2",
+                                                className: "max-h-32 overflow-y-auto space-y-2 p-2 rounded-lg bg-black/20",
                                                 children: availableDifficulties.map((difficulty, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                                         onClick: ()=>setSelectedDifficultyIndex(index),
-                                                        className: "px-4 py-2 rounded-lg text-left transition-all ".concat(selectedDifficultyIndex === index ? 'bg-theme-accent text-black font-bold' : 'bg-white/10 hover:bg-white/20 text-white'),
+                                                        className: "w-full px-4 py-2 rounded-lg text-left transition-all duration-300 transform hover:scale-105 ".concat(selectedDifficultyIndex === index ? 'neon-glow-yellow font-bold' : 'bg-white/10 hover:bg-white/20 text-white hover:neon-glow-cyan'),
+                                                        style: {
+                                                            backgroundColor: selectedDifficultyIndex === index ? 'rgba(255, 255, 0, 0.2)' : undefined,
+                                                            color: selectedDifficultyIndex === index ? 'var(--neon-yellow)' : undefined
+                                                        },
                                                         children: difficulty
                                                     }, index, false, {
                                                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                                        lineNumber: 127,
+                                                        lineNumber: 134,
                                                         columnNumber: 23
                                                     }, ("TURBOPACK compile-time value", void 0)))
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                                lineNumber: 125,
+                                                lineNumber: 132,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                        lineNumber: 123,
-                                        columnNumber: 17
-                                    }, ("TURBOPACK compile-time value", void 0)),
-                                    availableDifficulties.length <= 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "mt-4 text-sm text-white/50",
-                                        children: [
-                                            "Debug: ",
-                                            availableDifficulties.length,
-                                            " difficulties available"
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                        lineNumber: 144,
+                                        lineNumber: 128,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                lineNumber: 107,
+                                lineNumber: 114,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "flex-grow flex items-center justify-center",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                    className: "text-2xl",
-                                    children: "Select a song"
+                                    className: "text-2xl text-gray-400",
+                                    children: "Select a song to begin"
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                    lineNumber: 151,
+                                    lineNumber: 155,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                lineNumber: 150,
+                                lineNumber: 154,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "flex justify-between items-center",
+                                className: "flex justify-between items-center mt-6",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                         onClick: onBack,
-                                        className: "px-6 py-3 bg-theme-secondary text-white rounded-lg hover:bg-theme-secondary/80 transition-colors",
-                                        children: "Back to Menu"
+                                        className: "game-button",
+                                        style: {
+                                            borderColor: 'var(--neon-red)',
+                                            boxShadow: '0 0 10px var(--neon-red)'
+                                        },
+                                        children: "← Back to Menu"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                        lineNumber: 157,
+                                        lineNumber: 161,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                         onClick: handleStartGame,
                                         disabled: !selectedChart,
-                                        className: "px-12 py-4 text-2xl font-bold bg-theme-accent rounded-lg hover:bg-opacity-80 transition-all disabled:bg-gray-600 disabled:cursor-not-allowed transform hover:scale-105",
+                                        className: "px-12 py-4 text-2xl font-bold rounded-lg transition-all duration-300 transform ".concat(selectedChart ? 'game-button hover:scale-105 neon-glow-pulse' : 'bg-gray-600 cursor-not-allowed text-gray-400'),
+                                        style: selectedChart ? {
+                                            borderColor: 'var(--neon-green)',
+                                            boxShadow: '0 0 20px var(--neon-green)',
+                                            color: 'var(--neon-green)'
+                                        } : {},
                                         children: "GAME START"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                        lineNumber: 163,
+                                        lineNumber: 168,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                                lineNumber: 156,
+                                lineNumber: 160,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/scenes/SelectScene.tsx",
-                        lineNumber: 105,
+                        lineNumber: 112,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
@@ -925,10 +944,14 @@ class AudioService {
         // Electron's IPC can serialize Buffers into Uint8Arrays
         if (data instanceof Uint8Array) {
             // If it's a view of a larger buffer, we might need to copy
-            if (data.byteLength === data.buffer.byteLength) {
-                return data.buffer;
+            // Build a Uint8Array view for the requested range
+            const view = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+            // If the underlying buffer is already a plain ArrayBuffer and the view covers the whole buffer, return it directly
+            if (view.byteOffset === 0 && view.byteLength === view.buffer.byteLength && view.buffer instanceof ArrayBuffer) {
+                return view.buffer;
             }
-            return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+            // Otherwise create a copy via slice() which returns a new Uint8Array backed by an ArrayBuffer
+            return view.slice().buffer;
         }
         // Handle the { type: 'Buffer', data: [...] } serialization format
         if (data && data.type === 'Buffer' && Array.isArray(data.data)) {

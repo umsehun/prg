@@ -13,7 +13,7 @@ export class AudioService {
   private isPaused: boolean = false;
   private volume: number = 1.0;
   private gainNode: GainNode | null = null;
-  
+
   // Multi-channel audio support
   private hitsoundSources: Map<string, AudioBufferSourceNode> = new Map();
   private hitsoundBuffers: Map<string, AudioBuffer> = new Map();
@@ -47,10 +47,14 @@ export class AudioService {
     // Electron's IPC can serialize Buffers into Uint8Arrays
     if (data instanceof Uint8Array) {
       // If it's a view of a larger buffer, we might need to copy
-      if (data.byteLength === data.buffer.byteLength) {
-        return data.buffer;
+      // Build a Uint8Array view for the requested range
+      const view = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+      // If the underlying buffer is already a plain ArrayBuffer and the view covers the whole buffer, return it directly
+      if (view.byteOffset === 0 && view.byteLength === view.buffer.byteLength && view.buffer instanceof ArrayBuffer) {
+        return view.buffer as ArrayBuffer;
       }
-      return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+      // Otherwise create a copy via slice() which returns a new Uint8Array backed by an ArrayBuffer
+      return view.slice().buffer;
     }
     // Handle the { type: 'Buffer', data: [...] } serialization format
     if (data && data.type === 'Buffer' && Array.isArray(data.data)) {
@@ -61,10 +65,10 @@ export class AudioService {
 
   private setupGainNodes(): void {
     if (!this.audioContext) return;
-    
+
     this.gainNode = this.audioContext.createGain();
     this.gainNode.connect(this.audioContext.destination);
-    
+
     this.hitsoundGainNode = this.audioContext.createGain();
     this.hitsoundGainNode.connect(this.audioContext.destination);
   }
@@ -96,13 +100,13 @@ export class AudioService {
     }
     try {
       console.log(`[AudioService] Loading hitsound '${soundName}' from: ${audioPath}`);
-      
+
       // Use fetch API directly with file:// URL - no more IPC needed!
       const response = await fetch(audioPath);
       if (!response.ok) {
         throw new Error(`Failed to fetch audio: ${response.status} ${response.statusText}`);
       }
-      
+
       const arrayBuffer = await response.arrayBuffer();
       const buffer = await this.audioContext!.decodeAudioData(arrayBuffer);
       this.hitsoundBuffers.set(soundName, buffer);
@@ -183,7 +187,7 @@ export class AudioService {
    */
   public playHitsound(soundName: string, volume: number = 1.0): void {
     if (!this.audioContext || !this.hitsoundGainNode) return;
-    
+
     const buffer = this.hitsoundBuffers.get(soundName);
     if (!buffer) {
       console.warn(`Hitsound not found: ${soundName}`);
@@ -192,15 +196,15 @@ export class AudioService {
 
     const source = this.audioContext.createBufferSource();
     const gainNode = this.audioContext.createGain();
-    
+
     source.buffer = buffer;
     gainNode.gain.value = volume;
-    
+
     source.connect(gainNode);
     gainNode.connect(this.hitsoundGainNode);
-    
+
     source.start();
-    
+
     // Clean up after playback
     source.onended = () => {
       source.disconnect();
@@ -213,15 +217,15 @@ export class AudioService {
    */
   public getCurrentTime(): number {
     if (!this.audioContext) return 0;
-    
+
     if (this.isPaused) {
       return this.pauseTime;
     }
-    
+
     if (this.isPlaying && this.startTime > 0) {
       return this.audioContext.currentTime - this.startTime;
     }
-    
+
     return 0;
   }
 

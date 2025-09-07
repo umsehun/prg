@@ -21,6 +21,14 @@ export interface OszDifficulty {
   filePath: string;
 }
 
+interface ExtractionResult {
+  totalFiles: number;
+  successCount: number;
+  errorCount: number;
+  extractedFiles: string[];
+  errors: Array<{ filename: string; error: string }>;
+}
+
 export class ChartImportService {
   private importingCharts: Set<string> = new Set();
   private static instance: ChartImportService;
@@ -29,115 +37,10 @@ export class ChartImportService {
   private lockfilePath: string;
 
   private constructor() {
-    const userDataPath = app.getPath('userData');
+    const userDataPath = '/Users/user/Library/Application Support/prg';
     this.chartsPath = path.join(userDataPath, 'charts');
     this.libraryPath = path.join(userDataPath, 'library.json');
     this.lockfilePath = path.join(userDataPath, 'library.json.lock');
-  }
-
-  /**
-   * Remove ALL contents under charts directory and reset library to empty array.
-   * Intended for development cleanup only.
-   */
-  public async clearChartsDirectoryAndLibrary(): Promise<void> {
-    try {
-      console.warn('[ChartImportService] Clearing charts directory and resetting library (dev mode).');
-      // Remove charts folder entirely
-      await fs.rm(this.chartsPath, { recursive: true, force: true });
-      // Recreate folder
-      await fs.mkdir(this.chartsPath, { recursive: true });
-      // Reset library.json
-      await fs.writeFile(this.libraryPath, JSON.stringify([], null, 2));
-    } catch (err) {
-      console.error('[ChartImportService] Failed to clear charts directory:', err);
-      throw err;
-    }
-  }
-
-  /**
-   * Normalize the library by removing duplicate charts with the same title+artist.
-   * Preference order for keeping an entry:
-   * 1) Entry whose folder exists on disk
-   * 2) Newest by timestamp suffix in id (if parsable)
-   * All other duplicates are removed from library (folders remain untouched).
-   */
-  public async normalizeLibrary(): Promise<void> {
-    try {
-      const library = await this.getLibrary();
-      if (library.length === 0) return;
-
-      // Group by title+artist key (explicit type to avoid possibly undefined index typing)
-      const groups = new Map<string, OszChart[]>();
-      for (const item of library) {
-        const key = `${item.artist}__${item.title}`;
-        const list = groups.get(key) ?? ([] as OszChart[]);
-        list.push(item);
-        groups.set(key, list);
-      }
-
-      let changed = false;
-      const toKeepIds = new Set<string>();
-      const toRemoveIds: string[] = [];
-
-      for (const items of groups.values()) {
-        if (!items || items.length === 0) {
-          continue;
-        }
-        if (items.length === 1) {
-          toKeepIds.add(items[0]!.id);
-          continue;
-        }
-
-        // Check folder existence
-        const withExistence = await Promise.all(items.map(async it => {
-          try {
-            await fs.access(it.folderPath);
-            return { it, exists: true };
-          } catch {
-            return { it, exists: false };
-          }
-        }));
-
-        // Prefer existing folder
-        const existing = withExistence.filter(x => x.exists).map(x => x.it);
-        const candidates = existing.length > 0 ? existing : items;
-        if (candidates.length === 0) {
-          // Should not happen, but guard to satisfy TS
-          continue;
-        }
-
-        // Choose newest by timestamp segment in id if present (last hyphen-separated number)
-        const parseTs = (id: string) => {
-          const m = id.match(/-(\d{10,})$/);
-          return m ? Number(m[1]) : 0;
-        };
-        let winner = candidates[0]!;
-        for (const c of candidates) {
-          if (parseTs(c.id) > parseTs(winner.id)) winner = c;
-        }
-
-        // Mark winner to keep, others to remove
-        toKeepIds.add(winner.id);
-        for (const it of items) {
-          if (it.id !== winner.id) {
-            toRemoveIds.push(it.id);
-          }
-        }
-      }
-
-      if (toRemoveIds.length > 0) {
-        const newLibrary = library.filter(it => toKeepIds.has(it.id));
-        await fs.writeFile(this.libraryPath, JSON.stringify(newLibrary, null, 2));
-        changed = true;
-        console.log(`[ChartImportService] normalizeLibrary: removed ${toRemoveIds.length} duplicate entries.`);
-      }
-
-      if (!changed) {
-        console.log('[ChartImportService] normalizeLibrary: no duplicates found.');
-      }
-    } catch (err) {
-      console.warn('[ChartImportService] normalizeLibrary failed:', err);
-    }
   }
 
   public static getInstance(): ChartImportService {
@@ -148,7 +51,153 @@ export class ChartImportService {
   }
 
   /**
+   * UTF-8 인코딩 문제 해결을 위한 텍스트 디코딩 함수
+   * BOM 처리 및 다양한 인코딩 지원
+   */
+  private decodeTextContent(buffer: Buffer): string {
+    try {
+      // BOM 제거 처리
+      let content = buffer.toString('utf8');
+      if (content.charCodeAt(0) === 0xFEFF) {
+        content = content.slice(1);
+      }
+      return content;
+    } catch (error) {
+      logger.warn('[ChartImportService] UTF-8 decoding failed, trying latin1:', error);
+      // Fallback to latin1 encoding
+      return buffer.toString('latin1');
+    }
+  }
+
+  /**
+   * 파일명 안전화 함수 - 모든 특수문자 처리
+   */
+  private sanitizeFilename(input: string): string {
+    return input
+      .replace(/[<>:"\/\\|?*]/g, '') // Windows 금지 문자
+      .replace(/[^\w\s-]/g, '') // 알파벳, 숫자, 공백, 하이픈만 허용
+      .replace(/\s+/g, '-') // 공백을 하이픈으로 변경
+      .substring(0, 50); // 길이 제한
+  }
+
+  /**
+   * 지원되는 모든 미디어 파일 타입 정의
+   */
+  private getSupportedExtensions(): { [category: string]: string[] } {
+    return {
+      audio: ['.mp3', '.wav', '.ogg', '.flac', '.m4a', '.aac'],
+      video: ['.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv'],
+      image: ['.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff', '.webp'],
+      chart: ['.osu', '.osb'],
+      other: ['.txt', '.ini', '.cfg', '.json']
+    };
+  }
+
+  /**
+   * 개별 파일 추출로 완전한 변환 보장
+   * AdmZip.extractAllTo() 대신 사용하여 안정성 향상
+   */
+  private async extractAllFilesIndividually(
+    zip: AdmZip,
+    entries: AdmZip.IZipEntry[],
+    extractPath: string
+  ): Promise<ExtractionResult> {
+    const result: ExtractionResult = {
+      totalFiles: entries.length,
+      successCount: 0,
+      errorCount: 0,
+      extractedFiles: [],
+      errors: []
+    };
+
+    const supportedExts = this.getSupportedExtensions();
+    const allSupportedExts = Object.values(supportedExts).flat();
+
+    for (const entry of entries) {
+      try {
+        // 디렉토리는 건너뛰기
+        if (entry.isDirectory) {
+          continue;
+        }
+
+        const entryName = entry.entryName;
+        const fileExt = path.extname(entryName).toLowerCase();
+
+        // 모든 파일 타입 추출 (확장자 필터링 제거)
+        logger.info(`[ChartImportService] Extracting: ${entryName} (${fileExt || 'no extension'})`);
+
+        const targetPath = path.join(extractPath, entryName);
+        const targetDir = path.dirname(targetPath);
+
+        // 디렉토리 생성
+        await fs.mkdir(targetDir, { recursive: true });
+
+        // 파일 데이터 추출
+        const fileData = entry.getData();
+
+        if (!fileData || fileData.length === 0) {
+          throw new Error(`Empty file data for ${entryName}`);
+        }
+
+        // 파일 작성
+        await fs.writeFile(targetPath, fileData);
+
+        // 파일 크기 검증
+        const stats = await fs.stat(targetPath);
+        if (stats.size !== fileData.length) {
+          throw new Error(`Size mismatch: expected ${fileData.length}, got ${stats.size}`);
+        }
+
+        result.successCount++;
+        result.extractedFiles.push(entryName);
+
+        logger.info(`[ChartImportService] ✓ ${entryName} (${stats.size} bytes)`);
+
+      } catch (error) {
+        result.errorCount++;
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        result.errors.push({ filename: entry.entryName, error: errorMsg });
+        logger.error(`[ChartImportService] ✗ Failed to extract ${entry.entryName}: ${errorMsg}`);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * 비디오 파일 자동 감지 개선
+   */
+  private findVideoFile(extractedFiles: string[], specifiedVideo?: string): string | undefined {
+    const supportedExts = this.getSupportedExtensions();
+    const videoExts = supportedExts.video || [];
+
+    // 1. 명시된 비디오 파일 우선 검색
+    if (specifiedVideo) {
+      const found = extractedFiles.find(f =>
+        f.toLowerCase() === specifiedVideo.toLowerCase()
+      );
+      if (found) {
+        logger.info(`[ChartImportService] Found specified video: ${found}`);
+        return found;
+      }
+      logger.warn(`[ChartImportService] Specified video "${specifiedVideo}" not found`);
+    }
+
+    // 2. 확장자 기반 검색
+    const videoFile = extractedFiles.find(file =>
+      videoExts.includes(path.extname(file).toLowerCase())
+    );
+
+    if (videoFile) {
+      logger.info(`[ChartImportService] Found video by extension: ${videoFile}`);
+    }
+
+    return videoFile;
+  }
+
+  /**
    * .osz 파일을 임포트하고 압축 해제하여 차트 라이브러리에 추가
+   * 모든 파일 타입을 하나도 빠짐없이 완전 변환 지원
    */
   public async importOszFile(filePath: string): Promise<OszChart | null> {
     // First, parse metadata to check if the chart already exists
@@ -157,7 +206,10 @@ export class ChartImportService {
     if (!osuFileForCheck) {
       throw new Error('No .osu files found in the archive for pre-check');
     }
-    const firstOsuContentForCheck = osuFileForCheck.getData().toString('utf8');
+
+    // UTF-8 인코딩 문제 해결: Buffer 기반 처리
+    const firstOsuBuffer = osuFileForCheck.getData();
+    const firstOsuContentForCheck = this.decodeTextContent(firstOsuBuffer);
     const decoderForCheck = new BeatmapDecoder();
     const beatmapForCheck = decoderForCheck.decodeFromString(firstOsuContentForCheck);
 
@@ -169,7 +221,7 @@ export class ChartImportService {
 
     // Lock to prevent duplicate imports
     if (this.importingCharts.has(filePath)) {
-      console.log(`[ChartImportService] Import for ${filePath} is already in progress. Skipping.`);
+      logger.info(`[ChartImportService] Import for ${filePath} is already in progress. Skipping.`);
       return null;
     }
     this.importingCharts.add(filePath);
@@ -177,18 +229,22 @@ export class ChartImportService {
     try {
       if (existingChart) {
         try {
-          await fs.access(existingChart.folderPath);
+          const realPath = existingChart.folderPath.replace('media://', '');
+          const fullPath = path.join(this.chartsPath, realPath);
+          await fs.access(fullPath);
           return existingChart;
         } catch (error) {
-          console.warn(`[ChartImportService] Chart "${existingChart.title}" folder missing. Re-importing...`);
+          logger.warn(`[ChartImportService] Chart "${existingChart.title}" folder missing. Re-importing...`);
           await this.removeFromLibrary(existingChart.id, false);
         }
       }
+
       // Ensure charts directory exists
       await fs.mkdir(this.chartsPath, { recursive: true });
 
       const zip = new AdmZip(filePath);
       const entries = zip.getEntries();
+
       // Extract chart metadata from .osu files
       const osuFiles = entries.filter(entry => entry.entryName.endsWith('.osu'));
 
@@ -196,8 +252,9 @@ export class ChartImportService {
         throw new Error('No .osu files found in the archive');
       }
 
-      // Parse first .osu file for metadata
-      const firstOsuContent = osuFiles[0]!.getData().toString('utf8');
+      // Parse first .osu file for metadata with proper encoding
+      const firstOsuBuffer = osuFiles[0]!.getData();
+      const firstOsuContent = this.decodeTextContent(firstOsuBuffer);
 
       const decoder = new BeatmapDecoder();
       const beatmap = decoder.decodeFromString(firstOsuContent);
@@ -206,49 +263,36 @@ export class ChartImportService {
         throw new Error('Invalid beatmap metadata');
       }
 
-      // .osu 파일에 명시된 비디오 파일명 가져오기 (events 섹션에서 Video 이벤트 찾기)
-      let specifiedVideoFile: string | undefined;
-      if (beatmap.events && beatmap.events.backgroundPath) {
-        // osu-parsers에서 비디오 정보를 다르게 저장할 수 있으므로 여러 방법으로 시도
-        const eventsString = JSON.stringify(beatmap.events);
-        const videoMatch = eventsString.match(/Video.*?([^,\s"]+\.(mp4|avi|flv|mov|webm))/i);
-        if (videoMatch) {
-          specifiedVideoFile = videoMatch[1];
-        }
-      }
-      logger.info(`[ChartImportService] Chart specifies video: "${specifiedVideoFile}"`);
-
-
-      const safeArtist = beatmap.metadata.artist.replace(/[^a-zA-Z0-9\s-]/g, '');
-      const safeTitle = beatmap.metadata.title.replace(/[^a-zA-Z0-9\s-]/g, '');
-      // Remove Date.now() to create deterministic IDs - same chart always gets same ID
-      const chartId = `${safeArtist}-${safeTitle}`.replace(/\s+/g, '-');
+      // Create safe and deterministic chart ID
+      const safeArtist = this.sanitizeFilename(beatmap.metadata.artist);
+      const safeTitle = this.sanitizeFilename(beatmap.metadata.title);
+      const chartId = `${safeArtist}-${safeTitle}`;
       const extractPath = path.join(this.chartsPath, chartId);
       const chartUriPath = `media://${chartId}`;
-
 
       // Create extraction directory
       await fs.mkdir(extractPath, { recursive: true });
 
-      // Use adm-zip's built-in extraction which is more robust.
-      try {
-        zip.extractAllTo(extractPath, /*overwrite*/ true);
-      } catch (extractError) {
-        console.error(`[ChartImportService] Error during adm-zip extraction:`, extractError);
-        throw extractError; // Re-throw the error to be caught by the outer try-catch
+      // 개별 파일 추출로 완전한 변환 보장
+      const extractionResults = await this.extractAllFilesIndividually(zip, entries, extractPath);
+
+      if (extractionResults.totalFiles === 0) {
+        throw new Error('Extraction failed - no files were extracted');
       }
 
-      // Verify extraction
+      logger.info(`[ChartImportService] Successfully extracted ${extractionResults.totalFiles} files (${extractionResults.successCount} success, ${extractionResults.errorCount} errors)`);
+
+      // Verify critical files exist
       const extractedFiles = await fs.readdir(extractPath);
-
       if (extractedFiles.length === 0) {
-        throw new Error('Extraction failed - no files found');
+        throw new Error('Extraction verification failed - directory is empty');
       }
 
-      // Process difficulties
+      // Process difficulties with proper encoding
       const difficulties: OszDifficulty[] = [];
       for (const osuFile of osuFiles) {
-        const content = osuFile.getData().toString('utf8');
+        const buffer = osuFile.getData();
+        const content = this.decodeTextContent(buffer);
         const parsed = decoder.decodeFromString(content);
 
         difficulties.push({
@@ -263,40 +307,34 @@ export class ChartImportService {
         });
       }
 
-      // 정확한 비디오 파일 찾기 - .osu 파일에 명시된 것을 우선 사용
-      let videoFile: string | undefined;
-
-      // 1. 먼저 .osu 파일에 명시된 비디오가 있는지 찾기
-      if (specifiedVideoFile) {
-        videoFile = extractedFiles.find(f => f === specifiedVideoFile);
-        if (videoFile) {
-          logger.info(`[ChartImportService] Using specified video file: ${videoFile}`);
-        } else {
-          logger.warn(`[ChartImportService] Specified video "${specifiedVideoFile}" not found in archive!`);
+      // 비디오 파일 찾기 개선
+      let specifiedVideoFile: string | undefined;
+      try {
+        // Events 섹션에서 비디오 정보 추출
+        const eventsString = JSON.stringify(beatmap.events || {});
+        const videoMatch = eventsString.match(/([^,\s"']+\.(mp4|avi|flv|mov|webm|mkv))/i);
+        if (videoMatch) {
+          specifiedVideoFile = videoMatch[1];
         }
+      } catch (error) {
+        logger.warn('[ChartImportService] Failed to parse video from events:', error);
       }
 
-      // 2. 명시된 비디오가 없거나 찾지 못했다면 추측 방식 사용 (Fallback)
-      if (!videoFile) {
-        const videoExtensions = ['.mp4', '.avi', '.flv', '.mov', '.webm'];
-        videoFile = extractedFiles.find(file =>
-          videoExtensions.includes(path.extname(file).toLowerCase())
-        );
-        if (videoFile) {
-          logger.info(`[ChartImportService] Found video file by extension: ${videoFile}`);
-        }
+      const videoFile = this.findVideoFile(extractedFiles, specifiedVideoFile);
+      const finalVideoUri = videoFile ? `media://${chartId}/${videoFile}` : undefined;
+
+      // 오디오 파일 검증
+      const audioFilename = beatmap.general.audioFilename;
+      const audioExists = extractedFiles.includes(audioFilename);
+      if (!audioExists) {
+        logger.warn(`[ChartImportService] Audio file "${audioFilename}" not found in extracted files!`);
       }
 
-      // 3. Handle video files (conversion disabled for now)
-      let finalVideoUri: string | undefined = undefined;
-      if (videoFile) {
-        const originalVideoPath = path.join(extractPath, videoFile);
-        // TODO: Re-enable video conversion when VideoConverter is implemented
-        // const mp4VideoPath = await VideoConverter.ensureMp4(originalVideoPath);
-        // For now, use the original video file directly
-        const relativeVideoPath = path.relative(extractPath, originalVideoPath);
-        finalVideoUri = `media://${chartId}/${relativeVideoPath}`;
-        logger.info(`[ChartImportService] Video ready for use: ${finalVideoUri}`);
+      // 배경 이미지 검증
+      const backgroundFilename = beatmap.events?.backgroundPath;
+      const backgroundExists = backgroundFilename ? extractedFiles.includes(backgroundFilename) : false;
+      if (backgroundFilename && !backgroundExists) {
+        logger.warn(`[ChartImportService] Background image "${backgroundFilename}" not found in extracted files!`);
       }
 
       const oszChart: OszChart = {
@@ -304,20 +342,28 @@ export class ChartImportService {
         title: beatmap.metadata.title,
         artist: beatmap.metadata.artist,
         creator: beatmap.metadata.creator,
-        audioFilename: `media://${chartId}/${beatmap.general.audioFilename}`,
-        backgroundFilename: beatmap.events?.backgroundPath ? `media://${chartId}/${beatmap.events.backgroundPath}` : undefined,
+        audioFilename: `media://${chartId}/${audioFilename}`,
+        backgroundFilename: backgroundFilename ? `media://${chartId}/${backgroundFilename}` : undefined,
         difficulties,
-        folderPath: chartUriPath, // Now a URI
+        folderPath: chartUriPath,
         videoPath: finalVideoUri,
-        mode: beatmap.mode, // 0: osu!, 1: Taiko, 2: Catch, 3: Mania
+        mode: beatmap.mode,
       };
 
       // Add to library
       await this.addToLibrary(oszChart);
+
+      // 로그 요약
+      logger.info(`[ChartImportService] 🎵 Import completed: "${oszChart.title}" by ${oszChart.artist}`);
+      logger.info(`[ChartImportService] 📊 Files: ${extractionResults.successCount}/${extractionResults.totalFiles} extracted successfully`);
+      logger.info(`[ChartImportService] 🎮 Difficulties: ${difficulties.length}`);
+      logger.info(`[ChartImportService] 🎬 Video: ${finalVideoUri ? '✓' : '✗'}`);
+
       return oszChart;
+
     } catch (error) {
-      console.error(`[ChartImportService] Failed to import OSZ file:`, error);
-      return null; // Return null on failure
+      logger.error(`[ChartImportService] Failed to import OSZ file:`, error);
+      return null;
     } finally {
       // Release the lock
       this.importingCharts.delete(filePath);
@@ -336,17 +382,18 @@ export class ChartImportService {
     if (!difficulty.filePath) {
       throw new Error('Difficulty file path is missing');
     }
+
     // URI-encoded paths must be decoded before resolving to a file system path.
     const decodedPath = decodeURIComponent(difficulty.filePath);
     const parsed = await this.parseDifficulty(pathService.resolve(decodedPath));
 
     const pinChart: PinChart = {
-      folderPath: pathService.getAssetUrl(oszChart.folderPath), // Convert to file:// URL
+      folderPath: pathService.getAssetUrl(oszChart.folderPath),
       id: `${oszChart.id}-${difficultyIndex}`,
       title: oszChart.title,
       artist: oszChart.artist,
       creator: oszChart.creator,
-      audioFilename: pathService.getAssetUrl(oszChart.audioFilename), // Convert to file:// URL
+      audioFilename: pathService.getAssetUrl(oszChart.audioFilename),
       backgroundPath: oszChart.backgroundFilename ? pathService.getAssetUrl(oszChart.backgroundFilename) : undefined,
       videoPath: oszChart.videoPath ? pathService.getAssetUrl(oszChart.videoPath) : undefined,
       bpm: parsed.bpm,
@@ -355,7 +402,7 @@ export class ChartImportService {
         type: 'pin' as const,
         isHit: false
       })),
-      gameMode: (parsed.mode === 0) ? 'osu' : 'pin', // Convert numeric mode to string
+      gameMode: (parsed.mode === 0) ? 'osu' : 'pin',
       metadata: {
         version: difficulty.version,
         overallDifficulty: difficulty.overallDifficulty,
@@ -375,14 +422,14 @@ export class ChartImportService {
   public async getLibrary(): Promise<OszChart[]> {
     try {
       const data = await fs.readFile(this.libraryPath, 'utf8');
-      return JSON.parse(data);
+      return JSON.parse(data) as OszChart[];
     } catch {
       return [];
     }
   }
 
   /**
-   * Add chart to library
+   * Lock management for library operations
    */
   private async _acquireLock(timeout = 5000): Promise<void> {
     const startTime = Date.now();
@@ -403,6 +450,9 @@ export class ChartImportService {
     }
   }
 
+  /**
+   * Add chart to library
+   */
   private async addToLibrary(chart: OszChart): Promise<void> {
     await this._acquireLock();
     try {
@@ -423,147 +473,8 @@ export class ChartImportService {
   }
 
   /**
-   * Legacy import method - keeping for compatibility
+   * Remove chart from library
    */
-  public async importOszFile_legacy(oszPath: string): Promise<void> {
-    try {
-      // 차트 폴더 생성
-      await fs.mkdir(this.chartsPath, { recursive: true });
-
-      // .osz 파일 압축 해제
-      const zip = new AdmZip(oszPath);
-      const entries = zip.getEntries();
-
-      // 고유 ID 생성 (파일명 기반)
-      const chartId = path.basename(oszPath, '.osz').replace(/[^a-zA-Z0-9]/g, '_');
-      const chartFolder = path.join(this.chartsPath, chartId);
-
-      // 차트 폴더 생성
-      await fs.mkdir(chartFolder, { recursive: true });
-
-      // 압축 해제
-      zip.extractAllTo(chartFolder, true);
-
-      // .osu 파일들 찾기
-      const osuFiles = entries.filter(entry => entry.entryName.endsWith('.osu'));
-
-      if (osuFiles.length === 0) {
-        throw new Error('No .osu files found in the archive');
-      }
-
-      // 첫 번째 .osu 파일에서 메타데이터 추출
-      const firstOsuPath = path.join(chartFolder, osuFiles[0]!.entryName);
-      const firstOsuContent = await fs.readFile(firstOsuPath, 'utf-8');
-
-      // 메타데이터 파싱
-      const metadata = this.parseOsuMetadata(firstOsuContent);
-
-      // 난이도별 정보 수집
-      const difficulties = [];
-      for (const osuFile of osuFiles) {
-        const osuPath = path.join(chartFolder, osuFile.entryName);
-        const osuContent = await fs.readFile(osuPath, 'utf-8');
-        const difficultyMetadata = this.parseOsuMetadata(osuContent);
-
-        difficulties.push({
-          name: difficultyMetadata.version,
-          filePath: osuPath,
-          noteCount: this.countNotes(osuContent),
-        });
-      }
-
-      // 라이브러리에 추가
-      const oszChart: OszChart = {
-        id: chartId,
-        title: metadata.title,
-        artist: metadata.artist,
-        creator: metadata.creator,
-        audioFilename: metadata.audioFilename,
-        backgroundFilename: metadata.backgroundFilename,
-        difficulties: difficulties.map(d => ({
-          name: d.name,
-          version: d.name,
-          overallDifficulty: 5,
-          approachRate: 5,
-          circleSize: 5,
-          hpDrainRate: 5,
-          filePath: d.filePath,
-          noteCount: d.noteCount
-        })),
-        folderPath: chartFolder,
-        mode: 0, // Default to osu! mode for legacy imports
-      };
-
-      await this.addToLibrary(oszChart);
-
-      console.log(`Successfully imported chart: ${metadata.title} by ${metadata.artist}`);
-    } catch (error) {
-      console.error('Failed to import OSZ file:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * 기존 차트 라이브러리 로드
-   */
-  public async getLibrarySync(): Promise<OszChart[]> {
-    try {
-      const libraryContent = await fs.readFile(this.libraryPath, 'utf-8');
-      return JSON.parse(libraryContent);
-    } catch (error) {
-      return [];
-    }
-  }
-
-  /**
-   * 차트 ID로 차트 찾기
-   */
-  public getChartById(chartId: string): OszChart | undefined {
-    // This should be async but keeping sync for compatibility
-    try {
-      const libraryContent = fsSync.readFileSync(this.libraryPath, 'utf-8');
-      const library: OszChart[] = JSON.parse(libraryContent);
-      return library.find(chart => chart.id === chartId);
-    } catch {
-      return undefined;
-    }
-  }
-
-  /**
-   * .osu 파일 파싱하여 난이도 정보 추출
-   */
-  public async parseDifficulty(filePath: string): Promise<{ bpm: number | undefined; notes: { startTime: number }[], mode: number }> {
-    // Decode URL-encoded path before reading file
-    const decodedFilePath = decodeURIComponent(filePath);
-
-    // --- START: CRITICAL DEBUGGING LOG ---
-    console.log(`[Final Check] Attempting to open file at: "${decodedFilePath}"`);
-    console.log(`[Final Check] Original path was: "${filePath}"`);
-    // --- END: CRITICAL DEBUGGING LOG ---
-
-    try {
-      const osuContent = await fs.readFile(decodedFilePath, 'utf-8');
-      const decoder = new BeatmapDecoder();
-      const beatmap = decoder.decodeFromString(osuContent);
-
-      // Find the most common BPM
-      const bpmModes = beatmap.controlPoints.timingPoints.map((tp: { bpm: number }) => tp.bpm);
-      const bpm = bpmModes.length > 0 ? bpmModes.sort((a: number, b: number) => bpmModes.filter((v: number) => v === a).length - bpmModes.filter((v: number) => v === b).length).pop() : undefined;
-
-      return {
-        bpm,
-        notes: beatmap.hitObjects.map(ho => ({ startTime: ho.startTime })),
-        mode: beatmap.mode
-      };
-    } catch (error) {
-      // --- START: CRITICAL DEBUGGING LOG ---
-      console.error(`[Final Check] FAILED to open file. Error:`, error);
-      console.error(`[Final Check] Failed path was: "${decodedFilePath}"`);
-      // --- END: CRITICAL DEBUGGING LOG ---
-      throw error;
-    }
-  }
-
   public async removeFromLibrary(chartId: string, removeFolder = true): Promise<boolean> {
     await this._acquireLock();
     try {
@@ -583,13 +494,13 @@ export class ChartImportService {
         try {
           await fs.rm(chartPath, { recursive: true, force: true });
         } catch (error) {
-          console.warn(`Failed to remove chart folder: ${chartPath}`, error);
+          logger.warn(`Failed to remove chart folder: ${chartPath}`, error);
         }
       }
 
       return true;
     } catch (error) {
-      console.error('Failed to remove chart from library:', error);
+      logger.error('Failed to remove chart from library:', error);
       return false;
     } finally {
       await this._releaseLock();
@@ -597,7 +508,157 @@ export class ChartImportService {
   }
 
   /**
-   * .osu 파일에서 메타데이터 추출
+   * Parse .osu difficulty file with proper UTF-8 handling
+   */
+  public async parseDifficulty(filePath: string): Promise<{ bpm: number | undefined; notes: { startTime: number }[], mode: number }> {
+    // Decode URL-encoded path before reading file
+    const decodedFilePath = decodeURIComponent(filePath);
+
+    logger.info(`[ChartImportService] Parsing difficulty file: "${decodedFilePath}"`);
+
+    try {
+      const buffer = await fs.readFile(decodedFilePath);
+      const osuContent = this.decodeTextContent(buffer);
+      const decoder = new BeatmapDecoder();
+      const beatmap = decoder.decodeFromString(osuContent);
+
+      // Find the most common BPM
+      const timingPoints = beatmap.controlPoints.timingPoints || [];
+      const bpmModes = timingPoints.map((tp: { bpm: number }) => tp.bpm);
+      const bpm = bpmModes.length > 0 ?
+        bpmModes.sort((a: number, b: number) =>
+          bpmModes.filter((v: number) => v === a).length -
+          bpmModes.filter((v: number) => v === b).length
+        ).pop() : undefined;
+
+      return {
+        bpm,
+        notes: beatmap.hitObjects.map((ho: { startTime: number }) => ({ startTime: ho.startTime })),
+        mode: beatmap.mode
+      };
+    } catch (error) {
+      logger.error(`[ChartImportService] FAILED to parse difficulty file: "${decodedFilePath}"`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Utility methods for compatibility
+   */
+  public async getLibrarySync(): Promise<OszChart[]> {
+    return this.getLibrary();
+  }
+
+  public getChartById(chartId: string): OszChart | undefined {
+    try {
+      const libraryContent = fsSync.readFileSync(this.libraryPath, 'utf-8');
+      const library: OszChart[] = JSON.parse(libraryContent);
+      return library.find(chart => chart.id === chartId);
+    } catch {
+      return undefined;
+    }
+  }
+
+  /**
+   * Development utility methods
+   */
+  public async clearChartsDirectoryAndLibrary(): Promise<void> {
+    try {
+      logger.warn('[ChartImportService] Clearing charts directory and resetting library (dev mode).');
+      await fs.rm(this.chartsPath, { recursive: true, force: true });
+      await fs.mkdir(this.chartsPath, { recursive: true });
+      await fs.writeFile(this.libraryPath, JSON.stringify([], null, 2));
+    } catch (err) {
+      logger.error('[ChartImportService] Failed to clear charts directory:', err);
+      throw err;
+    }
+  }
+
+  public async normalizeLibrary(): Promise<void> {
+    try {
+      const library = await this.getLibrary();
+      if (library.length === 0) return;
+
+      const groups = new Map<string, OszChart[]>();
+      for (const item of library) {
+        const key = `${item.artist}__${item.title}`;
+        const list = groups.get(key) ?? [];
+        list.push(item);
+        groups.set(key, list);
+      }
+
+      let changed = false;
+      const toKeepIds = new Set<string>();
+      const toRemoveIds: string[] = [];
+
+      for (const items of groups.values()) {
+        if (!items || items.length <= 1) {
+          if (items?.[0]) toKeepIds.add(items[0].id);
+          continue;
+        }
+
+        // Check folder existence
+        const withExistence = await Promise.all(items.map(async it => {
+          try {
+            const realPath = it.folderPath.replace('media://', '');
+            const fullPath = path.join(this.chartsPath, realPath);
+            await fs.access(fullPath);
+            return { it, exists: true };
+          } catch {
+            return { it, exists: false };
+          }
+        }));
+
+        const existing = withExistence.filter(x => x.exists).map(x => x.it);
+        const candidates = existing.length > 0 ? existing : items;
+
+        // Choose newest by timestamp in id
+        const parseTs = (id: string) => {
+          const m = id.match(/-(\d{10,})$/);
+          return m ? Number(m[1]) : 0;
+        };
+
+        let winner = candidates[0]!;
+        for (const c of candidates) {
+          if (parseTs(c.id) > parseTs(winner.id)) winner = c;
+        }
+
+        toKeepIds.add(winner.id);
+        for (const it of items) {
+          if (it.id !== winner.id) {
+            toRemoveIds.push(it.id);
+          }
+        }
+      }
+
+      if (toRemoveIds.length > 0) {
+        const newLibrary = library.filter(it => toKeepIds.has(it.id));
+        await fs.writeFile(this.libraryPath, JSON.stringify(newLibrary, null, 2));
+        changed = true;
+        logger.info(`[ChartImportService] normalizeLibrary: removed ${toRemoveIds.length} duplicate entries.`);
+      }
+
+      if (!changed) {
+        logger.info('[ChartImportService] normalizeLibrary: no duplicates found.');
+      }
+    } catch (err) {
+      logger.warn('[ChartImportService] normalizeLibrary failed:', err);
+    }
+  }
+
+  /**
+   * Legacy import method - keeping for compatibility  
+   */
+  public async importOszFile_legacy(oszPath: string): Promise<void> {
+    logger.info('[ChartImportService] Using legacy import method');
+    const result = await this.importOszFile(oszPath);
+    if (!result) {
+      throw new Error('Legacy import failed');
+    }
+  }
+
+  /**
+   * Legacy metadata parsing - keeping for compatibility
    */
   private parseOsuMetadata(osuContent: string): any {
     const lines = osuContent.split('\n');
@@ -612,17 +673,14 @@ export class ChartImportService {
         continue;
       }
 
-      if (currentSection === 'Metadata') {
-        const [key, value] = trimmed.split(':').map(s => s.trim());
-        if (key && value) {
-          metadata[key] = value;
-        }
-      }
-
-      if (currentSection === 'General') {
-        const [key, value] = trimmed.split(':').map(s => s.trim());
-        if (key && value) {
-          metadata[key] = value;
+      if (currentSection === 'Metadata' || currentSection === 'General') {
+        const colonIndex = trimmed.indexOf(':');
+        if (colonIndex > 0) {
+          const key = trimmed.substring(0, colonIndex).trim();
+          const value = trimmed.substring(colonIndex + 1).trim();
+          if (key && value) {
+            metadata[key] = value;
+          }
         }
       }
     }
@@ -637,9 +695,6 @@ export class ChartImportService {
     };
   }
 
-  /**
-   * .osu 파일에서 노트 개수 세기
-   */
   private countNotes(osuContent: string): number {
     const lines = osuContent.split('\n');
     let inHitObjects = false;

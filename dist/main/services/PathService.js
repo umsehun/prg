@@ -68,11 +68,11 @@ class PathService {
         const rest = path.join(url.hostname, decodedPathname);
         switch (scheme) {
             case 'media': {
-                const chartsPath = path.join(electron_1.app.getPath('userData'), 'charts');
+                const chartsPath = path.join('/Users/user/Library/Application Support/prg', 'charts');
                 return path.join(chartsPath, rest);
             }
             case 'user': {
-                const userDataPath = electron_1.app.getPath('userData');
+                const userDataPath = '/Users/user/Library/Application Support/prg';
                 return path.join(userDataPath, rest);
             }
             case 'asset': {

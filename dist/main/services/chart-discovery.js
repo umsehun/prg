@@ -33,231 +33,336 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.chartDiscoveryService = exports.ChartDiscoveryService = void 0;
+exports.fuzzyMatch = fuzzyMatch;
 exports.discoverCharts = discoverCharts;
 // src/main/services/chart-discovery.ts
 const fs = __importStar(require("fs/promises"));
-const util_1 = require("util");
-const child_process_1 = require("child_process");
 const path = __importStar(require("path"));
 const electron_1 = require("electron");
-const ChartImportService_1 = require("./ChartImportService");
-const PathService_1 = require("./PathService");
-let isDiscovering = false;
-const execAsync = (0, util_1.promisify)(child_process_1.exec);
-const isDevelopment = process.env.NODE_ENV === 'development';
-const basePath = isDevelopment
-    ? path.join(electron_1.app.getAppPath(), '..', '..')
-    : process.resourcesPath;
-const assetsPath = path.join(basePath, 'public', 'assets');
+const logger_1 = require("../../shared/logger");
 /**
- * Automatically converts .osu files to JSON when JSON files are missing
+ * 문자열 유사도 계산을 위한 Levenshtein Distance 기반 알고리즘
  */
-async function autoConvertOsuFiles() {
-    try {
-        const scriptPath = path.join(process.cwd(), 'scripts', 'auto-convert-osu.js');
-        console.log('🔄 Running auto-conversion for .osu files...');
-        await execAsync(`node "${scriptPath}"`);
+class StringSimilarity {
+    /**
+     * 두 문자열 간의 Levenshtein Distance 계산
+     */
+    static levenshteinDistance(str1, str2) {
+        const matrix = [];
+        const m = str1.length;
+        const n = str2.length;
+        // 행렬 초기화
+        for (let i = 0; i <= m; i++) {
+            matrix[i] = [];
+            matrix[i][0] = i;
+        }
+        for (let j = 0; j <= n; j++) {
+            matrix[0][j] = j;
+        }
+        // 동적 계획법으로 거리 계산
+        for (let i = 1; i <= m; i++) {
+            for (let j = 1; j <= n; j++) {
+                const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                matrix[i][j] = Math.min(matrix[i - 1][j] + 1, // 삭제
+                matrix[i][j - 1] + 1, // 삽입
+                matrix[i - 1][j - 1] + cost // 치환
+                );
+            }
+        }
+        return matrix[m][n];
     }
-    catch (error) {
-        console.error('❌ 자동 변환 실패:', error);
+    /**
+     * 두 문자열의 유사도를 0~1 사이의 값으로 반환
+     * 1에 가까울수록 유사함
+     */
+    static similarity(str1, str2) {
+        if (!str1 || !str2)
+            return 0;
+        const distance = this.levenshteinDistance(str1.toLowerCase(), str2.toLowerCase());
+        const maxLength = Math.max(str1.length, str2.length);
+        if (maxLength === 0)
+            return 1;
+        return 1 - (distance / maxLength);
+    }
+    /**
+     * Jaro-Winkler 유사도 계산 (더 정확한 매칭을 위해)
+     */
+    static jaroWinklerSimilarity(str1, str2) {
+        if (!str1 || !str2)
+            return 0;
+        if (str1 === str2)
+            return 1;
+        const s1 = str1.toLowerCase();
+        const s2 = str2.toLowerCase();
+        const matchDistance = Math.floor(Math.max(s1.length, s2.length) / 2) - 1;
+        const s1Matches = new Array(s1.length).fill(false);
+        const s2Matches = new Array(s2.length).fill(false);
+        let matches = 0;
+        let transpositions = 0;
+        // 매치 찾기
+        for (let i = 0; i < s1.length; i++) {
+            const start = Math.max(0, i - matchDistance);
+            const end = Math.min(i + matchDistance + 1, s2.length);
+            for (let j = start; j < end; j++) {
+                if (s2Matches[j] || s1[i] !== s2[j])
+                    continue;
+                s1Matches[i] = true;
+                s2Matches[j] = true;
+                matches++;
+                break;
+            }
+        }
+        if (matches === 0)
+            return 0;
+        // 전치 계산
+        let k = 0;
+        for (let i = 0; i < s1.length; i++) {
+            if (!s1Matches[i])
+                continue;
+            while (!s2Matches[k])
+                k++;
+            if (s1[i] !== s2[k])
+                transpositions++;
+            k++;
+        }
+        const jaro = (matches / s1.length + matches / s2.length + (matches - transpositions / 2) / matches) / 3;
+        // Winkler 보정
+        let prefixLength = 0;
+        for (let i = 0; i < Math.min(s1.length, s2.length) && s1[i] === s2[i]; i++) {
+            prefixLength++;
+        }
+        const winkler = jaro + (prefixLength * 0.1 * (1 - jaro));
+        return winkler;
+    }
+    /**
+     * 복합 유사도 점수 계산 (Levenshtein + Jaro-Winkler 조합)
+     */
+    static combinedSimilarity(str1, str2) {
+        const levenshtein = this.similarity(str1, str2);
+        const jaroWinkler = this.jaroWinklerSimilarity(str1, str2);
+        // 가중 평균 (Jaro-Winkler에 더 높은 가중치)
+        return (levenshtein * 0.3 + jaroWinkler * 0.7);
     }
 }
 /**
- * assets 디렉토리를 스캔하여 .osz 파일을 직접 파싱해 차트를 발견합니다.
- * 각 폴더에서 .osz 파일을 찾아 파싱하여 정확한 메타데이터를 추출합니다.
+ * 차트 발견 및 매칭 서비스
+ * 하드코딩된 fuzzyMatch 로직을 동적 문자열 유사도 기반으로 대체
+ */
+class ChartDiscoveryService {
+    constructor() {
+        Object.defineProperty(this, "libraryPath", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        const userDataPath = electron_1.app.getPath('userData');
+        this.libraryPath = path.join(userDataPath, 'library.json');
+    }
+    static getInstance() {
+        if (!ChartDiscoveryService.instance) {
+            ChartDiscoveryService.instance = new ChartDiscoveryService();
+        }
+        return ChartDiscoveryService.instance;
+    }
+    /**
+     * 라이브러리 로드
+     */
+    async loadLibrary() {
+        try {
+            const data = await fs.readFile(this.libraryPath, 'utf8');
+            return JSON.parse(data);
+        }
+        catch {
+            return [];
+        }
+    }
+    /**
+     * 정확한 매치 검색 (title + artist)
+     */
+    async findExactMatch(title, artist) {
+        const library = await this.loadLibrary();
+        const exactMatch = library.find(chart => chart.title.toLowerCase() === title.toLowerCase() &&
+            chart.artist.toLowerCase() === artist.toLowerCase());
+        if (exactMatch) {
+            logger_1.logger.info(`[ChartDiscovery] Exact match found: "${title}" by ${artist}`);
+        }
+        return exactMatch || null;
+    }
+    /**
+     * 퍼지 매치 검색 (동적 문자열 유사도 기반)
+     */
+    async findFuzzyMatches(title, artist, threshold = 0.7, maxResults = 5) {
+        const library = await this.loadLibrary();
+        const matches = [];
+        for (const chart of library) {
+            // 제목 유사도 계산
+            const titleSimilarity = StringSimilarity.combinedSimilarity(title, chart.title);
+            // 아티스트 유사도 계산
+            const artistSimilarity = StringSimilarity.combinedSimilarity(artist, chart.artist);
+            // 복합 점수 계산 (제목 60%, 아티스트 40% 가중치)
+            const combinedScore = titleSimilarity * 0.6 + artistSimilarity * 0.4;
+            // 임계값 이상인 경우만 추가
+            if (combinedScore >= threshold) {
+                matches.push({
+                    chart,
+                    similarity: combinedScore,
+                    matchType: combinedScore >= 0.95 ? 'exact' : 'fuzzy'
+                });
+            }
+        }
+        // 유사도 순으로 정렬하고 최대 결과 수만큼 반환
+        matches.sort((a, b) => b.similarity - a.similarity);
+        const results = matches.slice(0, maxResults);
+        logger_1.logger.info(`[ChartDiscovery] Found ${results.length} fuzzy matches for "${title}" by ${artist} (threshold: ${threshold})`);
+        if (results.length > 0) {
+            const topMatch = results[0];
+            if (topMatch) {
+                logger_1.logger.info(`[ChartDiscovery] Top match: "${topMatch.chart.title}" by ${topMatch.chart.artist} (${(topMatch.similarity * 100).toFixed(1)}%)`);
+            }
+        }
+        return results;
+    }
+    /**
+     * 통합 검색 (정확한 매치 우선, 없으면 퍼지 매치)
+     */
+    async searchChart(title, artist, fuzzyThreshold = 0.7) {
+        // 1. 정확한 매치 시도
+        const exactMatch = await this.findExactMatch(title, artist);
+        // 2. 정확한 매치가 없으면 퍼지 매치 시도
+        const fuzzyMatches = exactMatch
+            ? []
+            : await this.findFuzzyMatches(title, artist, fuzzyThreshold);
+        return {
+            exact: exactMatch || undefined,
+            fuzzy: fuzzyMatches
+        };
+    }
+    /**
+     * 차트 ID로 검색
+     */
+    async findChartById(chartId) {
+        const library = await this.loadLibrary();
+        const chart = library.find(c => c.id === chartId);
+        if (chart) {
+            logger_1.logger.info(`[ChartDiscovery] Found chart by ID: ${chartId}`);
+        }
+        return chart || null;
+    }
+    /**
+     * 키워드로 차트 검색 (제목, 아티스트, 크리에이터에서 검색)
+     */
+    async searchByKeyword(keyword, threshold = 0.5, maxResults = 10) {
+        const library = await this.loadLibrary();
+        const matches = [];
+        for (const chart of library) {
+            // 각 필드에서 유사도 계산
+            const titleSimilarity = StringSimilarity.combinedSimilarity(keyword, chart.title);
+            const artistSimilarity = StringSimilarity.combinedSimilarity(keyword, chart.artist);
+            const creatorSimilarity = StringSimilarity.combinedSimilarity(keyword, chart.creator);
+            // 최고 점수 사용
+            const maxSimilarity = Math.max(titleSimilarity, artistSimilarity, creatorSimilarity);
+            if (maxSimilarity >= threshold) {
+                matches.push({
+                    chart,
+                    similarity: maxSimilarity,
+                    matchType: maxSimilarity >= 0.9 ? 'exact' : 'fuzzy'
+                });
+            }
+        }
+        // 유사도 순으로 정렬
+        matches.sort((a, b) => b.similarity - a.similarity);
+        const results = matches.slice(0, maxResults);
+        logger_1.logger.info(`[ChartDiscovery] Keyword search "${keyword}" found ${results.length} results`);
+        return results;
+    }
+    /**
+     * 차트 통계 정보
+     */
+    async getChartStats() {
+        const library = await this.loadLibrary();
+        const uniqueArtists = new Set(library.map(c => c.artist.toLowerCase())).size;
+        const uniqueCreators = new Set(library.map(c => c.creator.toLowerCase())).size;
+        const totalDifficulties = library.reduce((sum, c) => sum + c.difficulties.length, 0);
+        return {
+            totalCharts: library.length,
+            uniqueArtists,
+            uniqueCreators,
+            totalDifficulties
+        };
+    }
+    /**
+     * 라이브러리 유효성 검사
+     */
+    async validateLibrary() {
+        const library = await this.loadLibrary();
+        const valid = [];
+        const invalid = [];
+        for (const chart of library) {
+            try {
+                // 폴더 존재성 검사
+                const folderPath = chart.folderPath.replace('media://', '');
+                const fullPath = path.join(electron_1.app.getPath('userData'), 'charts', folderPath);
+                await fs.access(fullPath);
+                // 기본 파일들 존재성 검사
+                const audioPath = path.join(fullPath, chart.audioFilename.replace(`media://${chart.id}/`, ''));
+                await fs.access(audioPath);
+                valid.push(chart);
+            }
+            catch (error) {
+                const reason = error instanceof Error ? error.message : 'Unknown error';
+                invalid.push({ chart, reason });
+            }
+        }
+        logger_1.logger.info(`[ChartDiscovery] Library validation: ${valid.length} valid, ${invalid.length} invalid charts`);
+        return { valid, invalid };
+    }
+}
+exports.ChartDiscoveryService = ChartDiscoveryService;
+// 레거시 함수 지원 (기존 코드 호환성을 위해)
+async function fuzzyMatch(title, artist) {
+    const service = ChartDiscoveryService.getInstance();
+    const result = await service.searchChart(title, artist, 0.7);
+    const firstFuzzyMatch = result.fuzzy[0];
+    return result.exact || (firstFuzzyMatch ? firstFuzzyMatch.chart : null);
+}
+// 싱글톤 인스턴스 내보내기
+exports.chartDiscoveryService = ChartDiscoveryService.getInstance();
+/**
+ * 레거시 함수: ChartMetadata[] 형식으로 차트 목록 반환
+ * 기존 코드 호환성을 위해 유지
  */
 async function discoverCharts() {
-    // 동시 실행 방지 잠금 메커니즘
-    if (isDiscovering) {
-        console.log('[ChartDiscovery] Discovery is already in progress. Skipping subsequent call.');
-        return [];
-    }
-    isDiscovering = true;
+    const service = ChartDiscoveryService.getInstance();
+    // Private 메서드 대신 public 메서드 사용
     try {
-        // Optional dev cleanup: wipe charts directory and reset library
-        try {
-            const svc = ChartImportService_1.ChartImportService.getInstance();
-            if (process.env.CLEAR_CHARTS_ON_START === '1') {
-                console.warn('[ChartDiscovery] CLEAR_CHARTS_ON_START=1 detected. Clearing charts and library...');
-                await svc.clearChartsDirectoryAndLibrary();
+        const data = await fs.readFile(service['libraryPath'], 'utf8');
+        const library = JSON.parse(data);
+        // OszChart를 ChartMetadata 형식으로 변환
+        const chartMetadata = library.map(chart => ({
+            id: chart.id,
+            title: chart.title,
+            artist: chart.artist,
+            musicPath: chart.audioFilename,
+            chartPath: chart.difficulties[0]?.filePath || '',
+            bannerPath: chart.backgroundFilename,
+            videoPath: chart.videoPath,
+            gameMode: 'pin',
+            oszMetadata: {
+                creator: chart.creator,
+                audioFilename: chart.audioFilename,
+                backgroundFilename: chart.backgroundFilename,
+                difficulties: chart.difficulties,
+                folderPath: chart.folderPath,
+                mode: chart.mode
             }
-        }
-        catch (e) {
-            console.warn('[ChartDiscovery] dev cleanup failed (continuing):', e);
-        }
-        // Normalize library to remove duplicates before discovery
-        try {
-            const svc = ChartImportService_1.ChartImportService.getInstance();
-            await svc.normalizeLibrary();
-        }
-        catch (e) {
-            console.warn('[ChartDiscovery] normalizeLibrary failed (continuing):', e);
-        }
-        const discoveredCharts = [];
-        const assetFolders = await fs.readdir(assetsPath, { withFileTypes: true });
-        for (const folder of assetFolders) {
-            if (!folder.isDirectory())
-                continue;
-            const chartDir = path.join(assetsPath, folder.name);
-            const files = await fs.readdir(chartDir);
-            // .osz 파일 찾기
-            const oszFile = files.find(f => f.toLowerCase().endsWith('.osz'));
-            if (oszFile) {
-                try {
-                    const oszPath = path.join(chartDir, oszFile);
-                    // OSZ 파일을 ChartImportService를 통해 자동으로 임포트
-                    const importService = ChartImportService_1.ChartImportService.getInstance();
-                    const oszChart = await importService.importOszFile(oszPath);
-                    // If the import was skipped (due to lock), try to find existing chart in library
-                    if (!oszChart) {
-                        // Try to find the chart in library by folder name pattern
-                        const library = await importService.getLibrary();
-                        const existingChart = library.find(c => {
-                            const folderMatch = c.folderPath && c.folderPath.includes(folder.name);
-                            const titleMatch = c.title.toLowerCase().includes(folder.name.toLowerCase());
-                            const artistMatch = c.artist.toLowerCase().includes(folder.name.toLowerCase());
-                            const reverseMatch = folder.name.toLowerCase().includes(c.title.toLowerCase()) ||
-                                folder.name.toLowerCase().includes(c.artist.toLowerCase());
-                            // Special fuzzy matching for common variations
-                            const fuzzyMatch = ((folder.name.toLowerCase() === 'totorisu' && c.title.toLowerCase().includes('tetoris')) ||
-                                (folder.name.toLowerCase() === 'bad-apple' && c.title.toLowerCase().includes('bad apple')) ||
-                                (folder.name.toLowerCase() === 'hutuo' && c.title.toLowerCase().includes('any last words')) ||
-                                (folder.name.toLowerCase() === 'jink' && c.title.toLowerCase().includes('jinxed')) ||
-                                (folder.name.toLowerCase() === 'oiioii' && c.title.toLowerCase().includes('oiiaoiia')));
-                            return folderMatch || titleMatch || artistMatch || reverseMatch || fuzzyMatch;
-                        });
-                        if (existingChart) {
-                            // Check if this chart is already in discoveredCharts to avoid duplicates
-                            const alreadyDiscovered = discoveredCharts.find(dc => dc.id === existingChart.id);
-                            if (alreadyDiscovered) {
-                                continue;
-                            }
-                            // Create discoveredChart from existing library entry
-                            const resolvedChartPath = PathService_1.pathService.resolve(existingChart.folderPath);
-                            const extractedFiles = await fs.readdir(resolvedChartPath);
-                            const banner = extractedFiles.find(f => f.toLowerCase().endsWith('.png') || f.toLowerCase().endsWith('.jpg'));
-                            const music = extractedFiles.find(f => f.toLowerCase().endsWith('.mp3') || f.toLowerCase().endsWith('.ogg'));
-                            const videoExtensions = ['.mp4', '.avi', '.flv', '.mov', '.webm'];
-                            const video = extractedFiles.find(f => videoExtensions.includes(path.extname(f).toLowerCase()));
-                            if (music) {
-                                const chartMetadata = {
-                                    id: existingChart.id,
-                                    title: existingChart.title,
-                                    artist: existingChart.artist,
-                                    bannerPath: banner ? `${existingChart.folderPath}/${banner}` : undefined,
-                                    musicPath: `${existingChart.folderPath}/${music}`,
-                                    chartPath: `asset://${folder.name}/${oszFile}`,
-                                    gameMode: 'pin',
-                                    videoPath: video ? `${existingChart.folderPath}/${video}` : undefined,
-                                    oszMetadata: {
-                                        creator: existingChart.creator,
-                                        audioFilename: existingChart.audioFilename,
-                                        backgroundFilename: existingChart.backgroundFilename || undefined,
-                                        difficulties: existingChart.difficulties.map(diff => ({
-                                            name: diff.name,
-                                            version: diff.version
-                                        }))
-                                    }
-                                };
-                                discoveredCharts.push(chartMetadata);
-                            }
-                            else {
-                                console.warn(`[ChartDiscovery] Music file missing in chart ${existingChart.title}. Skipping.`);
-                            }
-                        }
-                        continue;
-                    }
-                    // Verify the chart exists in library with the same ID
-                    const library = await importService.getLibrary();
-                    const libraryChart = library.find(c => c.id === oszChart.id);
-                    let actualChart;
-                    if (!libraryChart) {
-                        // Try to find by title+artist as fallback
-                        const fallbackChart = library.find(c => c.title === oszChart.title && c.artist === oszChart.artist);
-                        if (fallbackChart) {
-                            actualChart = fallbackChart;
-                        }
-                        else {
-                            console.error(`[ChartDiscovery] Chart not found in library: ${oszChart.title}. Skipping.`);
-                            continue;
-                        }
-                    }
-                    else {
-                        actualChart = libraryChart;
-                    }
-                    // OSZ에서 압축 해제된 파일들에서 배너 이미지와 음악/비디오 파일 찾기
-                    const resolvedChartPath = PathService_1.pathService.resolve(oszChart.folderPath);
-                    const extractedFiles = await fs.readdir(resolvedChartPath);
-                    const banner = extractedFiles.find(f => f.toLowerCase().endsWith('.png') || f.toLowerCase().endsWith('.jpg'));
-                    const music = extractedFiles.find(f => f.toLowerCase().endsWith('.mp3') || f.toLowerCase().endsWith('.ogg'));
-                    const videoExtensions = ['.mp4', '.avi', '.flv', '.mov', '.webm'];
-                    const video = extractedFiles.find(f => videoExtensions.includes(path.extname(f).toLowerCase()));
-                    if (music) {
-                        const chartMetadata = {
-                            id: actualChart.id, // Use the definitive ID from the imported/cached chart
-                            title: oszChart.title,
-                            artist: oszChart.artist,
-                            bannerPath: banner ? `${oszChart.folderPath}/${banner}` : undefined, // 배너는 선택사항
-                            musicPath: `${oszChart.folderPath}/${music}`, // 압축 해제된 폴더의 절대 경로
-                            chartPath: `asset://${folder.name}/${oszFile}`, // OSZ 파일을 차트 경로로 사용
-                            gameMode: 'pin',
-                            videoPath: video ? `${oszChart.folderPath}/${video}` : undefined, // 한 번만 설정
-                            oszMetadata: {
-                                creator: oszChart.creator,
-                                audioFilename: oszChart.audioFilename,
-                                backgroundFilename: oszChart.backgroundFilename || undefined,
-                                difficulties: oszChart.difficulties.map(diff => ({
-                                    name: diff.name,
-                                    version: diff.version
-                                }))
-                            }
-                        };
-                        discoveredCharts.push(chartMetadata);
-                    }
-                    else {
-                        console.warn(`[ChartDiscovery] Music file missing in ${folder.name}. Skipping chart.`);
-                    }
-                }
-                catch (error) {
-                    console.error(`[ChartDiscovery] Error processing ${folder.name}/${oszFile}:`, error);
-                    continue;
-                }
-            }
-            else {
-                // Fallback: pin-chart.json이 있는 기존 방식 지원
-                const chartFile = files.find(f => f.toLowerCase() === 'pin-chart.json');
-                const banner = files.find(f => f.toLowerCase().endsWith('.png') || f.toLowerCase().endsWith('.jpg'));
-                const music = files.find(f => f.toLowerCase().endsWith('.mp3') || f.toLowerCase().endsWith('.ogg'));
-                const videoExtensions = ['.mp4', '.avi', '.flv', '.mov', '.webm'];
-                const video = files.find(f => videoExtensions.includes(path.extname(f).toLowerCase()));
-                if (banner && music && chartFile) {
-                    const chartJsonPath = path.join(chartDir, chartFile);
-                    const chartData = JSON.parse(await fs.readFile(chartJsonPath, 'utf-8'));
-                    const chartMetadata = {
-                        id: folder.name,
-                        title: chartData.title || 'Unknown Title',
-                        artist: chartData.artist || 'Unknown Artist',
-                        bannerPath: `asset://${folder.name}/${banner}`,
-                        musicPath: `asset://${folder.name}/${music}`,
-                        chartPath: `asset://${folder.name}/${chartFile}`,
-                        gameMode: 'pin',
-                    };
-                    if (video) {
-                        chartMetadata.videoPath = `asset://${folder.name}/${video}`;
-                    }
-                    discoveredCharts.push(chartMetadata);
-                }
-            }
-        }
-        console.log(`${discoveredCharts.length}개의 차트를 발견했습니다.`);
-        return discoveredCharts;
+        }));
+        logger_1.logger.info(`[ChartDiscovery] discoverCharts() returned ${chartMetadata.length} charts`);
+        return chartMetadata;
     }
-    catch (error) {
-        console.error('❌ 차트 발견 실패:', error);
+    catch {
+        logger_1.logger.warn('[ChartDiscovery] discoverCharts() - library file not found, returning empty array');
         return [];
-    }
-    finally {
-        // 프로세스가 끝나면 반드시 잠금 해제
-        isDiscovering = false;
     }
 }

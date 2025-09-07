@@ -16,22 +16,32 @@ export declare class ChartImportService {
     private libraryPath;
     private lockfilePath;
     private constructor();
-    /**
-     * Remove ALL contents under charts directory and reset library to empty array.
-     * Intended for development cleanup only.
-     */
-    clearChartsDirectoryAndLibrary(): Promise<void>;
-    /**
-     * Normalize the library by removing duplicate charts with the same title+artist.
-     * Preference order for keeping an entry:
-     * 1) Entry whose folder exists on disk
-     * 2) Newest by timestamp suffix in id (if parsable)
-     * All other duplicates are removed from library (folders remain untouched).
-     */
-    normalizeLibrary(): Promise<void>;
     static getInstance(): ChartImportService;
     /**
+     * UTF-8 인코딩 문제 해결을 위한 텍스트 디코딩 함수
+     * BOM 처리 및 다양한 인코딩 지원
+     */
+    private decodeTextContent;
+    /**
+     * 파일명 안전화 함수 - 모든 특수문자 처리
+     */
+    private sanitizeFilename;
+    /**
+     * 지원되는 모든 미디어 파일 타입 정의
+     */
+    private getSupportedExtensions;
+    /**
+     * 개별 파일 추출로 완전한 변환 보장
+     * AdmZip.extractAllTo() 대신 사용하여 안정성 향상
+     */
+    private extractAllFilesIndividually;
+    /**
+     * 비디오 파일 자동 감지 개선
+     */
+    private findVideoFile;
+    /**
      * .osz 파일을 임포트하고 압축 해제하여 차트 라이브러리에 추가
+     * 모든 파일 타입을 하나도 빠짐없이 완전 변환 지원
      */
     importOszFile(filePath: string): Promise<OszChart | null>;
     /**
@@ -43,25 +53,20 @@ export declare class ChartImportService {
      */
     getLibrary(): Promise<OszChart[]>;
     /**
-     * Add chart to library
+     * Lock management for library operations
      */
     private _acquireLock;
     private _releaseLock;
+    /**
+     * Add chart to library
+     */
     private addToLibrary;
     /**
-     * Legacy import method - keeping for compatibility
+     * Remove chart from library
      */
-    importOszFile_legacy(oszPath: string): Promise<void>;
+    removeFromLibrary(chartId: string, removeFolder?: boolean): Promise<boolean>;
     /**
-     * 기존 차트 라이브러리 로드
-     */
-    getLibrarySync(): Promise<OszChart[]>;
-    /**
-     * 차트 ID로 차트 찾기
-     */
-    getChartById(chartId: string): OszChart | undefined;
-    /**
-     * .osu 파일 파싱하여 난이도 정보 추출
+     * Parse .osu difficulty file with proper UTF-8 handling
      */
     parseDifficulty(filePath: string): Promise<{
         bpm: number | undefined;
@@ -70,14 +75,24 @@ export declare class ChartImportService {
         }[];
         mode: number;
     }>;
-    removeFromLibrary(chartId: string, removeFolder?: boolean): Promise<boolean>;
     /**
-     * .osu 파일에서 메타데이터 추출
+     * Utility methods for compatibility
+     */
+    getLibrarySync(): Promise<OszChart[]>;
+    getChartById(chartId: string): OszChart | undefined;
+    /**
+     * Development utility methods
+     */
+    clearChartsDirectoryAndLibrary(): Promise<void>;
+    normalizeLibrary(): Promise<void>;
+    /**
+     * Legacy import method - keeping for compatibility
+     */
+    importOszFile_legacy(oszPath: string): Promise<void>;
+    /**
+     * Legacy metadata parsing - keeping for compatibility
      */
     private parseOsuMetadata;
-    /**
-     * .osu 파일에서 노트 개수 세기
-     */
     private countNotes;
 }
 //# sourceMappingURL=ChartImportService.d.ts.map
