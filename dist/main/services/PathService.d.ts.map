@@ -1,0 +1,1 @@
+{"version":3,"file":"PathService.d.ts","sourceRoot":"","sources":["../../../src/main/services/PathService.ts"],"names":[],"mappings":"AAKA,cAAM,WAAW;IACf,OAAO,CAAC,MAAM,CAAC,QAAQ,CAAc;IAErC,OAAO;WAEO,WAAW,IAAI,WAAW;IAOxC;;;;OAIG;IACI,OAAO,CAAC,GAAG,EAAE,MAAM,GAAG,MAAM;IAwCnC;;;;OAIG;IACI,WAAW,CAAC,GAAG,EAAE,MAAM,GAAG,MAAM;CAcxC;AAED,eAAO,MAAM,WAAW,aAA4B,CAAC"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"ScoreManager.d.ts","sourceRoot":"","sources":["../../../src/main/game/ScoreManager.ts"],"names":[],"mappings":"AAGA,cAAM,YAAY;IACd,OAAO,CAAC,MAAM,CAAC,QAAQ,CAAe;IACtC,OAAO,CAAC,KAAK,CAAK;IAClB,OAAO,CAAC,KAAK,CAAK;IAElB,OAAO;WAEO,WAAW,IAAI,YAAY;IAOlC,QAAQ,CAAC,UAAU,EAAE,MAAM;IAO3B,cAAc;IAId,UAAU;IAIV,KAAK;IAKL,QAAQ;IAIR,QAAQ;CAGlB;;AAED,wBAA0C"}
