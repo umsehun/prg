@@ -101,19 +101,27 @@ export class AudioService {
     try {
       console.log(`[AudioService] Loading hitsound '${soundName}' from: ${audioPath}`);
 
-      // Use fetch API directly with file:// URL - no more IPC needed!
-      const response = await fetch(audioPath);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch audio: ${response.status} ${response.statusText}`);
+      // Use IPC to load audio asset - consistent with other asset loading
+      const audioBuffer = await (window as any).electron.loadAsset(audioPath);
+      const arrayBuffer = audioBuffer.buffer.slice(
+        audioBuffer.byteOffset, 
+        audioBuffer.byteOffset + audioBuffer.byteLength
+      );
+      
+      // Try to decode audio data, but handle failures gracefully
+      try {
+        const buffer = await this.audioContext!.decodeAudioData(arrayBuffer);
+        this.hitsoundBuffers.set(soundName, buffer);
+        console.log(`[AudioService] Successfully loaded hitsound '${soundName}'`);
+      } catch (decodeError) {
+        console.warn(`[AudioService] Failed to decode audio data for hitsound '${soundName}':`, decodeError);
+        console.warn(`[AudioService] This is likely due to invalid or corrupted audio file format. Skipping this hitsound.`);
+        // Don't throw - just skip this hitsound and continue
+        return;
       }
-
-      const arrayBuffer = await response.arrayBuffer();
-      const buffer = await this.audioContext!.decodeAudioData(arrayBuffer);
-      this.hitsoundBuffers.set(soundName, buffer);
-      console.log(`[AudioService] Successfully loaded hitsound '${soundName}'`);
     } catch (error) {
       console.error(`[AudioService] FAILED to load hitsound ${soundName} from ${audioPath}:`, error);
-      throw error;
+      // Don't throw - let the game continue without this hitsound
     }
   }
 

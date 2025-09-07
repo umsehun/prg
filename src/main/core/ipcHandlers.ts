@@ -52,27 +52,77 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('load-pin-chart', async (_, chartPath: string) => {
     try {
-      const sanitizedPath = chartPath.replace(/\.\./g, '');
-      let basePath: string;
+      console.log(`[PinChartLoader] Loading chart: ${chartPath}`);
 
-      if (app.isPackaged) {
-        basePath = process.resourcesPath;
+      let filePath: string;
+
+      // Handle custom protocol URIs (like media://)
+      if (chartPath.includes('://')) {
+        filePath = pathService.resolve(chartPath);
       } else {
-        // app.getAppPath() returns /Users/user/prg/dist/main, we need to go up to project root
-        basePath = path.join(app.getAppPath(), '..', '..');
+        // Legacy handling for relative paths
+        const sanitizedPath = chartPath.replace(/\.\./g, '');
+        let basePath: string;
+
+        if (app.isPackaged) {
+          basePath = process.resourcesPath;
+        } else {
+          // app.getAppPath() returns /Users/user/prg/dist/main, we need to go up to project root
+          basePath = path.join(app.getAppPath(), '..', '..');
+        }
+
+        filePath = path.join(basePath, 'public', sanitizedPath);
       }
 
-      const filePath = path.join(basePath, 'public', sanitizedPath);
-      console.log(`[PinChartLoader] Loading chart: ${chartPath}`);
       console.log(`[PinChartLoader] Full path: ${filePath}`);
 
-      const data = await fs.readFile(filePath, 'utf-8');
-      const pinChart: PinChart = {
-        id: `${chartPath}-${sanitizedPath}`, // Create a unique ID for this specific difficulty
-        ...JSON.parse(data),
-      };
-      console.log(`[PinChartLoader] Successfully loaded chart: ${chartPath}`);
-      return pinChart;
+      // Check if this is a .osu file that needs to be parsed from OSZ chart
+      if (filePath.endsWith('.osu')) {
+        // This is a .osu file from an OSZ chart, we need to find the corresponding OSZ chart
+        // and convert it to PinChart using ChartImportService
+
+        // Extract chart ID from the media:// URI (e.g., "media://Wolpis-Carter-Batsubyou/file.osu" -> "Wolpis-Carter-Batsubyou")
+        if (chartPath.startsWith('media://')) {
+          const chartId = chartPath.split('/')[2]; // Get the chart ID part
+
+          const importService = ChartImportService.getInstance();
+          const library = await importService.getLibrary();
+
+          // Find the OSZ chart by ID
+          const oszChart = library.find(chart => chart.id === chartId);
+          if (!oszChart) {
+            throw new Error(`OSZ chart not found for id: ${chartId}`);
+          }
+
+          // Find the difficulty index for this specific .osu file
+          const osuFileName = path.basename(filePath);
+          const difficultyIndex = oszChart.difficulties.findIndex(diff => {
+            if (!diff.filePath) return false;
+            const diffFileName = path.basename(pathService.resolve(diff.filePath));
+            return diffFileName === osuFileName;
+          });
+
+          if (difficultyIndex === -1) {
+            throw new Error(`Difficulty not found for file: ${osuFileName}`);
+          }
+
+          console.log(`[PinChartLoader] Converting OSZ chart ${chartId}, difficulty ${difficultyIndex}`);
+          const pinChart = await importService.convertDifficultyToPinChart(oszChart, difficultyIndex);
+          console.log(`[PinChartLoader] Successfully converted OSZ chart: ${chartPath}`);
+          return pinChart;
+        } else {
+          throw new Error(`Cannot parse .osu file without proper media:// URI: ${chartPath}`);
+        }
+      } else {
+        // This is a legacy JSON chart file
+        const data = await fs.readFile(filePath, 'utf-8');
+        const pinChart: PinChart = {
+          id: `${chartPath}-${path.basename(filePath)}`, // Create a unique ID for this specific difficulty
+          ...JSON.parse(data),
+        };
+        console.log(`[PinChartLoader] Successfully loaded JSON chart: ${chartPath}`);
+        return pinChart;
+      }
     } catch (error) {
       console.error(`[PinChartLoader] Failed to load pin chart at ${chartPath}:`, error);
       return null;

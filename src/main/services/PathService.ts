@@ -39,6 +39,10 @@ class PathService {
     const rest = path.join(url.hostname, decodedPathname);
 
     switch (scheme) {
+      case 'file': {
+        // Handle file:// URIs - decode URL to filesystem path
+        return decodeURIComponent(url.pathname);
+      }
       case 'media': {
         const chartsPath = path.join('/Users/user/Library/Application Support/prg', 'charts');
         return path.join(chartsPath, rest);

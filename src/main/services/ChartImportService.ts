@@ -323,18 +323,18 @@ export class ChartImportService {
 
       const videoFile = this.findVideoFile(extractedFiles, specifiedVideoFile);
       let finalVideoUri: string | undefined;
-      
+
       if (videoFile) {
         const videoPath = path.join(extractPath, videoFile);
         const videoExt = path.extname(videoFile).toLowerCase();
-        
+
         if (VideoConverter.isSupportedVideoFormat(videoFile)) {
           // Try to convert video to MP4 if it's not already MP4
           if (videoExt !== '.mp4') {
             logger.info(`[ChartImportService] Converting video ${videoExt} to MP4: ${videoFile}`);
             const mp4Path = path.join(extractPath, path.parse(videoFile).name + '.mp4');
             const convertSuccess = await VideoConverter.convertToMp4(videoPath, mp4Path);
-            
+
             if (convertSuccess) {
               // Use the converted MP4 file
               const mp4Filename = path.parse(videoFile).name + '.mp4';
@@ -435,7 +435,11 @@ export class ChartImportService {
         type: 'pin' as const,
         isHit: false
       })),
-      gameMode: (parsed.mode === 0) ? 'osu' : 'pin',
+      gameMode: (() => {
+        console.log(`[ChartImportService] PARSED MODE DEBUG:`, parsed.mode);
+        console.log(`[ChartImportService] Will set gameMode to:`, (parsed.mode === 0) ? 'osu' : 'pin');
+        return (parsed.mode === 0) ? 'osu' : 'pin';
+      })(),
       metadata: {
         version: difficulty.version,
         overallDifficulty: difficulty.overallDifficulty,

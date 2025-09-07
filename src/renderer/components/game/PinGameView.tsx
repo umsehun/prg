@@ -214,7 +214,9 @@ const PinGameView: React.FC<PinGameViewProps> = ({
   }, [isThrowingKnife, physicsThrowKnife]);
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    console.log('[PinGameView] Key pressed:', event.code, event.key);
     if (event.code === 'KeyS' && !isThrowingKnife) {
+      console.log('[PinGameView] S key pressed - throwing knife!');
       handleThrowKnife();
     }
   }, [isThrowingKnife, handleThrowKnife]);
@@ -224,8 +226,37 @@ const PinGameView: React.FC<PinGameViewProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  // FORCE CONSOLE LOG ON EVERY RENDER
+  console.log('[PinGameView RENDER] Component is rendering!', {
+    chart: !!chart,
+    knivesCount: knives.length,
+    circlesCount: approachCircles.length,
+    gameTime: timeMsRef.current
+  });
+
   return (
-    <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center">
+    <div 
+      className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center"
+      style={{
+        // FORCE VISIBLE BACKGROUND
+        backgroundColor: 'rgba(255, 0, 0, 0.5)', // Red background to verify visibility
+        border: '10px solid yellow', // Yellow border to make it obvious
+        zIndex: 9999, // Force to top
+      }}
+    >
+      {/* MEGA DEBUG OVERLAY - ALWAYS VISIBLE */}
+      <div 
+        className="fixed top-0 left-0 w-full bg-red-500 text-white p-6 z-50"
+        style={{ 
+          fontSize: '24px', 
+          fontWeight: 'bold',
+          boxShadow: '0 0 50px rgba(255, 0, 0, 1)',
+          zIndex: 99999
+        }}
+      >
+        🎯 PinGameView IS RENDERING! Time: {timeMsRef.current.toFixed(0)}ms | Knives: {knives.length} | Circles: {approachCircles.length}
+      </div>
+
       {/* UI Overlay */}
       <div className="absolute top-8 left-8 text-white z-20 bg-black/30 p-4 rounded-xl backdrop-blur-sm border border-white/10 shadow-lg">
         <div className="text-3xl font-bold tracking-tighter">Score: {score}</div>

@@ -1681,6 +1681,10 @@
     }
   }
 
+  .bg-blue-600 {
+    background-color: var(--color-blue-600);
+  }
+
   .bg-cyan-300 {
     background-color: var(--color-cyan-300);
   }

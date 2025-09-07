@@ -9,7 +9,7 @@ import { logger } from '../../shared/logger';
 export class VideoConverter {
   // Supported input video formats for conversion
   private static readonly SUPPORTED_VIDEO_FORMATS = [
-    '.mp4', '.avi', '.webm', '.flv', '.mov', '.wmv', '.m4v', '.3gp', 
+    '.mp4', '.avi', '.webm', '.flv', '.mov', '.wmv', '.m4v', '.3gp',
     '.mkv', '.mp3', '.ogg', '.wav' // Audio formats that might be in OSZ files
   ];
 

@@ -274,6 +274,25 @@ const GameScene: React.FC<GameSceneProps> = ({ selectedChart, onBack }) => {
         <div className="absolute inset-0 z-0 bg-gray-900" />
       )}
 
+      {/* MEGA DEBUG OVERLAY FOR GAMESCENE - ALWAYS VISIBLE */}
+      <div 
+        className="fixed top-0 right-0 bg-blue-600 text-white p-6 z-50"
+        style={{ 
+          fontSize: '20px', 
+          fontWeight: 'bold',
+          boxShadow: '0 0 50px rgba(0, 0, 255, 1)',
+          zIndex: 99998,
+          minWidth: '400px'
+        }}
+      >
+        🎮 GAMESCENE STATUS:<br/>
+        pinChart: {pinChart ? 'EXISTS' : 'NULL'}<br/>
+        gameMode: {pinChart?.gameMode || 'NONE'}<br/>
+        gameStarted: {gameStarted ? 'YES' : 'NO'}<br/>
+        isPaused: {isPaused ? 'YES' : 'NO'}<br/>
+        Chart Title: {pinChart?.title || 'N/A'}
+      </div>
+
       {/* Game View */}
       <div className="absolute top-20 left-4 bg-green-500 text-white p-4 z-50 text-lg font-bold">
         GameScene Debug:
@@ -282,25 +301,43 @@ const GameScene: React.FC<GameSceneProps> = ({ selectedChart, onBack }) => {
         <br />gameStarted: {gameStarted ? 'YES' : 'NO'}
       </div>
       
+      {/* ALWAYS TRY TO RENDER PINGAMEVIEW FOR DEBUGGING */}
+      {(() => {
+        console.log('[GameScene] About to render game view. pinChart:', !!pinChart, 'gameMode:', pinChart?.gameMode);
+        return null;
+      })()}
+      
       {pinChart && (
-        pinChart.gameMode === 'osu' ? (
-          <OsuGameView chart={pinChart} />
-        ) : (
-          <div className="absolute inset-0 bg-blue-500/20">
-            <div className="absolute top-0 left-0 bg-purple-500 text-white p-4 z-50 text-lg font-bold">
-              RENDERING PinGameView!
+        (() => {
+          console.log('[GameScene] FORCE RENDERING PinGameView - Original gameMode:', pinChart.gameMode, '-> FORCING PIN MODE');
+          // FORCE PIN GAME MODE FOR DEBUGGING - Always render PinGameView regardless of gameMode
+          const forcedPinChart = { ...pinChart, gameMode: 'pin' as const };
+          return (
+            <div className="absolute inset-0 bg-blue-500/20">
+              <div className="absolute top-0 left-0 bg-purple-500 text-white p-4 z-50 text-lg font-bold">
+                🎯 RENDERING PinGameView! (FORCED MODE - Original: {pinChart.gameMode})
+              </div>
+              <PinGameView
+                chart={forcedPinChart}
+                onPinThrow={handlePinPress}
+                score={score}
+                combo={combo}
+                judgment={judgment}
+                noteSpeed={500}
+              />
             </div>
-            <PinGameView
-              chart={pinChart}
-              onPinThrow={handlePinPress}
-              score={score}
-              combo={combo}
-              judgment={judgment}
-              noteSpeed={500}
-            />
-          </div>
-        )
+          );
+        })()
       )}
+      
+      {/* FORCE RENDER PINGAMEVIEW ALWAYS FOR DEBUGGING - REMOVE LATER */}
+      <div 
+        className="fixed bottom-0 left-0 w-full bg-orange-500 text-white p-4 z-50"
+        style={{ fontSize: '16px', zIndex: 99997 }}
+      >
+        🔍 DEBUG: pinChart={pinChart ? 'YES' : 'NO'} | gameMode={pinChart?.gameMode || 'N/A'} | 
+        Chart Details: {pinChart ? `${pinChart.title} - ${pinChart.notes?.length} notes` : 'No chart'}
+      </div>
       
       {/* Debug info overlay */}
       <div className="absolute top-4 right-4 bg-black/50 text-white p-2 text-sm z-50">

@@ -408,7 +408,11 @@ class ChartImportService {
                 type: 'pin',
                 isHit: false
             })),
-            gameMode: (parsed.mode === 0) ? 'osu' : 'pin',
+            gameMode: (() => {
+                console.log(`[ChartImportService] PARSED MODE DEBUG:`, parsed.mode);
+                console.log(`[ChartImportService] Will set gameMode to:`, (parsed.mode === 0) ? 'osu' : 'pin');
+                return (parsed.mode === 0) ? 'osu' : 'pin';
+            })(),
             metadata: {
                 version: difficulty.version,
                 overallDifficulty: difficulty.overallDifficulty,
