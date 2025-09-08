@@ -9,6 +9,7 @@ import { PreGameLobby } from '../ui/PreGameLobby';
 import { PauseMenu } from '../ui/PauseMenu';
 import VideoController from '../ui/VideoController';
 import { audioService } from '../../lib/AudioService';
+import { logger } from '../../../shared/logger';
 import { PinChart, Judgment } from '../../../shared/types';
 
 interface GameSceneProps {
@@ -20,8 +21,6 @@ const GameScene: React.FC<GameSceneProps> = ({
   selectedChart,
   onBack
 }) => {
-  console.log('[GameScene] Component rendered with chart:', selectedChart?.title, 'gameMode:', selectedChart?.gameMode);
-
   // Game store
   const {
     score,
@@ -48,7 +47,7 @@ const GameScene: React.FC<GameSceneProps> = ({
     // If called from PinGameView with judgment, update game state
     if (judgment) {
       // Update game state with the judgment result
-      console.log('[GameScene] Received judgment:', judgment);
+      // Silent handling
     }
 
     // Send the renderer master time (seconds) to Main for judgment
@@ -69,14 +68,14 @@ const GameScene: React.FC<GameSceneProps> = ({
         setIsLoading(true);
 
         // --- START: ADD CRITICAL CHART DATA VALIDATION ---
-        console.log('[Renderer] Loading PinChart:', selectedChart);
+        logger.info('[Renderer] Loading PinChart:', selectedChart);
         if (!selectedChart || !selectedChart.notes || selectedChart.notes.length === 0) {
-          console.error('[Renderer] CRITICAL: Chart data is missing or notes are empty!');
-          alert('Chart data is invalid. Returning to selection.');
+          logger.error('[Renderer] CRITICAL: Chart data is missing or notes are empty!');
+          alert('Chart data is invalid or unsupported. This might be an osu!mania chart. Only osu! Standard charts are supported. Returning to selection.');
           onBack();
           return;
         }
-        console.log('[Renderer] Chart validation passed - notes count:', selectedChart.notes.length);
+        logger.info('[Renderer] Chart validation passed - notes count:', selectedChart.notes.length);
         // --- END: ADD CRITICAL CHART DATA VALIDATION ---
 
         setPinChart(selectedChart);
@@ -216,6 +215,7 @@ const GameScene: React.FC<GameSceneProps> = ({
 
   // Handle game start
   const handleStartGame = () => {
+    console.log('[GameScene] 🎮 STARTING GAME! Setting gameStarted = true');
     console.log('[GameScene] Starting game with pinChart:', pinChart?.title, 'notes:', pinChart?.notes?.length);
     setGameStarted(true);
     setShowPreGameLobby(false);

@@ -96,7 +96,7 @@ const VideoController: React.FC<VideoControllerProps> = ({ videoPath, className 
       style={{
         opacity: isReady ? 1 : 0,
         transition: 'opacity 0.5s ease-in-out',
-        zIndex: 1
+        zIndex: -1  // Changed from 1 to -1 to ensure it stays behind game elements
       }}
     />
   );

@@ -393,6 +393,13 @@ class ChartImportService {
         // URI-encoded paths must be decoded before resolving to a file system path.
         const decodedPath = decodeURIComponent(difficulty.filePath);
         const parsed = await this.parseDifficulty(PathService_1.pathService.resolve(decodedPath));
+        logger_1.logger.info(`[ChartImportService] Parsing difficulty file: "${PathService_1.pathService.resolve(decodedPath)}"`);
+        // 🎯 CRITICAL FIX: Only support osu! Standard (mode 0)
+        if (parsed.mode !== 0) {
+            logger_1.logger.warn(`[ChartImportService] Unsupported game mode (${parsed.mode}) for chart: ${oszChart.title}. Only osu! Standard (mode 0) is supported.`);
+            return null; // Return null for unsupported modes
+        }
+        logger_1.logger.info(`[ChartImportService] Chart validated - osu! Standard mode detected`);
         const pinChart = {
             folderPath: PathService_1.pathService.getAssetUrl(oszChart.folderPath),
             id: `${oszChart.id}-${difficultyIndex}`,
@@ -408,14 +415,7 @@ class ChartImportService {
                 type: 'pin',
                 isHit: false
             })),
-            gameMode: (() => {
-                console.log(`[ChartImportService] PARSED MODE DEBUG:`, parsed.mode);
-                // Default to 'pin' mode for our knife-throwing game
-                // Only use 'osu' mode if explicitly requested or in special cases
-                const gameMode = 'pin'; // Default to pin mode for all charts
-                console.log(`[ChartImportService] Setting gameMode to: ${gameMode} (always pin for knife game)`);
-                return gameMode;
-            })(),
+            gameMode: 'pin', // Always pin mode for supported charts
             metadata: {
                 version: difficulty.version,
                 overallDifficulty: difficulty.overallDifficulty,

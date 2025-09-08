@@ -106,9 +106,14 @@ export function registerIpcHandlers(): void {
             throw new Error(`Difficulty not found for file: ${osuFileName}`);
           }
 
-          console.log(`[PinChartLoader] Converting OSZ chart ${chartId}, difficulty ${difficultyIndex}`);
+          logger.info(`[PinChartLoader] Converting OSZ chart ${chartId}, difficulty ${difficultyIndex}`);
           const pinChart = await importService.convertDifficultyToPinChart(oszChart, difficultyIndex);
-          console.log(`[PinChartLoader] Successfully converted OSZ chart: ${chartPath}`);
+          
+          if (pinChart === null) {
+            throw new Error(`Unsupported game mode for chart: ${oszChart.title}. Only osu! Standard charts are supported.`);
+          }
+          
+          logger.info(`[PinChartLoader] Successfully converted OSZ chart: ${chartPath}`);
           return pinChart;
         } else {
           throw new Error(`Cannot parse .osu file without proper media:// URI: ${chartPath}`);
@@ -164,30 +169,37 @@ export function registerIpcHandlers(): void {
       }
 
       // 사용 가능한 난이도 중 첫 번째 유효한 것 선택
-      console.log(`[Debug] Chart has ${oszChart.difficulties.length} difficulties`);
+      logger.info(`[Debug] Chart has ${oszChart.difficulties.length} difficulties`);
 
       let pinChart = null;
 
       // Use specified difficulty index or try all difficulties
       if (difficultyIndex !== undefined && difficultyIndex >= 0 && difficultyIndex < oszChart.difficulties.length) {
-        console.log(`[Debug] Converting specified difficulty ${difficultyIndex}: ${oszChart.difficulties[difficultyIndex]?.name || 'Unnamed'}`);
+        logger.info(`[Debug] Converting specified difficulty ${difficultyIndex}: ${oszChart.difficulties[difficultyIndex]?.name || 'Unnamed'}`);
         try {
           pinChart = await importService.convertDifficultyToPinChart(oszChart, difficultyIndex);
-          console.log(`[Debug] Successfully converted specified difficulty ${difficultyIndex}`);
+          if (pinChart === null) {
+            throw new Error(`Unsupported game mode for difficulty ${difficultyIndex}. Only osu! Standard charts are supported.`);
+          }
+          logger.info(`[Debug] Successfully converted specified difficulty ${difficultyIndex}`);
         } catch (error) {
-          console.error(`[Debug] Failed to convert specified difficulty ${difficultyIndex}:`, error);
+          logger.error(`[Debug] Failed to convert specified difficulty ${difficultyIndex}:`, error);
           throw error; // Don't fallback if user specifically selected a difficulty
         }
       } else {
         // Try converting all difficulties until one succeeds (fallback behavior)
         for (let i = 0; i < oszChart.difficulties.length; i++) {
-          console.log(`[Debug] Attempting to convert difficulty ${i}/${oszChart.difficulties.length - 1}: ${oszChart.difficulties[i]?.name || 'Unnamed'}`);
+          logger.info(`[Debug] Attempting to convert difficulty ${i}/${oszChart.difficulties.length - 1}: ${oszChart.difficulties[i]?.name || 'Unnamed'}`);
           try {
             pinChart = await importService.convertDifficultyToPinChart(oszChart, i);
-            console.log(`[Debug] Successfully converted difficulty ${i}`);
-            break; // Success! Exit the loop
+            if (pinChart !== null) {
+              logger.info(`[Debug] Successfully converted difficulty ${i}`);
+              break; // Success! Exit the loop
+            } else {
+              logger.warn(`[Debug] Difficulty ${i} has unsupported game mode, trying next`);
+            }
           } catch (error) {
-            console.error(`[Debug] Failed to convert difficulty ${i}:`, error);
+            logger.error(`[Debug] Failed to convert difficulty ${i}:`, error);
             // Continue to next difficulty
           }
         }
@@ -287,9 +299,13 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('convert-difficulty-to-pin-chart', async (_, oszChart: any, difficultyIndex: number) => {
     try {
-      return await ChartImportService.getInstance().convertDifficultyToPinChart(oszChart, difficultyIndex);
+      const result = await ChartImportService.getInstance().convertDifficultyToPinChart(oszChart, difficultyIndex);
+      if (result === null) {
+        throw new Error(`Unsupported game mode for chart: ${oszChart.title}. Only osu! Standard charts are supported.`);
+      }
+      return result;
     } catch (error) {
-      console.error('Failed to convert difficulty to pin chart:', error);
+      logger.error('Failed to convert difficulty to pin chart:', error);
       throw error;
     }
   });

@@ -18,7 +18,7 @@ const JUDGMENT_STYLES: Record<Judgment, { color: string; shadow: string }> = {
 
 const JudgmentDisplay: React.FC<JudgmentDisplayProps> = ({ judgment }) => {
   const judgmentArray = judgment ? [judgment] : [];
-  
+
   const transitions = useTransition(judgmentArray, {
     from: { opacity: 0, transform: 'scale(0.5) translateY(50px)' },
     enter: { opacity: 1, transform: 'scale(1) translateY(0px)' },
@@ -28,7 +28,7 @@ const JudgmentDisplay: React.FC<JudgmentDisplayProps> = ({ judgment }) => {
   });
 
   return (
-    <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
+    <div className="absolute top-2/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
       {transitions((style, item) => (
         <animated.div
           style={style}

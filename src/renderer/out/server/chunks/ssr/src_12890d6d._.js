@@ -967,39 +967,126 @@ const useKnifePhysics = ({ targetRadius, velocity = 400, rotationSpeed = 540, is
     };
 };
 }),
-"[project]/src/renderer/components/game/ApproachCircle.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"[project]/src/renderer/components/game/AccuracyDisplay.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
-// src/renderer/components/game/ApproachCircle.tsx
+// src/renderer/components/game/AccuracyDisplay.tsx
 __turbopack_context__.s([
     "default",
     ()=>__TURBOPACK__default__export__
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$spring$2f$dist$2f$react$2d$spring$2e$modern$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/react-spring/dist/react-spring.modern.mjs [app-ssr] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$spring$2f$core$2f$dist$2f$react$2d$spring_core$2e$modern$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@react-spring/core/dist/react-spring_core.modern.mjs [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$spring$2f$web$2f$dist$2f$react$2d$spring_web$2e$modern$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@react-spring/web/dist/react-spring_web.modern.mjs [app-ssr] (ecmascript)");
 'use client';
 ;
-const ApproachCircle = ({ radius, scale, opacity })=>{
-    const size = radius * 2 * scale;
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "absolute rounded-full border-4 border-white/80 pointer-events-none",
-        style: {
-            width: `${size}px`,
-            height: `${size}px`,
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-            opacity,
-            boxShadow: '0 0 16px rgba(255,255,255,0.35)',
-            transition: 'all 0.1s linear',
-            borderColor: scale > 1.2 ? 'rgba(255, 255, 255, 0.4)' : scale > 1.05 ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.9)' // Color intensity based on timing
+;
+const AccuracyDisplay = ({ accuracy })=>{
+    const radius = 60;
+    const circumference = 2 * Math.PI * radius;
+    const { val } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$spring$2f$core$2f$dist$2f$react$2d$spring_core$2e$modern$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useSpring"])({
+        from: {
+            val: 0
+        },
+        to: {
+            val: accuracy
+        },
+        config: {
+            duration: 1000
         }
-    }, void 0, false, {
-        fileName: "[project]/src/renderer/components/game/ApproachCircle.tsx",
-        lineNumber: 15,
+    });
+    const { strokeDashoffset } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$spring$2f$core$2f$dist$2f$react$2d$spring_core$2e$modern$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useSpring"])({
+        from: {
+            strokeDashoffset: circumference
+        },
+        to: {
+            strokeDashoffset: circumference - accuracy / 100 * circumference
+        },
+        config: {
+            duration: 1000
+        }
+    });
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "flex flex-col items-center",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                className: "text-2xl font-semibold text-theme-text-light/80 mb-4",
+                children: "Accuracy"
+            }, void 0, false, {
+                fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
+                lineNumber: 29,
+                columnNumber: 7
+            }, ("TURBOPACK compile-time value", void 0)),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "relative w-40 h-40",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
+                        className: "w-full h-full",
+                        viewBox: "0 0 140 140",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
+                                cx: "70",
+                                cy: "70",
+                                r: radius,
+                                strokeWidth: "10",
+                                className: "stroke-current text-theme-text-dark/30",
+                                fill: "transparent"
+                            }, void 0, false, {
+                                fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
+                                lineNumber: 32,
+                                columnNumber: 11
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$spring$2f$web$2f$dist$2f$react$2d$spring_web$2e$modern$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["animated"].circle, {
+                                cx: "70",
+                                cy: "70",
+                                r: radius,
+                                strokeWidth: "10",
+                                className: "stroke-current text-theme-accent transform -rotate-90 origin-center",
+                                fill: "transparent",
+                                strokeDasharray: circumference,
+                                strokeDashoffset: strokeDashoffset,
+                                strokeLinecap: "round"
+                            }, void 0, false, {
+                                fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
+                                lineNumber: 40,
+                                columnNumber: 11
+                            }, ("TURBOPACK compile-time value", void 0))
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
+                        lineNumber: 31,
+                        columnNumber: 9
+                    }, ("TURBOPACK compile-time value", void 0)),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "absolute inset-0 flex items-center justify-center",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$spring$2f$web$2f$dist$2f$react$2d$spring_web$2e$modern$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["animated"].p, {
+                            className: "text-4xl font-bold text-theme-text-light",
+                            children: val.to((v)=>`${v.toFixed(2)}%`)
+                        }, void 0, false, {
+                            fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
+                            lineNumber: 53,
+                            columnNumber: 11
+                        }, ("TURBOPACK compile-time value", void 0))
+                    }, void 0, false, {
+                        fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
+                        lineNumber: 52,
+                        columnNumber: 9
+                    }, ("TURBOPACK compile-time value", void 0))
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
+                lineNumber: 30,
+                columnNumber: 7
+            }, ("TURBOPACK compile-time value", void 0))
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
+        lineNumber: 28,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
-const __TURBOPACK__default__export__ = ApproachCircle;
+const __TURBOPACK__default__export__ = AccuracyDisplay;
 }),
 "[project]/src/renderer/components/game/JudgmentDisplay.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
@@ -1344,7 +1431,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/styled-jsx/style.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useKnifePhysics$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/hooks/useKnifePhysics.ts [app-ssr] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$ApproachCircle$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/components/game/ApproachCircle.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$AccuracyDisplay$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/components/game/AccuracyDisplay.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$JudgmentDisplay$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/components/game/JudgmentDisplay.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$AudioService$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/lib/AudioService.ts [app-ssr] (ecmascript)");
 'use client';
@@ -1356,7 +1443,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$Au
 ;
 ;
 const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>{
-    console.log('[PinGameView] Component mounted with chart:', chart?.title);
+    console.log('🚀 [PinGameView] UPDATED COMPONENT LOADED - NEW VERSION!', chart?.title);
+    console.log('🎯 [PinGameView] Component mounted with chart:', chart?.title, 'notes:', chart?.notes?.length);
     // Game state
     const [approachCircles, setApproachCircles] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [isThrowingKnife, setIsThrowingKnife] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
@@ -1430,12 +1518,27 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
     ]);
     // Generate approach circles for upcoming notes
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
-        if (!chart?.notes) return;
+        if (!chart?.notes) {
+            console.log('[PinGameView] No chart or notes available for approach circles');
+            return;
+        }
+        console.log('[PinGameView] Setting up approach circles for', chart.notes.length, 'notes');
         const interval = setInterval(()=>{
             const currentTime = timeMsRef.current;
+            // 🚨 CRITICAL DEBUG: Time unit validation
+            if (chart?.notes && chart.notes.length > 0) {
+                const firstNote = chart.notes[0];
+                if (firstNote && Math.floor(currentTime / 1000) % 5 === 0) {
+                    console.log('🕐 TIME UNIT VALIDATION:');
+                    console.log(`  currentTime: ${currentTime}ms (from audioService)`);
+                    console.log(`  firstNote.time: ${firstNote.time} (from chart data)`);
+                    console.log(`  firstNote.time * 1000: ${firstNote.time * 1000}ms`);
+                }
+            }
             // Find notes that should have approach circles
+            // 🔧 FIX: note.time is already in SECONDS, not milliseconds!
             const upcomingNotes = chart.notes.filter((note)=>{
-                const noteTimeMs = note.time * 1000;
+                const noteTimeMs = note.time * 1000; // Convert seconds to milliseconds
                 const timeUntilNote = noteTimeMs - currentTime;
                 return timeUntilNote > 0 && timeUntilNote <= APPROACH_TIME;
             });
@@ -1443,7 +1546,8 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
             const newCircles = upcomingNotes.map((note)=>{
                 const noteTimeMs = note.time * 1000;
                 const timeUntilNote = noteTimeMs - currentTime;
-                const scale = Math.max(0.1, timeUntilNote / APPROACH_TIME);
+                // Scale should start large (2.0) and shrink to 1.0 as note approaches
+                const scale = Math.max(1.0, Math.min(2.0, 1.0 + timeUntilNote / APPROACH_TIME));
                 return {
                     id: `circle-${note.time}`,
                     noteTime: noteTimeMs,
@@ -1496,7 +1600,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
         style: {
             zIndex: 10
         },
-        className: "jsx-532d500bfc6d5d04" + " " + "min-h-screen relative overflow-hidden flex flex-col items-center justify-center bg-gray-900",
+        className: "jsx-532d500bfc6d5d04" + " " + "min-h-screen relative overflow-hidden flex flex-col items-center justify-center",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 style: {
@@ -1525,26 +1629,34 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                                 children: "TARGET"
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                lineNumber: 210,
+                                lineNumber: 230,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                            lineNumber: 204,
+                            lineNumber: 224,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 193,
+                        lineNumber: 213,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
-                    approachCircles.map((circle)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$ApproachCircle$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-                            radius: TARGET_RADIUS,
-                            scale: circle.scale,
-                            opacity: Math.max(0.3, circle.scale)
+                    approachCircles.map((circle)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            style: {
+                                width: `${TARGET_RADIUS * 2 * circle.scale}px`,
+                                height: `${TARGET_RADIUS * 2 * circle.scale}px`,
+                                left: '50%',
+                                top: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                borderColor: circle.scale > 1.6 ? '#ff4444' : circle.scale > 1.3 ? '#ff8844' : '#44ff44',
+                                opacity: Math.max(0.3, 1.0 - (circle.scale - 1.0)),
+                                boxShadow: `0 0 16px ${circle.scale > 1.6 ? '#ff4444' : circle.scale > 1.3 ? '#ff8844' : '#44ff44'}`
+                            },
+                            className: "jsx-532d500bfc6d5d04" + " " + "absolute rounded-full border-4 pointer-events-none"
                         }, circle.id, false, {
                             fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                            lineNumber: 216,
+                            lineNumber: 246,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))),
                     knifePositions.map(({ knife, position })=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1570,7 +1682,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                                     className: "jsx-532d500bfc6d5d04" + " " + "absolute bg-gradient-to-r from-gray-300 to-gray-100"
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                    lineNumber: 237,
+                                    lineNumber: 275,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1584,24 +1696,57 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                                     className: "jsx-532d500bfc6d5d04" + " " + "bg-gradient-to-r from-amber-800 to-amber-600"
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                    lineNumber: 251,
+                                    lineNumber: 289,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, knife.id, true, {
                             fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                            lineNumber: 226,
+                            lineNumber: 264,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                lineNumber: 190,
+                lineNumber: 210,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "jsx-532d500bfc6d5d04" + " " + "absolute top-4 left-4 text-white text-lg",
                 children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "jsx-532d500bfc6d5d04" + " " + "bg-red-500 p-2 rounded mb-2",
+                        children: "🚀 UPDATED VERSION!"
+                    }, void 0, false, {
+                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                        lineNumber: 305,
+                        columnNumber: 9
+                    }, ("TURBOPACK compile-time value", void 0)),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "jsx-532d500bfc6d5d04" + " " + "bg-blue-500 p-1 rounded mb-1 text-sm",
+                        children: [
+                            "⏰ Time: ",
+                            (timeMsRef.current / 1000).toFixed(2),
+                            "s"
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                        lineNumber: 306,
+                        columnNumber: 9
+                    }, ("TURBOPACK compile-time value", void 0)),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "jsx-532d500bfc6d5d04" + " " + "bg-green-500 p-1 rounded mb-1 text-sm",
+                        children: [
+                            "🎵 Notes: ",
+                            chart?.notes?.length || 0,
+                            " | Circles: ",
+                            approachCircles.length
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                        lineNumber: 309,
+                        columnNumber: 9
+                    }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "jsx-532d500bfc6d5d04",
                         children: [
@@ -1610,7 +1755,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 267,
+                        lineNumber: 312,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1621,7 +1766,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 268,
+                        lineNumber: 313,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1632,20 +1777,34 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 269,
+                        lineNumber: 314,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                lineNumber: 266,
+                lineNumber: 304,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$JudgmentDisplay$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                 judgment: judgment
             }, void 0, false, {
                 fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                lineNumber: 273,
+                lineNumber: 318,
+                columnNumber: 7
+            }, ("TURBOPACK compile-time value", void 0)),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "jsx-532d500bfc6d5d04" + " " + "absolute top-4 left-1/2 transform -translate-x-1/2",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$AccuracyDisplay$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                    accuracy: Math.min(100, Math.max(0, score / Math.max(1, score + combo * 10) * 100))
+                }, void 0, false, {
+                    fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                    lineNumber: 322,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0))
+            }, void 0, false, {
+                fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                lineNumber: 321,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1653,7 +1812,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                 children: "Press S to throw knife"
             }, void 0, false, {
                 fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                lineNumber: 276,
+                lineNumber: 326,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1667,7 +1826,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 282,
+                        lineNumber: 332,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1678,7 +1837,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 283,
+                        lineNumber: 333,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1690,7 +1849,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 284,
+                        lineNumber: 334,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1701,13 +1860,13 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 285,
+                        lineNumber: 335,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                lineNumber: 281,
+                lineNumber: 331,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -1717,7 +1876,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
         ]
     }, void 0, true, {
         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-        lineNumber: 188,
+        lineNumber: 208,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
@@ -1791,6 +1950,40 @@ function hitAlpha(nowMs, spawnTimeMs, preemptMs) {
     // smoothstep
     return x * x * (3 - 2 * x);
 }
+}),
+"[project]/src/renderer/components/game/ApproachCircle.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+// src/renderer/components/game/ApproachCircle.tsx
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+'use client';
+;
+const ApproachCircle = ({ radius, scale, opacity })=>{
+    const size = radius * 2 * scale;
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "absolute rounded-full border-4 border-white/80 pointer-events-none",
+        style: {
+            width: `${size}px`,
+            height: `${size}px`,
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            opacity,
+            boxShadow: '0 0 16px rgba(255,255,255,0.35)',
+            transition: 'all 0.1s linear',
+            borderColor: scale > 1.2 ? 'rgba(255, 255, 255, 0.4)' : scale > 1.05 ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.9)' // Color intensity based on timing
+        }
+    }, void 0, false, {
+        fileName: "[project]/src/renderer/components/game/ApproachCircle.tsx",
+        lineNumber: 15,
+        columnNumber: 5
+    }, ("TURBOPACK compile-time value", void 0));
+};
+const __TURBOPACK__default__export__ = ApproachCircle;
 }),
 "[project]/src/renderer/components/game/HitErrorBar.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
@@ -2581,6 +2774,27 @@ const VideoController = ({ videoPath, className = "" })=>{
 };
 const __TURBOPACK__default__export__ = VideoController;
 }),
+"[project]/src/shared/logger.ts [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+// shared/logger.ts
+__turbopack_context__.s([
+    "logger",
+    ()=>logger
+]);
+const getTimestamp = ()=>new Date().toISOString();
+const logger = {
+    info: (message, ...args)=>{
+        console.log(`[INFO] ${getTimestamp()}: ${message}`, ...args);
+    },
+    warn: (message, ...args)=>{
+        console.warn(`[WARN] ${getTimestamp()}: ${message}`, ...args);
+    },
+    error: (message, ...args)=>{
+        console.error(`[ERROR] ${getTimestamp()}: ${message}`, ...args);
+    }
+};
+}),
 "[project]/src/renderer/components/scenes/GameScene.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
@@ -2598,7 +2812,9 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$component
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$PauseMenu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/components/ui/PauseMenu.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$VideoController$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/components/ui/VideoController.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$AudioService$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/lib/AudioService.ts [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/shared/logger.ts [app-ssr] (ecmascript)");
 'use client';
+;
 ;
 ;
 ;
@@ -2642,14 +2858,14 @@ const GameScene = ({ selectedChart, onBack })=>{
             try {
                 setIsLoading(true);
                 // --- START: ADD CRITICAL CHART DATA VALIDATION ---
-                console.log('[Renderer] Loading PinChart:', selectedChart);
+                __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["logger"].info('[Renderer] Loading PinChart:', selectedChart);
                 if (!selectedChart || !selectedChart.notes || selectedChart.notes.length === 0) {
-                    console.error('[Renderer] CRITICAL: Chart data is missing or notes are empty!');
-                    alert('Chart data is invalid. Returning to selection.');
+                    __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["logger"].error('[Renderer] CRITICAL: Chart data is missing or notes are empty!');
+                    alert('Chart data is invalid or unsupported. This might be an osu!mania chart. Only osu! Standard charts are supported. Returning to selection.');
                     onBack();
                     return;
                 }
-                console.log('[Renderer] Chart validation passed - notes count:', selectedChart.notes.length);
+                __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["logger"].info('[Renderer] Chart validation passed - notes count:', selectedChart.notes.length);
                 // --- END: ADD CRITICAL CHART DATA VALIDATION ---
                 setPinChart(selectedChart);
                 // Load main audio track
@@ -2779,6 +2995,7 @@ const GameScene = ({ selectedChart, onBack })=>{
     ]);
     // Handle game start
     const handleStartGame = ()=>{
+        console.log('[GameScene] 🎮 STARTING GAME! Setting gameStarted = true');
         console.log('[GameScene] Starting game with pinChart:', pinChart?.title, 'notes:', pinChart?.notes?.length);
         setGameStarted(true);
         setShowPreGameLobby(false);
@@ -2813,12 +3030,12 @@ const GameScene = ({ selectedChart, onBack })=>{
                 onBackToMenu: onBack
             }, void 0, false, {
                 fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                lineNumber: 251,
+                lineNumber: 253,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0))
         }, void 0, false, {
             fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-            lineNumber: 250,
+            lineNumber: 252,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0));
     }
@@ -2829,7 +3046,7 @@ const GameScene = ({ selectedChart, onBack })=>{
             onBackToMenu: handleBackToMenu
         }, void 0, false, {
             fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-            lineNumber: 263,
+            lineNumber: 265,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0));
     }
@@ -2840,7 +3057,7 @@ const GameScene = ({ selectedChart, onBack })=>{
                 videoPath: videoPath
             }, videoPath, false, {
                 fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                lineNumber: 275,
+                lineNumber: 277,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)) : backgroundUrl ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "absolute inset-0 z-0 bg-cover bg-center",
@@ -2849,13 +3066,13 @@ const GameScene = ({ selectedChart, onBack })=>{
                 }
             }, void 0, false, {
                 fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                lineNumber: 277,
+                lineNumber: 279,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "absolute inset-0 z-0 bg-gray-900"
             }, void 0, false, {
                 fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                lineNumber: 282,
+                lineNumber: 284,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)),
             pinChart && (()=>{
@@ -2871,7 +3088,7 @@ const GameScene = ({ selectedChart, onBack })=>{
                         noteSpeed: 500
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                        lineNumber: 292,
+                        lineNumber: 294,
                         columnNumber: 15
                     }, ("TURBOPACK compile-time value", void 0));
                 } else if (pinChart.gameMode === 'osu') {
@@ -2880,7 +3097,7 @@ const GameScene = ({ selectedChart, onBack })=>{
                         chart: pinChart
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                        lineNumber: 304,
+                        lineNumber: 306,
                         columnNumber: 15
                     }, ("TURBOPACK compile-time value", void 0));
                 } else {
@@ -2895,12 +3112,12 @@ const GameScene = ({ selectedChart, onBack })=>{
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                            lineNumber: 312,
+                            lineNumber: 314,
                             columnNumber: 17
                         }, ("TURBOPACK compile-time value", void 0))
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                        lineNumber: 311,
+                        lineNumber: 313,
                         columnNumber: 15
                     }, ("TURBOPACK compile-time value", void 0));
                 }
@@ -2915,7 +3132,7 @@ const GameScene = ({ selectedChart, onBack })=>{
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                        lineNumber: 323,
+                        lineNumber: 325,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2925,7 +3142,7 @@ const GameScene = ({ selectedChart, onBack })=>{
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                        lineNumber: 324,
+                        lineNumber: 326,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2935,7 +3152,7 @@ const GameScene = ({ selectedChart, onBack })=>{
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                        lineNumber: 325,
+                        lineNumber: 327,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2945,7 +3162,7 @@ const GameScene = ({ selectedChart, onBack })=>{
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                        lineNumber: 326,
+                        lineNumber: 328,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2956,19 +3173,19 @@ const GameScene = ({ selectedChart, onBack })=>{
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                        lineNumber: 327,
+                        lineNumber: 329,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                lineNumber: 322,
+                lineNumber: 324,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-        lineNumber: 272,
+        lineNumber: 274,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
@@ -3259,127 +3476,6 @@ const RankDisplay = ({ rank })=>{
     }, ("TURBOPACK compile-time value", void 0));
 };
 const __TURBOPACK__default__export__ = RankDisplay;
-}),
-"[project]/src/renderer/components/game/AccuracyDisplay.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
-"use strict";
-
-// src/renderer/components/game/AccuracyDisplay.tsx
-__turbopack_context__.s([
-    "default",
-    ()=>__TURBOPACK__default__export__
-]);
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$spring$2f$dist$2f$react$2d$spring$2e$modern$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/react-spring/dist/react-spring.modern.mjs [app-ssr] (ecmascript) <locals>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$spring$2f$core$2f$dist$2f$react$2d$spring_core$2e$modern$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@react-spring/core/dist/react-spring_core.modern.mjs [app-ssr] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$spring$2f$web$2f$dist$2f$react$2d$spring_web$2e$modern$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@react-spring/web/dist/react-spring_web.modern.mjs [app-ssr] (ecmascript)");
-'use client';
-;
-;
-const AccuracyDisplay = ({ accuracy })=>{
-    const radius = 60;
-    const circumference = 2 * Math.PI * radius;
-    const { val } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$spring$2f$core$2f$dist$2f$react$2d$spring_core$2e$modern$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useSpring"])({
-        from: {
-            val: 0
-        },
-        to: {
-            val: accuracy
-        },
-        config: {
-            duration: 1000
-        }
-    });
-    const { strokeDashoffset } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$spring$2f$core$2f$dist$2f$react$2d$spring_core$2e$modern$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useSpring"])({
-        from: {
-            strokeDashoffset: circumference
-        },
-        to: {
-            strokeDashoffset: circumference - accuracy / 100 * circumference
-        },
-        config: {
-            duration: 1000
-        }
-    });
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "flex flex-col items-center",
-        children: [
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                className: "text-2xl font-semibold text-theme-text-light/80 mb-4",
-                children: "Accuracy"
-            }, void 0, false, {
-                fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
-                lineNumber: 29,
-                columnNumber: 7
-            }, ("TURBOPACK compile-time value", void 0)),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "relative w-40 h-40",
-                children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
-                        className: "w-full h-full",
-                        viewBox: "0 0 140 140",
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
-                                cx: "70",
-                                cy: "70",
-                                r: radius,
-                                strokeWidth: "10",
-                                className: "stroke-current text-theme-text-dark/30",
-                                fill: "transparent"
-                            }, void 0, false, {
-                                fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
-                                lineNumber: 32,
-                                columnNumber: 11
-                            }, ("TURBOPACK compile-time value", void 0)),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$spring$2f$web$2f$dist$2f$react$2d$spring_web$2e$modern$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["animated"].circle, {
-                                cx: "70",
-                                cy: "70",
-                                r: radius,
-                                strokeWidth: "10",
-                                className: "stroke-current text-theme-accent transform -rotate-90 origin-center",
-                                fill: "transparent",
-                                strokeDasharray: circumference,
-                                strokeDashoffset: strokeDashoffset,
-                                strokeLinecap: "round"
-                            }, void 0, false, {
-                                fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
-                                lineNumber: 40,
-                                columnNumber: 11
-                            }, ("TURBOPACK compile-time value", void 0))
-                        ]
-                    }, void 0, true, {
-                        fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
-                        lineNumber: 31,
-                        columnNumber: 9
-                    }, ("TURBOPACK compile-time value", void 0)),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "absolute inset-0 flex items-center justify-center",
-                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$spring$2f$web$2f$dist$2f$react$2d$spring_web$2e$modern$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["animated"].p, {
-                            className: "text-4xl font-bold text-theme-text-light",
-                            children: val.to((v)=>`${v.toFixed(2)}%`)
-                        }, void 0, false, {
-                            fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
-                            lineNumber: 53,
-                            columnNumber: 11
-                        }, ("TURBOPACK compile-time value", void 0))
-                    }, void 0, false, {
-                        fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
-                        lineNumber: 52,
-                        columnNumber: 9
-                    }, ("TURBOPACK compile-time value", void 0))
-                ]
-            }, void 0, true, {
-                fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
-                lineNumber: 30,
-                columnNumber: 7
-            }, ("TURBOPACK compile-time value", void 0))
-        ]
-    }, void 0, true, {
-        fileName: "[project]/src/renderer/components/game/AccuracyDisplay.tsx",
-        lineNumber: 28,
-        columnNumber: 5
-    }, ("TURBOPACK compile-time value", void 0));
-};
-const __TURBOPACK__default__export__ = AccuracyDisplay;
 }),
 "[project]/src/renderer/components/scenes/FinishScene.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
@@ -4280,4 +4376,4 @@ function HomePage() {
 }),
 ];
 
-//# sourceMappingURL=src_renderer_8c7b942f._.js.map
+//# sourceMappingURL=src_12890d6d._.js.map

@@ -4,6 +4,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useKnifePhysics } from '../../hooks/useKnifePhysics';
 import ApproachCircle from './ApproachCircle';
+import AccuracyDisplay from './AccuracyDisplay';
 import JudgmentDisplay from './JudgmentDisplay';
 import { Note, Judgment, PinChart } from '../../../shared/types';
 import { audioService } from '../../lib/AudioService';
@@ -32,7 +33,8 @@ const PinGameView: React.FC<PinGameViewProps> = ({
   judgment,
   noteSpeed
 }) => {
-  console.log('[PinGameView] Component mounted with chart:', chart?.title);
+  console.log('🚀 [PinGameView] UPDATED COMPONENT LOADED - NEW VERSION!', chart?.title);
+  console.log('🎯 [PinGameView] Component mounted with chart:', chart?.title, 'notes:', chart?.notes?.length);
 
   // Game state
   const [approachCircles, setApproachCircles] = useState<ApproachCircleData[]>([]);
@@ -118,14 +120,31 @@ const PinGameView: React.FC<PinGameViewProps> = ({
 
   // Generate approach circles for upcoming notes
   useEffect(() => {
-    if (!chart?.notes) return;
+    if (!chart?.notes) {
+      console.log('[PinGameView] No chart or notes available for approach circles');
+      return;
+    }
+
+    console.log('[PinGameView] Setting up approach circles for', chart.notes.length, 'notes');
 
     const interval = setInterval(() => {
       const currentTime = timeMsRef.current;
 
+      // 🚨 CRITICAL DEBUG: Time unit validation
+      if (chart?.notes && chart.notes.length > 0) {
+        const firstNote = chart.notes[0];
+        if (firstNote && Math.floor(currentTime / 1000) % 5 === 0) {
+          console.log('🕐 TIME UNIT VALIDATION:');
+          console.log(`  currentTime: ${currentTime}ms (from audioService)`);
+          console.log(`  firstNote.time: ${firstNote.time} (from chart data)`);
+          console.log(`  firstNote.time * 1000: ${firstNote.time * 1000}ms`);
+        }
+      }
+
       // Find notes that should have approach circles
+      // 🔧 FIX: note.time is already in SECONDS, not milliseconds!
       const upcomingNotes = chart.notes.filter(note => {
-        const noteTimeMs = note.time * 1000;
+        const noteTimeMs = note.time * 1000; // Convert seconds to milliseconds
         const timeUntilNote = noteTimeMs - currentTime;
         return timeUntilNote > 0 && timeUntilNote <= APPROACH_TIME;
       });
@@ -134,7 +153,8 @@ const PinGameView: React.FC<PinGameViewProps> = ({
       const newCircles: ApproachCircleData[] = upcomingNotes.map(note => {
         const noteTimeMs = note.time * 1000;
         const timeUntilNote = noteTimeMs - currentTime;
-        const scale = Math.max(0.1, timeUntilNote / APPROACH_TIME);
+        // Scale should start large (2.0) and shrink to 1.0 as note approaches
+        const scale = Math.max(1.0, Math.min(2.0, 1.0 + (timeUntilNote / APPROACH_TIME)));
 
         return {
           id: `circle-${note.time}`,
@@ -185,7 +205,7 @@ const PinGameView: React.FC<PinGameViewProps> = ({
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center bg-gray-900" style={{ zIndex: 10 }}>
+    <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center" style={{ zIndex: 10 }}>
       {/* Game area - centered container */}
       <div className="relative flex items-center justify-center" style={{ width: '100vw', height: '100vh', zIndex: 10 }}>
 
@@ -211,13 +231,31 @@ const PinGameView: React.FC<PinGameViewProps> = ({
           </div>
         </div>
 
-        {/* Approach circles - same positioning as target */}
-        {approachCircles.map(circle => (
+        {/* Approach circles - temporarily disabled for debugging */}
+        {/* {approachCircles.map(circle => (
           <ApproachCircle
             key={circle.id}
             radius={TARGET_RADIUS}
             scale={circle.scale}
             opacity={Math.max(0.3, circle.scale)}
+          />
+        ))} */}
+
+        {/* Simple timing indicator circles */}
+        {approachCircles.map(circle => (
+          <div
+            key={circle.id}
+            className="absolute rounded-full border-4 pointer-events-none"
+            style={{
+              width: `${TARGET_RADIUS * 2 * circle.scale}px`,
+              height: `${TARGET_RADIUS * 2 * circle.scale}px`,
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              borderColor: circle.scale > 1.6 ? '#ff4444' : circle.scale > 1.3 ? '#ff8844' : '#44ff44',
+              opacity: Math.max(0.3, 1.0 - (circle.scale - 1.0)),
+              boxShadow: `0 0 16px ${circle.scale > 1.6 ? '#ff4444' : circle.scale > 1.3 ? '#ff8844' : '#44ff44'}`,
+            }}
           />
         ))}
 
@@ -264,6 +302,13 @@ const PinGameView: React.FC<PinGameViewProps> = ({
 
       {/* UI Elements */}
       <div className="absolute top-4 left-4 text-white text-lg">
+        <div className="bg-red-500 p-2 rounded mb-2">🚀 UPDATED VERSION!</div>
+        <div className="bg-blue-500 p-1 rounded mb-1 text-sm">
+          ⏰ Time: {(timeMsRef.current / 1000).toFixed(2)}s
+        </div>
+        <div className="bg-green-500 p-1 rounded mb-1 text-sm">
+          🎵 Notes: {chart?.notes?.length || 0} | Circles: {approachCircles.length}
+        </div>
         <div>Score: {score}</div>
         <div>Combo: {combo}</div>
         <div>Knives: {knives.length}</div>
@@ -271,6 +316,11 @@ const PinGameView: React.FC<PinGameViewProps> = ({
 
       {/* Judgment Display */}
       <JudgmentDisplay judgment={judgment} />
+
+      {/* Accuracy Display */}
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+        <AccuracyDisplay accuracy={Math.min(100, Math.max(0, (score / Math.max(1, (score + combo * 10))) * 100))} />
+      </div>
 
       {/* Instructions */}
       <div className="absolute bottom-4 left-4 text-white text-sm">

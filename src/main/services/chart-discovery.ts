@@ -390,12 +390,12 @@ export async function discoverCharts(): Promise<any[]> {
   try {
     // Debug: 경로 확인
     logger.info(`[ChartDiscovery] Attempting to load library from: ${service['libraryPath']}`);
-    
+
     // Public 메서드를 통해 라이브러리 로드
     const library = await service.getAllCharts();
 
     logger.info(`[ChartDiscovery] Raw library loaded: ${library.length} charts`);
-    
+
     // Debug: 첫 3개 차트 ID 출력
     if (library.length > 0) {
       const first3 = library.slice(0, 3).map(c => c.id);
@@ -423,11 +423,11 @@ export async function discoverCharts(): Promise<any[]> {
     }));
 
     logger.info(`[ChartDiscovery] discoverCharts() returning ${chartMetadata.length} charts`);
-    
+
     // Debug: 모든 차트 ID 출력
     const allIds = chartMetadata.map(c => c.id);
     logger.info(`[ChartDiscovery] All chart IDs: ${allIds.join(', ')}`);
-    
+
     return chartMetadata;
   } catch (error) {
     logger.error(`[ChartDiscovery] discoverCharts() error: ${error instanceof Error ? error.message : 'Unknown error'}`);

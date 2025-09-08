@@ -47,7 +47,7 @@ export declare class ChartImportService {
     /**
      * Convert OSZ difficulty to PinChart
      */
-    convertDifficultyToPinChart(oszChart: OszChart, difficultyIndex: number): Promise<PinChart>;
+    convertDifficultyToPinChart(oszChart: OszChart, difficultyIndex: number): Promise<PinChart | null>;
     /**
      * Get chart library
      */
