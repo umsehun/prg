@@ -105,7 +105,7 @@ export const FILE_CONFIG = {
     MAX_HITSOUND_SIZE: 5 * 1024 * 1024, // 5MB per hitsound
     MAX_STORYBOARD_SIZE: 1 * 1024 * 1024, // 1MB per storyboard file
     MAX_UNCOMPRESSED_SIZE: 500 * 1024 * 1024, // 500MB total uncompressed
-    
+
     // Archive limits
     MAX_ENTRIES_PER_OSZ: 1000, // Maximum files in one OSZ
     MAX_CHARTS_IN_LIBRARY: 10000, // Maximum charts in library

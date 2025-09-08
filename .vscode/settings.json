@@ -17,5 +17,13 @@
     },
     "github.copilot.chat.localeOverride": "ko",
     "github.copilot.chat.welcomeMessage": "disabled",
-    "github.copilot.chat.summarizeAgentConversationHistory.enabled": false
+    "github.copilot.chat.summarizeAgentConversationHistory.enabled": false,
+    "tailwindCSS.includeLanguages": {
+        "typescript": "javascript",
+        "typescriptreact": "javascript",
+        "tailwindCSS.emmetCompletions": "true",
+    },
+    "css.lint.unknownAtRules": "ignore",
+    "scss.lint.unknownAtRules": "ignore",
+    "less.lint.unknownAtRules": "ignore"
 }

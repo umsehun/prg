@@ -19,7 +19,44 @@
     "fallback": []
   },
   "dynamicRoutes": [],
-  "staticRoutes": [],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/game",
+      "regex": "^/game(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/game(?:/)?$"
+    },
+    {
+      "page": "/select",
+      "regex": "^/select(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/select(?:/)?$"
+    },
+    {
+      "page": "/settings",
+      "regex": "^/settings(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/settings(?:/)?$"
+    },
+    {
+      "page": "/settings_new",
+      "regex": "^/settings_new(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/settings_new(?:/)?$"
+    }
+  ],
   "dataRoutes": [],
   "rsc": {
     "header": "rsc",

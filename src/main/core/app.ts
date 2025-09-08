@@ -6,158 +6,158 @@
 import { app, BrowserWindow, protocol } from 'electron';
 import { join } from 'path';
 import { logger } from '../../shared/globals/logger';
-import { WindowManager } from './window-manager';
-import { IPCManager } from './ipc-manager';
-import { LifecycleManager } from './lifecycle';
-import { SettingsManager } from './settings-manager';
+import { WindowManager } from '../managers/window-manager';
+import { IPCManager } from '../managers/ipc-manager';
+import { LifecycleManager } from '../managers/lifecycle';
+import { SettingsManager } from '../managers/settings-manager';
 import { setupSecurityPolicies } from './security';
 
 /**
  * Main application class that orchestrates all core components
  */
 export class ApplicationCore {
-  private static instance: ApplicationCore | null = null;
-  
-  private windowManager: WindowManager;
-  private ipcManager: IPCManager;
-  private lifecycleManager: LifecycleManager;
-  private settingsManager: SettingsManager;
-  private isInitialized = false;
+    private static instance: ApplicationCore | null = null;
 
-  private constructor() {
-    this.windowManager = new WindowManager();
-    this.ipcManager = new IPCManager();
-    this.lifecycleManager = new LifecycleManager();
-    this.settingsManager = new SettingsManager();
-  }
+    private windowManager: WindowManager;
+    private ipcManager: IPCManager;
+    private lifecycleManager: LifecycleManager;
+    private settingsManager: SettingsManager;
+    private isInitialized = false;
 
-  /**
-   * Singleton instance getter
-   */
-  public static getInstance(): ApplicationCore {
-    if (!ApplicationCore.instance) {
-      ApplicationCore.instance = new ApplicationCore();
-    }
-    return ApplicationCore.instance;
-  }
-
-  /**
-   * Initialize the application
-   */
-  public async initialize(): Promise<void> {
-    if (this.isInitialized) {
-      logger.warn('app', 'Application already initialized');
-      return;
+    private constructor() {
+        this.windowManager = new WindowManager();
+        this.ipcManager = new IPCManager();
+        this.lifecycleManager = new LifecycleManager();
+        this.settingsManager = new SettingsManager();
     }
 
-    try {
-      logger.info('app', 'Starting application initialization');
-
-      // Initialize settings first
-      await this.settingsManager.initialize();
-
-      // Setup security policies
-      await setupSecurityPolicies();
-
-      // Register custom protocols
-      this.registerCustomProtocols();
-
-      // Setup lifecycle handlers
-      this.lifecycleManager.setup();
-
-      // Create main window
-      const mainWindow = await this.windowManager.createMainWindow();
-
-      // Initialize IPC handlers
-      await this.ipcManager.initialize(mainWindow);
-
-      this.isInitialized = true;
-      logger.info('app', 'Application initialized successfully');
-
-    } catch (error) {
-      logger.error('app', 'Failed to initialize application', error);
-      throw error;
+    /**
+     * Singleton instance getter
+     */
+    public static getInstance(): ApplicationCore {
+        if (!ApplicationCore.instance) {
+            ApplicationCore.instance = new ApplicationCore();
+        }
+        return ApplicationCore.instance;
     }
-  }
 
-  /**
-   * Shutdown the application gracefully
-   */
-  public async shutdown(): Promise<void> {
-    try {
-      logger.info('app', 'Starting graceful shutdown');
+    /**
+     * Initialize the application
+     */
+    public async initialize(): Promise<void> {
+        if (this.isInitialized) {
+            logger.warn('app', 'Application already initialized');
+            return;
+        }
 
-      // Save settings
-      await this.settingsManager.save();
+        try {
+            logger.info('app', 'Starting application initialization');
 
-      // Close all windows
-      this.windowManager.closeAllWindows();
+            // Initialize settings first
+            await this.settingsManager.initialize();
 
-      // Cleanup IPC handlers
-      this.ipcManager.cleanup();
+            // Setup security policies
+            await setupSecurityPolicies();
 
-      // Cleanup lifecycle handlers
-      this.lifecycleManager.cleanup();
+            // Register custom protocols
+            this.registerCustomProtocols();
 
-      this.isInitialized = false;
-      logger.info('app', 'Application shutdown completed');
+            // Setup lifecycle handlers
+            this.lifecycleManager.setup();
 
-    } catch (error) {
-      logger.error('app', 'Error during shutdown', error);
-      throw error;
+            // Create main window
+            const mainWindow = await this.windowManager.createMainWindow();
+
+            // Initialize IPC handlers
+            await this.ipcManager.initialize(mainWindow);
+
+            this.isInitialized = true;
+            logger.info('app', 'Application initialized successfully');
+
+        } catch (error) {
+            logger.error('app', 'Failed to initialize application', error);
+            throw error;
+        }
     }
-  }
 
-  /**
-   * Register custom protocols
-   */
-  private registerCustomProtocols(): void {
-    // Register media protocol for chart assets
-    protocol.registerFileProtocol('prg-media', (request, callback) => {
-      try {
-        const url = request.url.substring('prg-media://'.length);
-        const filePath = join(app.getPath('userData'), 'charts', url);
-        callback(filePath);
-        
-        logger.debug('app', 'Media protocol request', { url, filePath });
-      } catch (error) {
-        logger.error('app', 'Media protocol error', { url: request.url, error });
-        callback({ error: -2 }); // NET_FAILED
-      }
-    });
+    /**
+     * Shutdown the application gracefully
+     */
+    public async shutdown(): Promise<void> {
+        try {
+            logger.info('app', 'Starting graceful shutdown');
 
-    logger.info('app', 'Custom protocols registered');
-  }
+            // Save settings
+            await this.settingsManager.save();
 
-  /**
-   * Get managers for external access
-   */
-  public getWindowManager(): WindowManager {
-    return this.windowManager;
-  }
+            // Close all windows
+            this.windowManager.closeAllWindows();
 
-  public getIPCManager(): IPCManager {
-    return this.ipcManager;
-  }
+            // Cleanup IPC handlers
+            this.ipcManager.cleanup();
 
-  public getSettingsManager(): SettingsManager {
-    return this.settingsManager;
-  }
+            // Cleanup lifecycle handlers
+            this.lifecycleManager.cleanup();
 
-  public getLifecycleManager(): LifecycleManager {
-    return this.lifecycleManager;
-  }
+            this.isInitialized = false;
+            logger.info('app', 'Application shutdown completed');
 
-  /**
-   * Application state getters
-   */
-  public isAppInitialized(): boolean {
-    return this.isInitialized;
-  }
+        } catch (error) {
+            logger.error('app', 'Error during shutdown', error);
+            throw error;
+        }
+    }
 
-  public getMainWindow(): BrowserWindow | null {
-    return this.windowManager.getMainWindow();
-  }
+    /**
+     * Register custom protocols
+     */
+    private registerCustomProtocols(): void {
+        // Register media protocol for chart assets
+        protocol.registerFileProtocol('prg-media', (request, callback) => {
+            try {
+                const url = request.url.substring('prg-media://'.length);
+                const filePath = join(app.getPath('userData'), 'charts', url);
+                callback(filePath);
+
+                logger.debug('app', 'Media protocol request', { url, filePath });
+            } catch (error) {
+                logger.error('app', 'Media protocol error', { url: request.url, error });
+                callback({ error: -2 }); // NET_FAILED
+            }
+        });
+
+        logger.info('app', 'Custom protocols registered');
+    }
+
+    /**
+     * Get managers for external access
+     */
+    public getWindowManager(): WindowManager {
+        return this.windowManager;
+    }
+
+    public getIPCManager(): IPCManager {
+        return this.ipcManager;
+    }
+
+    public getSettingsManager(): SettingsManager {
+        return this.settingsManager;
+    }
+
+    public getLifecycleManager(): LifecycleManager {
+        return this.lifecycleManager;
+    }
+
+    /**
+     * Application state getters
+     */
+    public isAppInitialized(): boolean {
+        return this.isInitialized;
+    }
+
+    public getMainWindow(): BrowserWindow | null {
+        return this.windowManager.getMainWindow();
+    }
 }
 
 /**

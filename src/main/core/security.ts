@@ -2,6 +2,7 @@
  * Enhanced security policies for Electron app
  */
 
+import logger from '@shared/globals';
 import { session } from 'electron';
 
 export async function setupSecurityPolicies(): Promise<void> {
@@ -90,5 +91,5 @@ export async function setupSecurityPolicies(): Promise<void> {
         storages: ['cookies', 'localstorage', 'serviceworkers']
     });
 
-    console.log('🔒 Security policies applied');
+    logger.debug('security', '🔒 Security policies applied');
 }
