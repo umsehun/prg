@@ -1,45 +1,171 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+/**
+ * Main Application Core - Central coordinator for the Electron app
+ * Manages application lifecycle, window state, and core services
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.initApp = initApp;
-// src/main/core/app.ts
+exports.appCore = exports.ApplicationCore = void 0;
 const electron_1 = require("electron");
-const path_1 = __importDefault(require("path"));
-const window_1 = require("./window");
-const ipcHandlers_1 = require("./ipcHandlers");
-const ipcService_1 = require("../services/ipcService");
-function initApp() {
-    electron_1.app.on('ready', () => {
-        const mainWindow = (0, window_1.createMainWindow)();
-        // Provide the main window to the IPC service
-        ipcService_1.ipcService.setWindow(mainWindow);
-        // Register all IPC event handlers
-        (0, ipcHandlers_1.registerIpcHandlers)();
-        // Register a custom protocol to serve media files from the charts directory
-        electron_1.protocol.handle('media', (request) => {
-            const url = new URL(request.url);
-            const chartId = url.hostname;
-            const assetName = path_1.default.normalize(url.pathname).substring(1); // remove leading slash
-            const chartsDir = path_1.default.join(electron_1.app.getPath('userData'), 'charts');
-            const filePath = path_1.default.join(chartsDir, chartId, assetName);
-            // Use net.fetch with a file:// URL to create the response.
-            // This is the standard and secure way to serve local files in Electron 15+.
-            return electron_1.net.fetch(`file://${filePath}`);
+const path_1 = require("path");
+const logger_1 = require("../../shared/globals/logger");
+const window_manager_1 = require("./window-manager");
+const ipc_manager_1 = require("./ipc-manager");
+const lifecycle_1 = require("./lifecycle");
+const settings_manager_1 = require("./settings-manager");
+const security_1 = require("./security");
+/**
+ * Main application class that orchestrates all core components
+ */
+class ApplicationCore {
+    constructor() {
+        Object.defineProperty(this, "windowManager", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
         });
-    });
-    electron_1.app.on('window-all-closed', () => {
-        if (process.platform !== 'darwin') {
-            electron_1.app.quit();
+        Object.defineProperty(this, "ipcManager", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "lifecycleManager", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "settingsManager", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "isInitialized", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: false
+        });
+        this.windowManager = new window_manager_1.WindowManager();
+        this.ipcManager = new ipc_manager_1.IPCManager();
+        this.lifecycleManager = new lifecycle_1.LifecycleManager();
+        this.settingsManager = new settings_manager_1.SettingsManager();
+    }
+    /**
+     * Singleton instance getter
+     */
+    static getInstance() {
+        if (!ApplicationCore.instance) {
+            ApplicationCore.instance = new ApplicationCore();
         }
-    });
-    electron_1.app.on('activate', () => {
-        // On macOS it's common to re-create a window in the app when the
-        // dock icon is clicked and there are no other windows open.
-        if (!globalThis.mainWindow || globalThis.mainWindow.isDestroyed()) {
-            const newWindow = (0, window_1.createMainWindow)();
-            ipcService_1.ipcService.setWindow(newWindow);
+        return ApplicationCore.instance;
+    }
+    /**
+     * Initialize the application
+     */
+    async initialize() {
+        if (this.isInitialized) {
+            logger_1.logger.warn('app', 'Application already initialized');
+            return;
         }
-    });
+        try {
+            logger_1.logger.info('app', 'Starting application initialization');
+            // Initialize settings first
+            await this.settingsManager.initialize();
+            // Setup security policies
+            await (0, security_1.setupSecurityPolicies)();
+            // Register custom protocols
+            this.registerCustomProtocols();
+            // Setup lifecycle handlers
+            this.lifecycleManager.setup();
+            // Create main window
+            const mainWindow = await this.windowManager.createMainWindow();
+            // Initialize IPC handlers
+            await this.ipcManager.initialize(mainWindow);
+            this.isInitialized = true;
+            logger_1.logger.info('app', 'Application initialized successfully');
+        }
+        catch (error) {
+            logger_1.logger.error('app', 'Failed to initialize application', error);
+            throw error;
+        }
+    }
+    /**
+     * Shutdown the application gracefully
+     */
+    async shutdown() {
+        try {
+            logger_1.logger.info('app', 'Starting graceful shutdown');
+            // Save settings
+            await this.settingsManager.save();
+            // Close all windows
+            this.windowManager.closeAllWindows();
+            // Cleanup IPC handlers
+            this.ipcManager.cleanup();
+            // Cleanup lifecycle handlers
+            this.lifecycleManager.cleanup();
+            this.isInitialized = false;
+            logger_1.logger.info('app', 'Application shutdown completed');
+        }
+        catch (error) {
+            logger_1.logger.error('app', 'Error during shutdown', error);
+            throw error;
+        }
+    }
+    /**
+     * Register custom protocols
+     */
+    registerCustomProtocols() {
+        // Register media protocol for chart assets
+        electron_1.protocol.registerFileProtocol('prg-media', (request, callback) => {
+            try {
+                const url = request.url.substring('prg-media://'.length);
+                const filePath = (0, path_1.join)(electron_1.app.getPath('userData'), 'charts', url);
+                callback(filePath);
+                logger_1.logger.debug('app', 'Media protocol request', { url, filePath });
+            }
+            catch (error) {
+                logger_1.logger.error('app', 'Media protocol error', { url: request.url, error });
+                callback({ error: -2 }); // NET_FAILED
+            }
+        });
+        logger_1.logger.info('app', 'Custom protocols registered');
+    }
+    /**
+     * Get managers for external access
+     */
+    getWindowManager() {
+        return this.windowManager;
+    }
+    getIPCManager() {
+        return this.ipcManager;
+    }
+    getSettingsManager() {
+        return this.settingsManager;
+    }
+    getLifecycleManager() {
+        return this.lifecycleManager;
+    }
+    /**
+     * Application state getters
+     */
+    isAppInitialized() {
+        return this.isInitialized;
+    }
+    getMainWindow() {
+        return this.windowManager.getMainWindow();
+    }
 }
+exports.ApplicationCore = ApplicationCore;
+Object.defineProperty(ApplicationCore, "instance", {
+    enumerable: true,
+    configurable: true,
+    writable: true,
+    value: null
+});
+/**
+ * Export singleton instance for convenience
+ */
+exports.appCore = ApplicationCore.getInstance();

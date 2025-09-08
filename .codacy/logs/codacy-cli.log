@@ -1,4 +1,0 @@
-2025-09-08T02:16:45+09:00 [INFO] (codacy-cli-v2/cli-v2.go:27) Starting Codacy CLI version=1.0.0-main.356.sha.ee1b0e6 (ee1b0e6) built at 2025-09-04T15:20:51Z
-2025-09-08T02:16:45+09:00 [INFO] (codacy-cli-v2/cmd/root.go:34) Executing CLI command full_command=[/Users/user/Library/Caches/Codacy/codacy-cli-v2/1.0.0-main.356.sha.ee1b0e6/codacy-cli-v2 init --provider gh --organization umsehun --repository prg --api-token ***] args=[] command=init
-2025-09-08T02:16:53+09:00 [INFO] (codacy-cli-v2/cli-v2.go:27) Starting Codacy CLI version=1.0.0-main.356.sha.ee1b0e6 (ee1b0e6) built at 2025-09-04T15:20:51Z
-2025-09-08T02:16:53+09:00 [INFO] (codacy-cli-v2/cmd/root.go:34) Executing CLI command args=[] command=init full_command=[/Users/user/Library/Caches/Codacy/codacy-cli-v2/1.0.0-main.356.sha.ee1b0e6/codacy-cli-v2 init --provider gh --organization umsehun --repository prg --api-token ***]

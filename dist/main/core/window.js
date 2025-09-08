@@ -1,30 +1,74 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+/**
+ * Electron window creation with enhanced security
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createMainWindow = createMainWindow;
-// src/main/core/window.ts
+exports.createWindow = createWindow;
 const electron_1 = require("electron");
-const path_1 = __importDefault(require("path"));
-function createMainWindow() {
-    const win = new electron_1.BrowserWindow({
+const path_1 = require("path");
+async function createWindow() {
+    const isDev = process.env.NODE_ENV === 'development';
+    const window = new electron_1.BrowserWindow({
         width: 1280,
         height: 800,
+        minWidth: 800,
+        minHeight: 600,
+        show: false, // Don't show until ready-to-show
+        autoHideMenuBar: !isDev, // Hide menu bar in production
         webPreferences: {
-            preload: path_1.default.join(__dirname, '../../preload/index.js'),
-            contextIsolation: true,
+            // Security settings
             nodeIntegration: false,
+            contextIsolation: true,
+            sandbox: true, // Enable sandbox for better security
+            // Preload script
+            preload: (0, path_1.join)(__dirname, '../../preload/index.js'),
+            // Additional security
+            allowRunningInsecureContent: false,
+            experimentalFeatures: false,
+            // Development settings
+            devTools: isDev,
+            webSecurity: true // Always keep web security enabled
         },
+        // Window styling
+        titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+        ...(process.platform === 'darwin' && { vibrancy: 'under-window' }),
+        // Icon (only set for Linux)
+        ...(process.platform === 'linux' && { icon: (0, path_1.join)(__dirname, '../../../public/icon.png') })
     });
-    const isDev = process.env.NODE_ENV === 'development';
+    // Load the app
     if (isDev) {
-        win.loadURL('http://localhost:5173');
-        win.webContents.openDevTools();
+        // Development - load from Next.js dev server
+        await window.loadURL('http://localhost:5173');
+        // Open DevTools in development
+        window.webContents.openDevTools({ mode: 'detach' });
     }
     else {
-        win.loadFile(path_1.default.join(__dirname, '../../renderer/out/index.html'));
+        // Production - load from built files
+        await window.loadFile((0, path_1.join)(__dirname, '../../renderer/out/index.html'));
     }
-    globalThis.mainWindow = win;
-    return win;
+    // Show window when ready
+    window.once('ready-to-show', () => {
+        window.show();
+        if (isDev) {
+            window.focus();
+        }
+    });
+    // Handle window closed
+    window.on('closed', () => {
+        // Dereference the window object
+        return null;
+    });
+    // Prevent new window creation
+    window.webContents.setWindowOpenHandler(() => {
+        return { action: 'deny' };
+    });
+    // Security: prevent navigation
+    window.webContents.on('will-navigate', (event, navigationUrl) => {
+        const parsedUrl = new URL(navigationUrl);
+        if (parsedUrl.origin !== 'http://localhost:5173' && parsedUrl.protocol !== 'file:') {
+            event.preventDefault();
+        }
+    });
+    console.log('🪟 Main window created');
+    return window;
 }

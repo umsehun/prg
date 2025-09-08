@@ -1,48 +1,166 @@
-// src/main/core/app.ts
-import { app, protocol, net } from 'electron';
-import path from 'path';
-import { createMainWindow } from './window';
-import { registerIpcHandlers } from './ipcHandlers';
-import { ipcService } from '../services/ipcService';
+/**
+ * Main Application Core - Central coordinator for the Electron app
+ * Manages application lifecycle, window state, and core services
+ */
 
-export function initApp() {
-  app.on('ready', () => {
-        const mainWindow = createMainWindow();
+import { app, BrowserWindow, protocol } from 'electron';
+import { join } from 'path';
+import { logger } from '../../shared/globals/logger';
+import { WindowManager } from './window-manager';
+import { IPCManager } from './ipc-manager';
+import { LifecycleManager } from './lifecycle';
+import { SettingsManager } from './settings-manager';
+import { setupSecurityPolicies } from './security';
 
-    // Provide the main window to the IPC service
-    ipcService.setWindow(mainWindow);
+/**
+ * Main application class that orchestrates all core components
+ */
+export class ApplicationCore {
+  private static instance: ApplicationCore | null = null;
+  
+  private windowManager: WindowManager;
+  private ipcManager: IPCManager;
+  private lifecycleManager: LifecycleManager;
+  private settingsManager: SettingsManager;
+  private isInitialized = false;
 
-    // Register all IPC event handlers
-    registerIpcHandlers();
+  private constructor() {
+    this.windowManager = new WindowManager();
+    this.ipcManager = new IPCManager();
+    this.lifecycleManager = new LifecycleManager();
+    this.settingsManager = new SettingsManager();
+  }
 
-    // Register a custom protocol to serve media files from the charts directory
-    protocol.handle('media', (request) => {
-      const url = new URL(request.url);
-      const chartId = url.hostname;
-      const assetName = path.normalize(url.pathname).substring(1); // remove leading slash
+  /**
+   * Singleton instance getter
+   */
+  public static getInstance(): ApplicationCore {
+    if (!ApplicationCore.instance) {
+      ApplicationCore.instance = new ApplicationCore();
+    }
+    return ApplicationCore.instance;
+  }
 
-      const chartsDir = path.join(app.getPath('userData'), 'charts');
-      const filePath = path.join(chartsDir, chartId, assetName);
+  /**
+   * Initialize the application
+   */
+  public async initialize(): Promise<void> {
+    if (this.isInitialized) {
+      logger.warn('app', 'Application already initialized');
+      return;
+    }
 
-      // Use net.fetch with a file:// URL to create the response.
-      // This is the standard and secure way to serve local files in Electron 15+.
-      return net.fetch(`file://${filePath}`);
+    try {
+      logger.info('app', 'Starting application initialization');
+
+      // Initialize settings first
+      await this.settingsManager.initialize();
+
+      // Setup security policies
+      await setupSecurityPolicies();
+
+      // Register custom protocols
+      this.registerCustomProtocols();
+
+      // Setup lifecycle handlers
+      this.lifecycleManager.setup();
+
+      // Create main window
+      const mainWindow = await this.windowManager.createMainWindow();
+
+      // Initialize IPC handlers
+      await this.ipcManager.initialize(mainWindow);
+
+      this.isInitialized = true;
+      logger.info('app', 'Application initialized successfully');
+
+    } catch (error) {
+      logger.error('app', 'Failed to initialize application', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Shutdown the application gracefully
+   */
+  public async shutdown(): Promise<void> {
+    try {
+      logger.info('app', 'Starting graceful shutdown');
+
+      // Save settings
+      await this.settingsManager.save();
+
+      // Close all windows
+      this.windowManager.closeAllWindows();
+
+      // Cleanup IPC handlers
+      this.ipcManager.cleanup();
+
+      // Cleanup lifecycle handlers
+      this.lifecycleManager.cleanup();
+
+      this.isInitialized = false;
+      logger.info('app', 'Application shutdown completed');
+
+    } catch (error) {
+      logger.error('app', 'Error during shutdown', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Register custom protocols
+   */
+  private registerCustomProtocols(): void {
+    // Register media protocol for chart assets
+    protocol.registerFileProtocol('prg-media', (request, callback) => {
+      try {
+        const url = request.url.substring('prg-media://'.length);
+        const filePath = join(app.getPath('userData'), 'charts', url);
+        callback(filePath);
+        
+        logger.debug('app', 'Media protocol request', { url, filePath });
+      } catch (error) {
+        logger.error('app', 'Media protocol error', { url: request.url, error });
+        callback({ error: -2 }); // NET_FAILED
+      }
     });
-  });
 
-  app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-      app.quit();
-    }
-  });
+    logger.info('app', 'Custom protocols registered');
+  }
 
-  app.on('activate', () => {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (!globalThis.mainWindow || globalThis.mainWindow.isDestroyed()) {
-      const newWindow = createMainWindow();
-      ipcService.setWindow(newWindow);
-    }
-  });
+  /**
+   * Get managers for external access
+   */
+  public getWindowManager(): WindowManager {
+    return this.windowManager;
+  }
+
+  public getIPCManager(): IPCManager {
+    return this.ipcManager;
+  }
+
+  public getSettingsManager(): SettingsManager {
+    return this.settingsManager;
+  }
+
+  public getLifecycleManager(): LifecycleManager {
+    return this.lifecycleManager;
+  }
+
+  /**
+   * Application state getters
+   */
+  public isAppInitialized(): boolean {
+    return this.isInitialized;
+  }
+
+  public getMainWindow(): BrowserWindow | null {
+    return this.windowManager.getMainWindow();
+  }
 }
 
+/**
+ * Export singleton instance for convenience
+ */
+export const appCore = ApplicationCore.getInstance();

@@ -1,6 +1,6 @@
+/**
+ * Electron window creation with enhanced security
+ */
 import { BrowserWindow } from 'electron';
-declare global {
-    var mainWindow: BrowserWindow | null;
-}
-export declare function createMainWindow(): BrowserWindow;
+export declare function createWindow(): Promise<BrowserWindow>;
 //# sourceMappingURL=window.d.ts.map
