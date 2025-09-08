@@ -138,7 +138,8 @@ export class ChartDiscoveryService {
   private libraryPath: string;
 
   private constructor() {
-    const userDataPath = app.getPath('userData');
+    // Use the correct app-specific path instead of Electron's default userData path
+    const userDataPath = '/Users/user/Library/Application Support/prg';
     this.libraryPath = path.join(userDataPath, 'library.json');
   }
 
@@ -159,6 +160,13 @@ export class ChartDiscoveryService {
     } catch {
       return [];
     }
+  }
+
+  /**
+   * 모든 차트 가져오기 (public API)
+   */
+  public async getAllCharts(): Promise<OszChart[]> {
+    return this.loadLibrary();
   }
 
   /**
@@ -339,7 +347,7 @@ export class ChartDiscoveryService {
       try {
         // 폴더 존재성 검사
         const folderPath = chart.folderPath.replace('media://', '');
-        const fullPath = path.join(app.getPath('userData'), 'charts', folderPath);
+        const fullPath = path.join('/Users/user/Library/Application Support/prg', 'charts', folderPath);
 
         await fs.access(fullPath);
 
@@ -379,10 +387,20 @@ export const chartDiscoveryService = ChartDiscoveryService.getInstance();
 export async function discoverCharts(): Promise<any[]> {
   const service = ChartDiscoveryService.getInstance();
 
-  // Private 메서드 대신 public 메서드 사용
   try {
-    const data = await fs.readFile(service['libraryPath'], 'utf8');
-    const library = JSON.parse(data) as OszChart[];
+    // Debug: 경로 확인
+    logger.info(`[ChartDiscovery] Attempting to load library from: ${service['libraryPath']}`);
+    
+    // Public 메서드를 통해 라이브러리 로드
+    const library = await service.getAllCharts();
+
+    logger.info(`[ChartDiscovery] Raw library loaded: ${library.length} charts`);
+    
+    // Debug: 첫 3개 차트 ID 출력
+    if (library.length > 0) {
+      const first3 = library.slice(0, 3).map(c => c.id);
+      logger.info(`[ChartDiscovery] First 3 chart IDs: ${first3.join(', ')}`);
+    }
 
     // OszChart를 ChartMetadata 형식으로 변환
     const chartMetadata = library.map(chart => ({
@@ -404,10 +422,15 @@ export async function discoverCharts(): Promise<any[]> {
       }
     }));
 
-    logger.info(`[ChartDiscovery] discoverCharts() returned ${chartMetadata.length} charts`);
+    logger.info(`[ChartDiscovery] discoverCharts() returning ${chartMetadata.length} charts`);
+    
+    // Debug: 모든 차트 ID 출력
+    const allIds = chartMetadata.map(c => c.id);
+    logger.info(`[ChartDiscovery] All chart IDs: ${allIds.join(', ')}`);
+    
     return chartMetadata;
-  } catch {
-    logger.warn('[ChartDiscovery] discoverCharts() - library file not found, returning empty array');
+  } catch (error) {
+    logger.error(`[ChartDiscovery] discoverCharts() error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     return [];
   }
 }

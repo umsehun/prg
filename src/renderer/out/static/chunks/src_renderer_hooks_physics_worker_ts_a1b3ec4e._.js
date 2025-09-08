@@ -10,6 +10,7 @@ let velocity = 400;
 let rotationSpeed = 540;
 // Active notes for timing judgment (will be set from main thread)
 let activeNotes = [];
+let currentGameTime = 0; // Current game time from audio service (milliseconds)
 const KNIFE_TIP_OFFSET = 32;
 const STICK_DEPTH = 10;
 const FLYING_ROTATION_DEG = 0;
@@ -31,12 +32,12 @@ const getJudgment = (timingError)=>{
     return 'MISS';
 };
 // Find the closest note to current time for judgment
-const findClosestNote = (currentTimeMs)=>{
+const findClosestNote = (gameTimeMs)=>{
     if (activeNotes.length === 0) return null;
     let closestNote = null;
     let smallestError = Infinity;
     for (const note of activeNotes){
-        const timingError = currentTimeMs - note.time;
+        const timingError = gameTimeMs - note.time;
         const absError = Math.abs(timingError);
         // Only consider notes within miss window
         if (absError <= JUDGMENT_WINDOWS.MISS && absError < smallestError) {
@@ -94,29 +95,28 @@ const updatePhysics = ()=>{
             const targetRotationNow = currentTime / 1000 * 120 % 360;
             const stickPointOnCircle = 90;
             const newStuckAngle = stickPointOnCircle - targetRotationNow;
-            // Calculate judgment based on timing
-            const currentTimeMs = currentTime;
-            const closestNoteData = findClosestNote(currentTimeMs);
+            // Calculate judgment based on timing using game time instead of system time
+            const closestNoteData = findClosestNote(currentGameTime);
             if (closestNoteData) {
                 const judgment = getJudgment(closestNoteData.timingError);
                 hitDetails = {
-                    hitTime: currentTime / 1000,
+                    hitTime: currentGameTime / 1000,
                     timingError: closestNoteData.timingError,
                     judgment,
                     noteId: closestNoteData.note.noteId,
                     accuracy: Math.max(0, 100 - Math.abs(closestNoteData.timingError) / JUDGMENT_WINDOWS.MISS * 100)
                 };
-                console.log("[physics.worker] Hit judgment: ".concat(judgment, ", timing error: ").concat(closestNoteData.timingError, "ms, accuracy: ").concat(hitDetails.accuracy.toFixed(1), "%"));
+                console.log("[physics.worker] Hit judgment: ".concat(judgment, ", timing error: ").concat(closestNoteData.timingError, "ms, game time: ").concat(currentGameTime, "ms, accuracy: ").concat(hitDetails.accuracy.toFixed(1), "%"));
             } else {
                 // No note to hit - still register as miss
                 hitDetails = {
-                    hitTime: currentTime / 1000,
+                    hitTime: currentGameTime / 1000,
                     timingError: 999,
                     judgment: 'MISS',
                     noteId: null,
                     accuracy: 0
                 };
-                console.log('[physics.worker] Hit but no note available - MISS');
+                console.log('[physics.worker] Hit but no note available - MISS, game time:', currentGameTime);
             }
             hitOccurred = true;
             return {
@@ -177,10 +177,14 @@ self.onmessage = (e)=>{
                 ...payload.windows
             };
             break;
+        case 'UPDATE_GAME_TIME':
+            currentGameTime = payload.gameTime;
+            break;
         case 'RESET':
             console.log('[physics.worker] Resetting knives and notes');
             knives = [];
             activeNotes = [];
+            currentGameTime = 0;
             break;
     }
 };

@@ -124,14 +124,17 @@ class GameController {
         if (!this.isRunning)
             return;
         const currentTime = (performance.now() - this.startTime) / 1000;
-        console.log('[GameController] Tick - currentTime:', currentTime, 'notes:', this.notes.length);
+        // Reduced logging frequency - only log every 60 ticks (~1 second)
+        if (Math.floor(currentTime * 60) % 60 === 0) {
+            console.log('[GameController] Tick - currentTime:', currentTime.toFixed(2), 'notes:', this.notes.length);
+        }
         // Check for missed notes
         const missedNotes = this.notes.filter((note) => !note.isHit && currentTime > note.time + this.windowsSec.MISS);
         if (missedNotes.length > 0) {
             console.log('[GameController] Found missed notes:', missedNotes.length);
         }
         missedNotes.forEach((note) => {
-            note.isHit = true; // Mark as handled
+            note.isHit = true; // Mark as handledx
             console.log('[GameController] Processing MISS for note at time:', note.time);
             this.updateScore('MISS');
         });

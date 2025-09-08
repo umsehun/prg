@@ -32,6 +32,8 @@ const PinGameView: React.FC<PinGameViewProps> = ({
   judgment,
   noteSpeed
 }) => {
+  console.log('[PinGameView] Component mounted with chart:', chart?.title);
+
   // Game state
   const [approachCircles, setApproachCircles] = useState<ApproachCircleData[]>([]);
   const [isThrowingKnife, setIsThrowingKnife] = useState(false);
@@ -44,7 +46,8 @@ const PinGameView: React.FC<PinGameViewProps> = ({
     getKnivesPositions,
     setHitCallback,
     setActiveNotes,
-    setJudgmentWindows
+    setJudgmentWindows,
+    updateGameTime
   } = useKnifePhysics({
     targetRadius: 80,
     velocity: 400,
@@ -56,13 +59,16 @@ const PinGameView: React.FC<PinGameViewProps> = ({
   const APPROACH_TIME = 2000; // ms for circle to shrink
   const TARGET_RADIUS = 80;
 
-  // Update game time
+  // Update game time and sync with physics worker
   useEffect(() => {
     const interval = setInterval(() => {
-      timeMsRef.current = audioService.getCurrentTime() * 1000;
+      const currentGameTime = audioService.getCurrentTime() * 1000;
+      timeMsRef.current = currentGameTime;
+      // Send current game time to physics worker for accurate judgment
+      updateGameTime(currentGameTime);
     }, 16);
     return () => clearInterval(interval);
-  }, []);
+  }, [updateGameTime]);
 
   // Initialize physics system with chart notes
   useEffect(() => {
@@ -149,12 +155,13 @@ const PinGameView: React.FC<PinGameViewProps> = ({
     if (isThrowingKnife) return;
 
     console.log('[PinGameView] Throwing knife at time:', timeMsRef.current);
+    console.log('[PinGameView] Current knives before throw:', knives?.length || 0);
     setIsThrowingKnife(true);
     physicsThrowKnife();
 
     // Reset throwing state
     setTimeout(() => setIsThrowingKnife(false), 150);
-  }, [isThrowingKnife, physicsThrowKnife]);
+  }, [isThrowingKnife, physicsThrowKnife, knives]);
 
   // Keyboard input
   useEffect(() => {
@@ -171,10 +178,16 @@ const PinGameView: React.FC<PinGameViewProps> = ({
   // Get knife positions for rendering
   const knifePositions = getKnivesPositions();
 
+  // Debug logging
+  console.log('[PinGameView] Knives:', knives?.length || 0, 'KnifePositions:', knifePositions?.length || 0);
+  if (knifePositions?.length > 0) {
+    console.log('[PinGameView] First knife position:', knifePositions[0]);
+  }
+
   return (
-    <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center bg-gray-900">
+    <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center bg-gray-900" style={{ zIndex: 10 }}>
       {/* Game area - centered container */}
-      <div className="relative flex items-center justify-center" style={{ width: '100vw', height: '100vh' }}>
+      <div className="relative flex items-center justify-center" style={{ width: '100vw', height: '100vh', zIndex: 10 }}>
 
         {/* Target container - absolute positioned center */}
         <div
@@ -212,14 +225,40 @@ const PinGameView: React.FC<PinGameViewProps> = ({
         {knifePositions.map(({ knife, position }) => (
           <div
             key={knife.id}
-            className="absolute w-4 h-16 bg-gray-300"
+            className="absolute"
             style={{
               left: '50%',
               top: '50%',
               transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px) rotate(${position.rotation}deg)`,
               transformOrigin: 'center center'
             }}
-          />
+          >
+            {/* Knife blade (triangular tip) */}
+            <div
+              className="absolute bg-gradient-to-r from-gray-300 to-gray-100"
+              style={{
+                width: '0',
+                height: '0',
+                borderLeft: '6px solid transparent',
+                borderRight: '6px solid transparent',
+                borderBottom: '20px solid #e5e7eb',
+                top: '-20px',
+                left: '-6px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+              }}
+            />
+            {/* Knife handle */}
+            <div
+              className="bg-gradient-to-r from-amber-800 to-amber-600"
+              style={{
+                width: '12px',
+                height: '40px',
+                borderRadius: '2px',
+                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.3)',
+                transform: 'translateX(-6px)'
+              }}
+            />
+          </div>
         ))}
       </div>
 

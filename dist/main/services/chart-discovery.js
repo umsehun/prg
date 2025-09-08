@@ -39,7 +39,6 @@ exports.discoverCharts = discoverCharts;
 // src/main/services/chart-discovery.ts
 const fs = __importStar(require("fs/promises"));
 const path = __importStar(require("path"));
-const electron_1 = require("electron");
 const logger_1 = require("../../shared/logger");
 /**
  * 문자열 유사도 계산을 위한 Levenshtein Distance 기반 알고리즘
@@ -157,7 +156,8 @@ class ChartDiscoveryService {
             writable: true,
             value: void 0
         });
-        const userDataPath = electron_1.app.getPath('userData');
+        // Use the correct app-specific path instead of Electron's default userData path
+        const userDataPath = '/Users/user/Library/Application Support/prg';
         this.libraryPath = path.join(userDataPath, 'library.json');
     }
     static getInstance() {
@@ -177,6 +177,12 @@ class ChartDiscoveryService {
         catch {
             return [];
         }
+    }
+    /**
+     * 모든 차트 가져오기 (public API)
+     */
+    async getAllCharts() {
+        return this.loadLibrary();
     }
     /**
      * 정확한 매치 검색 (title + artist)
@@ -303,7 +309,7 @@ class ChartDiscoveryService {
             try {
                 // 폴더 존재성 검사
                 const folderPath = chart.folderPath.replace('media://', '');
-                const fullPath = path.join(electron_1.app.getPath('userData'), 'charts', folderPath);
+                const fullPath = path.join('/Users/user/Library/Application Support/prg', 'charts', folderPath);
                 await fs.access(fullPath);
                 // 기본 파일들 존재성 검사
                 const audioPath = path.join(fullPath, chart.audioFilename.replace(`media://${chart.id}/`, ''));
@@ -335,10 +341,17 @@ exports.chartDiscoveryService = ChartDiscoveryService.getInstance();
  */
 async function discoverCharts() {
     const service = ChartDiscoveryService.getInstance();
-    // Private 메서드 대신 public 메서드 사용
     try {
-        const data = await fs.readFile(service['libraryPath'], 'utf8');
-        const library = JSON.parse(data);
+        // Debug: 경로 확인
+        logger_1.logger.info(`[ChartDiscovery] Attempting to load library from: ${service['libraryPath']}`);
+        // Public 메서드를 통해 라이브러리 로드
+        const library = await service.getAllCharts();
+        logger_1.logger.info(`[ChartDiscovery] Raw library loaded: ${library.length} charts`);
+        // Debug: 첫 3개 차트 ID 출력
+        if (library.length > 0) {
+            const first3 = library.slice(0, 3).map(c => c.id);
+            logger_1.logger.info(`[ChartDiscovery] First 3 chart IDs: ${first3.join(', ')}`);
+        }
         // OszChart를 ChartMetadata 형식으로 변환
         const chartMetadata = library.map(chart => ({
             id: chart.id,
@@ -358,11 +371,14 @@ async function discoverCharts() {
                 mode: chart.mode
             }
         }));
-        logger_1.logger.info(`[ChartDiscovery] discoverCharts() returned ${chartMetadata.length} charts`);
+        logger_1.logger.info(`[ChartDiscovery] discoverCharts() returning ${chartMetadata.length} charts`);
+        // Debug: 모든 차트 ID 출력
+        const allIds = chartMetadata.map(c => c.id);
+        logger_1.logger.info(`[ChartDiscovery] All chart IDs: ${allIds.join(', ')}`);
         return chartMetadata;
     }
-    catch {
-        logger_1.logger.warn('[ChartDiscovery] discoverCharts() - library file not found, returning empty array');
+    catch (error) {
+        logger_1.logger.error(`[ChartDiscovery] discoverCharts() error: ${error instanceof Error ? error.message : 'Unknown error'}`);
         return [];
     }
 }

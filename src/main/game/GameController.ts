@@ -27,10 +27,10 @@ export class GameController {
   private constructor(chart: PinChart) {
     this.chart = chart;
     // Convert note times from milliseconds to seconds for internal logic
-    this.notes = chart.notes.map(note => ({ 
-      time: note.time / 1000, 
-      isHit: false, 
-      type: 'pin' 
+    this.notes = chart.notes.map(note => ({
+      time: note.time / 1000,
+      isHit: false,
+      type: 'pin'
     }));
     this.startTime = 0; // Will be set precisely in start()
 
@@ -96,8 +96,11 @@ export class GameController {
     if (!this.isRunning) return;
 
     const currentTime = (performance.now() - this.startTime) / 1000;
-    console.log('[GameController] Tick - currentTime:', currentTime, 'notes:', this.notes.length);
-    
+    // Reduced logging frequency - only log every 60 ticks (~1 second)
+    if (Math.floor(currentTime * 60) % 60 === 0) {
+      console.log('[GameController] Tick - currentTime:', currentTime.toFixed(2), 'notes:', this.notes.length);
+    }
+
     // Check for missed notes
     const missedNotes = this.notes.filter(
       (note) => !note.isHit && currentTime > note.time + this.windowsSec.MISS,
@@ -108,7 +111,7 @@ export class GameController {
     }
 
     missedNotes.forEach((note) => {
-      note.isHit = true; // Mark as handled
+      note.isHit = true; // Mark as handledx
       console.log('[GameController] Processing MISS for note at time:', note.time);
       this.updateScore('MISS');
     });
@@ -156,38 +159,38 @@ export class GameController {
     });
   }
 
-  
+
   private start(): void {
     console.log('[GameController] Starting game with chart:', this.chart.title);
     console.log('[GameController] Chart notes count:', this.chart.notes.length);
-    
+
     this.startTime = performance.now();
     this.isRunning = true;
     // Initialize notes in NoteManager - assuming it has a way to set notes
     ScoreManager.reset();
-    
+
     this.startGameLoop();
-    
+
     // Start music playback
     ipcService.send('playMusic');
   }
 
-  
-  
+
+
   public handlePinPress(currentTimeSec?: number) {
     if (!this.isRunning) return;
 
     const currentTime = typeof currentTimeSec === 'number'
       ? currentTimeSec
       : (performance.now() - this.startTime) / 1000;
-    
+
     // Filter notes that are within the approach window (AR-based preempt in seconds)
     const APPROACH_TIME = this.approachTimeSec; // seconds
     const activeNotes = this.notes.filter(note => {
       const timeToNote = note.time - currentTime;
       return !note.isHit && timeToNote >= -this.windowsSec.MISS && timeToNote <= APPROACH_TIME;
     });
-    
+
     if (activeNotes.length === 0) {
       // No active notes - this is a miss
       this.updateScore('MISS');

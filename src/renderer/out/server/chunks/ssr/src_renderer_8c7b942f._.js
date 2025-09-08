@@ -805,7 +805,7 @@ const __TURBOPACK__default__export__ = SelectScene;
 }),
 "[project]/src/renderer/hooks/physics.worker.ts (static in ecmascript)", ((__turbopack_context__) => {
 
-__turbopack_context__.v("/_next/static/media/physics.worker.ed734525.ts");}),
+__turbopack_context__.v("/_next/static/media/physics.worker.30fe9800.ts");}),
 "[project]/src/renderer/hooks/useKnifePhysics.ts [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
@@ -931,6 +931,17 @@ const useKnifePhysics = ({ targetRadius, velocity = 400, rotationSpeed = 540, is
             });
         }
     }, []);
+    // 게임 시간 업데이트 (오디오 서비스 기준)
+    const updateGameTime = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])((gameTimeMs)=>{
+        if (workerRef.current) {
+            workerRef.current.postMessage({
+                type: 'UPDATE_GAME_TIME',
+                payload: {
+                    gameTime: gameTimeMs
+                }
+            });
+        }
+    }, []);
     // 게임 리셋
     const resetKnives = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(()=>{
         if (workerRef.current) {
@@ -951,7 +962,8 @@ const useKnifePhysics = ({ targetRadius, velocity = 400, rotationSpeed = 540, is
         stuckKnivesCount,
         setHitCallback,
         setActiveNotes,
-        setJudgmentWindows
+        setJudgmentWindows,
+        updateGameTime
     };
 };
 }),
@@ -977,7 +989,9 @@ const ApproachCircle = ({ radius, scale, opacity })=>{
             top: '50%',
             transform: 'translate(-50%, -50%)',
             opacity,
-            boxShadow: '0 0 16px rgba(255,255,255,0.35)'
+            boxShadow: '0 0 16px rgba(255,255,255,0.35)',
+            transition: 'all 0.1s linear',
+            borderColor: scale > 1.2 ? 'rgba(255, 255, 255, 0.4)' : scale > 1.05 ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.9)' // Color intensity based on timing
         }
     }, void 0, false, {
         fileName: "[project]/src/renderer/components/game/ApproachCircle.tsx",
@@ -1342,12 +1356,13 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$Au
 ;
 ;
 const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>{
+    console.log('[PinGameView] Component mounted with chart:', chart?.title);
     // Game state
     const [approachCircles, setApproachCircles] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [isThrowingKnife, setIsThrowingKnife] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const timeMsRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRef"])(0);
     // Physics system
-    const { knives, throwKnife: physicsThrowKnife, getKnivesPositions, setHitCallback, setActiveNotes, setJudgmentWindows } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useKnifePhysics$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useKnifePhysics"])({
+    const { knives, throwKnife: physicsThrowKnife, getKnivesPositions, setHitCallback, setActiveNotes, setJudgmentWindows, updateGameTime } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useKnifePhysics$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useKnifePhysics"])({
         targetRadius: 80,
         velocity: 400,
         rotationSpeed: 540,
@@ -1356,13 +1371,18 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
     // Constants for approach circles
     const APPROACH_TIME = 2000; // ms for circle to shrink
     const TARGET_RADIUS = 80;
-    // Update game time
+    // Update game time and sync with physics worker
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         const interval = setInterval(()=>{
-            timeMsRef.current = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$AudioService$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["audioService"].getCurrentTime() * 1000;
+            const currentGameTime = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$AudioService$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["audioService"].getCurrentTime() * 1000;
+            timeMsRef.current = currentGameTime;
+            // Send current game time to physics worker for accurate judgment
+            updateGameTime(currentGameTime);
         }, 16);
         return ()=>clearInterval(interval);
-    }, []);
+    }, [
+        updateGameTime
+    ]);
     // Initialize physics system with chart notes
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         if (chart?.notes) {
@@ -1442,13 +1462,15 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
     const handleThrowKnife = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(()=>{
         if (isThrowingKnife) return;
         console.log('[PinGameView] Throwing knife at time:', timeMsRef.current);
+        console.log('[PinGameView] Current knives before throw:', knives?.length || 0);
         setIsThrowingKnife(true);
         physicsThrowKnife();
         // Reset throwing state
         setTimeout(()=>setIsThrowingKnife(false), 150);
     }, [
         isThrowingKnife,
-        physicsThrowKnife
+        physicsThrowKnife,
+        knives
     ]);
     // Keyboard input
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
@@ -1465,13 +1487,22 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
     ]);
     // Get knife positions for rendering
     const knifePositions = getKnivesPositions();
+    // Debug logging
+    console.log('[PinGameView] Knives:', knives?.length || 0, 'KnifePositions:', knifePositions?.length || 0);
+    if (knifePositions?.length > 0) {
+        console.log('[PinGameView] First knife position:', knifePositions[0]);
+    }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        style: {
+            zIndex: 10
+        },
         className: "jsx-532d500bfc6d5d04" + " " + "min-h-screen relative overflow-hidden flex flex-col items-center justify-center bg-gray-900",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 style: {
                     width: '100vw',
-                    height: '100vh'
+                    height: '100vh',
+                    zIndex: 10
                 },
                 className: "jsx-532d500bfc6d5d04" + " " + "relative flex items-center justify-center",
                 children: [
@@ -1494,17 +1525,17 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                                 children: "TARGET"
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                                lineNumber: 197,
+                                lineNumber: 210,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                            lineNumber: 191,
+                            lineNumber: 204,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 180,
+                        lineNumber: 193,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     approachCircles.map((circle)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$ApproachCircle$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -1513,7 +1544,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                             opacity: Math.max(0.3, circle.scale)
                         }, circle.id, false, {
                             fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                            lineNumber: 203,
+                            lineNumber: 216,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))),
                     knifePositions.map(({ knife, position })=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1523,16 +1554,49 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                                 transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px) rotate(${position.rotation}deg)`,
                                 transformOrigin: 'center center'
                             },
-                            className: "jsx-532d500bfc6d5d04" + " " + "absolute w-4 h-16 bg-gray-300"
-                        }, knife.id, false, {
+                            className: "jsx-532d500bfc6d5d04" + " " + "absolute",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    style: {
+                                        width: '0',
+                                        height: '0',
+                                        borderLeft: '6px solid transparent',
+                                        borderRight: '6px solid transparent',
+                                        borderBottom: '20px solid #e5e7eb',
+                                        top: '-20px',
+                                        left: '-6px',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                                    },
+                                    className: "jsx-532d500bfc6d5d04" + " " + "absolute bg-gradient-to-r from-gray-300 to-gray-100"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                                    lineNumber: 237,
+                                    columnNumber: 13
+                                }, ("TURBOPACK compile-time value", void 0)),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    style: {
+                                        width: '12px',
+                                        height: '40px',
+                                        borderRadius: '2px',
+                                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.3)',
+                                        transform: 'translateX(-6px)'
+                                    },
+                                    className: "jsx-532d500bfc6d5d04" + " " + "bg-gradient-to-r from-amber-800 to-amber-600"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
+                                    lineNumber: 251,
+                                    columnNumber: 13
+                                }, ("TURBOPACK compile-time value", void 0))
+                            ]
+                        }, knife.id, true, {
                             fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                            lineNumber: 213,
+                            lineNumber: 226,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                lineNumber: 177,
+                lineNumber: 190,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1546,7 +1610,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 228,
+                        lineNumber: 267,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1557,7 +1621,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 229,
+                        lineNumber: 268,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1568,20 +1632,20 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 230,
+                        lineNumber: 269,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                lineNumber: 227,
+                lineNumber: 266,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$JudgmentDisplay$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                 judgment: judgment
             }, void 0, false, {
                 fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                lineNumber: 234,
+                lineNumber: 273,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1589,7 +1653,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                 children: "Press S to throw knife"
             }, void 0, false, {
                 fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                lineNumber: 237,
+                lineNumber: 276,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1603,7 +1667,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 243,
+                        lineNumber: 282,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1614,7 +1678,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 244,
+                        lineNumber: 283,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1626,7 +1690,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 245,
+                        lineNumber: 284,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1637,13 +1701,13 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                        lineNumber: 246,
+                        lineNumber: 285,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-                lineNumber: 242,
+                lineNumber: 281,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -1653,7 +1717,7 @@ const PinGameView = ({ chart, onPinThrow, score, combo, judgment, noteSpeed })=>
         ]
     }, void 0, true, {
         fileName: "[project]/src/renderer/components/game/PinGameView.tsx",
-        lineNumber: 175,
+        lineNumber: 188,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
@@ -2465,7 +2529,10 @@ const VideoController = ({ videoPath, className = "" })=>{
     };
     if (!videoUrl) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "fixed inset-0 z-0 bg-black flex items-center justify-center",
+            className: "fixed inset-0 bg-black flex items-center justify-center",
+            style: {
+                zIndex: -1
+            },
             children: [
                 isLoading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "text-white",
@@ -2492,7 +2559,7 @@ const VideoController = ({ videoPath, className = "" })=>{
     }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("video", {
         ref: videoRef,
-        className: `fixed inset-0 w-full h-full object-cover z-0 ${className}`,
+        className: `fixed inset-0 w-full h-full object-cover ${className}`,
         src: videoUrl,
         autoPlay: true,
         loop: true,
@@ -2503,7 +2570,8 @@ const VideoController = ({ videoPath, className = "" })=>{
         onError: handleError,
         style: {
             opacity: isReady ? 1 : 0,
-            transition: 'opacity 0.5s ease-in-out'
+            transition: 'opacity 0.5s ease-in-out',
+            zIndex: 1
         }
     }, void 0, false, {
         fileName: "[project]/src/renderer/components/ui/VideoController.tsx",
@@ -2541,39 +2609,23 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$Au
 ;
 ;
 const GameScene = ({ selectedChart, onBack })=>{
-    const { score, combo, judgment, isPaused, updateGame, togglePause, reset } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$store$2f$gameStore$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])();
-    const [pinChart, setPinChart] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
+    console.log('[GameScene] Component rendered with chart:', selectedChart?.title, 'gameMode:', selectedChart?.gameMode);
+    // Game store
+    const { score, combo, judgment, updateGame, togglePause, reset, isPaused } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$store$2f$gameStore$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])();
     const [gameStarted, setGameStarted] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
-    const [isLoading, setIsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
+    const [isLoading, setIsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [showPreGameLobby, setShowPreGameLobby] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
+    const [pinChart, setPinChart] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [videoPath, setVideoPath] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [backgroundUrl, setBackgroundUrl] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
-    const handleStartGame = async ()=>{
-        if (!pinChart || isLoading) {
-            console.warn('Pin chart or audio not loaded yet. Cannot start game.');
-            return;
-        }
-        console.log('Starting pin game...');
-        setGameStarted(true);
-        try {
-            // Initialize the game controller with the chart using handshake
-            const gameStartResult = await window.electron.startGame(pinChart);
-            if (!gameStartResult.success) {
-                console.error('Failed to start game in main process:', gameStartResult.error);
-                alert(`Failed to start game: ${gameStartResult.error}`);
-                setGameStarted(false);
-                return;
-            }
-            // Start audio playback only after successful game initialization
-            __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$AudioService$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["audioService"].play();
-        } catch (error) {
-            console.error('Error during game start:', error);
-            alert(`Failed to start game: ${error instanceof Error ? error.message : 'Unknown error'}`);
-            setGameStarted(false);
-        }
-    };
-    const handlePinPress = ()=>{
+    const handlePinPress = (judgment)=>{
         if (!gameStarted || isPaused) {
             return;
+        }
+        // If called from PinGameView with judgment, update game state
+        if (judgment) {
+            // Update game state with the judgment result
+            console.log('[GameScene] Received judgment:', judgment);
         }
         // Send the renderer master time (seconds) to Main for judgment
         const nowSec = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$AudioService$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["audioService"].getCurrentTime();
@@ -2725,6 +2777,22 @@ const GameScene = ({ selectedChart, onBack })=>{
         gameStarted,
         togglePause
     ]);
+    // Handle game start
+    const handleStartGame = ()=>{
+        console.log('[GameScene] Starting game with pinChart:', pinChart?.title, 'notes:', pinChart?.notes?.length);
+        setGameStarted(true);
+        setShowPreGameLobby(false);
+        if (pinChart) {
+            window.electron.startGame(pinChart);
+            // Start audio playback
+            if (pinChart.audioFilename) {
+                console.log('[GameScene] Starting audio playback:', pinChart.audioFilename);
+                __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$AudioService$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["audioService"].play();
+            }
+        } else {
+            console.error('[GameScene] Cannot start game - no pinChart available');
+        }
+    };
     const handleRestart = ()=>{
         reset();
         togglePause();
@@ -2738,32 +2806,19 @@ const GameScene = ({ selectedChart, onBack })=>{
     // Render different states
     if (!gameStarted) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            children: [
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "absolute top-0 left-0 bg-orange-500 text-white p-4 z-50 text-lg font-bold",
-                    children: [
-                        "PRE-GAME STATE - gameStarted: ",
-                        gameStarted ? 'YES' : 'NO'
-                    ]
-                }, void 0, true, {
-                    fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                    lineNumber: 240,
-                    columnNumber: 9
-                }, ("TURBOPACK compile-time value", void 0)),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$PreGameLobby$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["PreGameLobby"], {
-                    chart: pinChart,
-                    isLoading: isLoading,
-                    onStartGame: handleStartGame,
-                    onBackToMenu: onBack
-                }, void 0, false, {
-                    fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                    lineNumber: 243,
-                    columnNumber: 9
-                }, ("TURBOPACK compile-time value", void 0))
-            ]
-        }, void 0, true, {
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$PreGameLobby$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["PreGameLobby"], {
+                chart: pinChart,
+                isLoading: isLoading,
+                onStartGame: handleStartGame,
+                onBackToMenu: onBack
+            }, void 0, false, {
+                fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
+                lineNumber: 251,
+                columnNumber: 9
+            }, ("TURBOPACK compile-time value", void 0))
+        }, void 0, false, {
             fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-            lineNumber: 239,
+            lineNumber: 250,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0));
     }
@@ -2774,7 +2829,7 @@ const GameScene = ({ selectedChart, onBack })=>{
             onBackToMenu: handleBackToMenu
         }, void 0, false, {
             fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-            lineNumber: 255,
+            lineNumber: 263,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0));
     }
@@ -2785,7 +2840,7 @@ const GameScene = ({ selectedChart, onBack })=>{
                 videoPath: videoPath
             }, videoPath, false, {
                 fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                lineNumber: 267,
+                lineNumber: 275,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)) : backgroundUrl ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "absolute inset-0 z-0 bg-cover bg-center",
@@ -2794,50 +2849,62 @@ const GameScene = ({ selectedChart, onBack })=>{
                 }
             }, void 0, false, {
                 fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                lineNumber: 269,
+                lineNumber: 277,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "absolute inset-0 z-0 bg-gray-900"
             }, void 0, false, {
                 fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                lineNumber: 274,
+                lineNumber: 282,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)),
-            pinChart && (pinChart.gameMode === 'pin' ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$PinGameView$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-                chart: pinChart,
-                onPinThrow: handlePinPress,
-                score: score,
-                combo: combo,
-                judgment: judgment,
-                noteSpeed: 500
-            }, void 0, false, {
-                fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                lineNumber: 280,
-                columnNumber: 11
-            }, ("TURBOPACK compile-time value", void 0)) : pinChart.gameMode === 'osu' ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$OsuGameView$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-                chart: pinChart
-            }, void 0, false, {
-                fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                lineNumber: 289,
-                columnNumber: 11
-            }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "flex items-center justify-center h-full",
-                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "text-white text-xl",
-                    children: [
-                        "Unsupported game mode: ",
-                        pinChart.gameMode
-                    ]
-                }, void 0, true, {
-                    fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                    lineNumber: 294,
-                    columnNumber: 13
-                }, ("TURBOPACK compile-time value", void 0))
-            }, void 0, false, {
-                fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                lineNumber: 293,
-                columnNumber: 11
-            }, ("TURBOPACK compile-time value", void 0))),
+            pinChart && (()=>{
+                console.log('[GameScene] Rendering game view. GameMode:', pinChart.gameMode);
+                if (pinChart.gameMode === 'pin') {
+                    console.log('[GameScene] Rendering PinGameView');
+                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$PinGameView$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                        chart: pinChart,
+                        onPinThrow: handlePinPress,
+                        score: score,
+                        combo: combo,
+                        judgment: judgment,
+                        noteSpeed: 500
+                    }, void 0, false, {
+                        fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
+                        lineNumber: 292,
+                        columnNumber: 15
+                    }, ("TURBOPACK compile-time value", void 0));
+                } else if (pinChart.gameMode === 'osu') {
+                    console.log('[GameScene] Rendering OsuGameView');
+                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$OsuGameView$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                        chart: pinChart
+                    }, void 0, false, {
+                        fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
+                        lineNumber: 304,
+                        columnNumber: 15
+                    }, ("TURBOPACK compile-time value", void 0));
+                } else {
+                    console.log('[GameScene] Unsupported gameMode:', pinChart.gameMode);
+                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "flex items-center justify-center h-full",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "text-white text-xl",
+                            children: [
+                                "Unsupported game mode: ",
+                                pinChart.gameMode
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
+                            lineNumber: 312,
+                            columnNumber: 17
+                        }, ("TURBOPACK compile-time value", void 0))
+                    }, void 0, false, {
+                        fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
+                        lineNumber: 311,
+                        columnNumber: 15
+                    }, ("TURBOPACK compile-time value", void 0));
+                }
+            })(),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "absolute top-4 right-4 bg-black/50 text-white p-2 text-sm z-50 rounded",
                 children: [
@@ -2848,7 +2915,7 @@ const GameScene = ({ selectedChart, onBack })=>{
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                        lineNumber: 303,
+                        lineNumber: 323,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2858,7 +2925,7 @@ const GameScene = ({ selectedChart, onBack })=>{
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                        lineNumber: 304,
+                        lineNumber: 324,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2868,7 +2935,7 @@ const GameScene = ({ selectedChart, onBack })=>{
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                        lineNumber: 305,
+                        lineNumber: 325,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2878,7 +2945,7 @@ const GameScene = ({ selectedChart, onBack })=>{
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                        lineNumber: 306,
+                        lineNumber: 326,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2889,19 +2956,19 @@ const GameScene = ({ selectedChart, onBack })=>{
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                        lineNumber: 307,
+                        lineNumber: 327,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-                lineNumber: 302,
+                lineNumber: 322,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/src/renderer/components/scenes/GameScene.tsx",
-        lineNumber: 264,
+        lineNumber: 272,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

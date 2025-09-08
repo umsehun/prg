@@ -74,7 +74,7 @@ const VideoController: React.FC<VideoControllerProps> = ({ videoPath, className 
 
   if (!videoUrl) {
     return (
-      <div className="fixed inset-0 z-0 bg-black flex items-center justify-center">
+      <div className="fixed inset-0 bg-black flex items-center justify-center" style={{ zIndex: -1 }}>
         {isLoading && <div className="text-white">Loading Video...</div>}
         {hasError && <div className="text-red-500">Error Loading Video</div>}
       </div>
@@ -84,7 +84,7 @@ const VideoController: React.FC<VideoControllerProps> = ({ videoPath, className 
   return (
     <video
       ref={videoRef}
-      className={`fixed inset-0 w-full h-full object-cover z-0 ${className}`}
+      className={`fixed inset-0 w-full h-full object-cover ${className}`}
       src={videoUrl}
       autoPlay
       loop
@@ -96,6 +96,7 @@ const VideoController: React.FC<VideoControllerProps> = ({ videoPath, className 
       style={{
         opacity: isReady ? 1 : 0,
         transition: 'opacity 0.5s ease-in-out',
+        zIndex: 1
       }}
     />
   );

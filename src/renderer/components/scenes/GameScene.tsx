@@ -9,53 +9,46 @@ import { PreGameLobby } from '../ui/PreGameLobby';
 import { PauseMenu } from '../ui/PauseMenu';
 import VideoController from '../ui/VideoController';
 import { audioService } from '../../lib/AudioService';
-import { PinChart } from '../../../shared/types';
+import { PinChart, Judgment } from '../../../shared/types';
 
 interface GameSceneProps {
   selectedChart: PinChart;
   onBack: () => void;
 }
 
-const GameScene: React.FC<GameSceneProps> = ({ selectedChart, onBack }) => {
-  const { score, combo, judgment, isPaused, updateGame, togglePause, reset } = useGameStore();
+const GameScene: React.FC<GameSceneProps> = ({
+  selectedChart,
+  onBack
+}) => {
+  console.log('[GameScene] Component rendered with chart:', selectedChart?.title, 'gameMode:', selectedChart?.gameMode);
 
-  const [pinChart, setPinChart] = useState<PinChart | null>(null);
+  // Game store
+  const {
+    score,
+    combo,
+    judgment,
+    updateGame,
+    togglePause,
+    reset,
+    isPaused
+  } = useGameStore();
+
   const [gameStarted, setGameStarted] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPreGameLobby, setShowPreGameLobby] = useState(true);
+  const [pinChart, setPinChart] = useState<PinChart | null>(null);
   const [videoPath, setVideoPath] = useState<string | null>(null);
   const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
 
-  const handleStartGame = async () => {
-    if (!pinChart || isLoading) {
-      console.warn('Pin chart or audio not loaded yet. Cannot start game.');
-      return;
-    }
-    console.log('Starting pin game...');
-    setGameStarted(true);
-
-    try {
-      // Initialize the game controller with the chart using handshake
-      const gameStartResult = await (window as any).electron.startGame(pinChart);
-
-      if (!gameStartResult.success) {
-        console.error('Failed to start game in main process:', gameStartResult.error);
-        alert(`Failed to start game: ${gameStartResult.error}`);
-        setGameStarted(false);
-        return;
-      }
-
-      // Start audio playback only after successful game initialization
-      audioService.play();
-    } catch (error) {
-      console.error('Error during game start:', error);
-      alert(`Failed to start game: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      setGameStarted(false);
-    }
-  };
-
-  const handlePinPress = () => {
+  const handlePinPress = (judgment?: Judgment) => {
     if (!gameStarted || isPaused) {
       return;
+    }
+
+    // If called from PinGameView with judgment, update game state
+    if (judgment) {
+      // Update game state with the judgment result
+      console.log('[GameScene] Received judgment:', judgment);
     }
 
     // Send the renderer master time (seconds) to Main for judgment
@@ -221,6 +214,24 @@ const GameScene: React.FC<GameSceneProps> = ({ selectedChart, onBack }) => {
     };
   }, [gameStarted, togglePause]);
 
+  // Handle game start
+  const handleStartGame = () => {
+    console.log('[GameScene] Starting game with pinChart:', pinChart?.title, 'notes:', pinChart?.notes?.length);
+    setGameStarted(true);
+    setShowPreGameLobby(false);
+    if (pinChart) {
+      (window as any).electron.startGame(pinChart);
+
+      // Start audio playback
+      if (pinChart.audioFilename) {
+        console.log('[GameScene] Starting audio playback:', pinChart.audioFilename);
+        audioService.play();
+      }
+    } else {
+      console.error('[GameScene] Cannot start game - no pinChart available');
+    }
+  };
+
   const handleRestart = () => {
     reset();
     togglePause();
@@ -237,9 +248,6 @@ const GameScene: React.FC<GameSceneProps> = ({ selectedChart, onBack }) => {
   if (!gameStarted) {
     return (
       <div>
-        <div className="absolute top-0 left-0 bg-orange-500 text-white p-4 z-50 text-lg font-bold">
-          PRE-GAME STATE - gameStarted: {gameStarted ? 'YES' : 'NO'}
-        </div>
         <PreGameLobby
           chart={pinChart}
           isLoading={isLoading}
@@ -276,26 +284,38 @@ const GameScene: React.FC<GameSceneProps> = ({ selectedChart, onBack }) => {
 
       {/* Game view rendering based on chart gameMode */}
       {pinChart && (
-        pinChart.gameMode === 'pin' ? (
-          <PinGameView
-            chart={pinChart}
-            onPinThrow={handlePinPress}
-            score={score}
-            combo={combo}
-            judgment={judgment}
-            noteSpeed={500}
-          />
-        ) : pinChart.gameMode === 'osu' ? (
-          <OsuGameView
-            chart={pinChart}
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-white text-xl">
-              Unsupported game mode: {pinChart.gameMode}
-            </div>
-          </div>
-        )
+        (() => {
+          console.log('[GameScene] Rendering game view. GameMode:', pinChart.gameMode);
+          if (pinChart.gameMode === 'pin') {
+            console.log('[GameScene] Rendering PinGameView');
+            return (
+              <PinGameView
+                chart={pinChart}
+                onPinThrow={handlePinPress}
+                score={score}
+                combo={combo}
+                judgment={judgment}
+                noteSpeed={500}
+              />
+            );
+          } else if (pinChart.gameMode === 'osu') {
+            console.log('[GameScene] Rendering OsuGameView');
+            return (
+              <OsuGameView
+                chart={pinChart}
+              />
+            );
+          } else {
+            console.log('[GameScene] Unsupported gameMode:', pinChart.gameMode);
+            return (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-white text-xl">
+                  Unsupported game mode: {pinChart.gameMode}
+                </div>
+              </div>
+            );
+          }
+        })()
       )}
 
       {/* Simple debug info overlay */}

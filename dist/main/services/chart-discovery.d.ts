@@ -18,6 +18,10 @@ export declare class ChartDiscoveryService {
      */
     private loadLibrary;
     /**
+     * 모든 차트 가져오기 (public API)
+     */
+    getAllCharts(): Promise<OszChart[]>;
+    /**
      * 정확한 매치 검색 (title + artist)
      */
     findExactMatch(title: string, artist: string): Promise<OszChart | null>;

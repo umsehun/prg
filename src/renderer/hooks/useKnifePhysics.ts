@@ -116,6 +116,13 @@ export const useKnifePhysics = ({
         }
     }, []);
 
+    // 게임 시간 업데이트 (오디오 서비스 기준)
+    const updateGameTime = useCallback((gameTimeMs: number) => {
+        if (workerRef.current) {
+            workerRef.current.postMessage({ type: 'UPDATE_GAME_TIME', payload: { gameTime: gameTimeMs } });
+        }
+    }, []);
+
     // 게임 리셋
     const resetKnives = useCallback(() => {
         if (workerRef.current) {
@@ -136,6 +143,7 @@ export const useKnifePhysics = ({
         stuckKnivesCount,
         setHitCallback,
         setActiveNotes,
-        setJudgmentWindows
+        setJudgmentWindows,
+        updateGameTime
     };
 };
