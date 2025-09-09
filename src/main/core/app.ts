@@ -10,6 +10,7 @@ import { WindowManager } from '../managers/window-manager';
 import { IPCManager } from '../managers/ipc-manager';
 import { LifecycleManager } from '../managers/lifecycle';
 import { SettingsManager } from '../managers/settings-manager';
+import { PlatformUtils } from '../utils/platform';
 import { setupSecurityPolicies } from './security';
 
 /**
@@ -52,6 +53,11 @@ export class ApplicationCore {
 
         try {
             logger.info('app', 'Starting application initialization');
+
+            // Log platform information
+            logger.info('app', `Platform: ${PlatformUtils.info.name} (${PlatformUtils.info.arch})`);
+            logger.info('app', `Electron: ${PlatformUtils.info.version}`);
+            logger.info('app', `Development: ${PlatformUtils.info.isDev}`);
 
             // Initialize settings first
             await this.settingsManager.initialize();

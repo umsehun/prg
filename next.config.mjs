@@ -27,19 +27,6 @@ const nextConfig = {
       fullUrl: false,
     },
   },
-  // Exclude files that might cause infinite compilation loops
-  watchOptions: {
-    ignored: [
-      '**/node_modules/**',
-      '**/.git/**',
-      '**/.next/**',
-      '**/dist/**',
-      '**/public/assets/**',
-      '**/charts/**',
-      '**/*.json',
-      '**/scripts/**'
-    ],
-  },
 };
 
 export default nextConfig;

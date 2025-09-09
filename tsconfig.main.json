@@ -28,7 +28,18 @@
         "declarationMap": true,
         "incremental": true,
         "tsBuildInfoFile": "./tsconfig.main.tsbuildinfo",
-        "allowImportingTsExtensions": false
+        "allowImportingTsExtensions": false,
+        "paths": {
+            "@shared/*": [
+                "./src/shared/*"
+            ],
+            "@main/*": [
+                "./src/main/*"
+            ],
+            "@preload/*": [
+                "./src/preload/*"
+            ]
+        }
     },
     "include": [
         "src/**/*"

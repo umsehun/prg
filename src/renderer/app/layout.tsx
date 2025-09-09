@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/providers/theme-provider'
+import { AppHeader } from '@/components/ui/app-header'
 import { cn } from '@/lib/utils'
 
 const inter = Inter({
@@ -45,7 +46,10 @@ export default function RootLayout({
                     disableTransitionOnChange
                 >
                     <div className="relative flex h-screen w-screen flex-col">
-                        {children}
+                        <AppHeader />
+                        <main className="flex-1 overflow-hidden">
+                            {children}
+                        </main>
                     </div>
                 </ThemeProvider>
             </body>

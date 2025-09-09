@@ -6,7 +6,7 @@
 export { WindowManager } from './window-manager';
 export { IPCManager } from './ipc-manager';
 export { LifecycleManager } from './lifecycle';
-export { SettingsManager, type AppSettings } from './settings-manager';
+export { SettingsManager } from './settings-manager';
 
 // Re-export commonly used types
 export type { BrowserWindow } from 'electron';

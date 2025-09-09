@@ -86,7 +86,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Slider
                                     value={[settings.audio.masterVolume * 100]}
-                                    onValueChange={([value]) => updateSetting('audio.masterVolume', value / 100)}
+                                    onValueChange={([value]) => value !== undefined && updateSetting('audio.masterVolume', value / 100)}
                                     max={100}
                                     step={1}
                                 />
@@ -101,7 +101,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Slider
                                     value={[settings.audio.musicVolume * 100]}
-                                    onValueChange={([value]) => updateSetting('audio.musicVolume', value / 100)}
+                                    onValueChange={([value]) => value !== undefined && updateSetting('audio.musicVolume', value / 100)}
                                     max={100}
                                     step={1}
                                 />
@@ -116,7 +116,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Slider
                                     value={[settings.audio.effectVolume * 100]}
-                                    onValueChange={([value]) => updateSetting('audio.effectVolume', value / 100)}
+                                    onValueChange={([value]) => value !== undefined && updateSetting('audio.effectVolume', value / 100)}
                                     max={100}
                                     step={1}
                                 />
@@ -199,7 +199,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Slider
                                     value={[settings.game.scrollSpeed * 100]}
-                                    onValueChange={([value]) => updateSetting('game.scrollSpeed', value / 100)}
+                                    onValueChange={([value]) => value !== undefined && updateSetting('game.scrollSpeed', value / 100)}
                                     min={10}
                                     max={200}
                                     step={5}
@@ -215,7 +215,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Slider
                                     value={[settings.game.noteSize * 100]}
-                                    onValueChange={([value]) => updateSetting('game.noteSize', value / 100)}
+                                    onValueChange={([value]) => value !== undefined && updateSetting('game.noteSize', value / 100)}
                                     min={50}
                                     max={150}
                                     step={5}

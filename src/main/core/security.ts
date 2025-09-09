@@ -2,7 +2,7 @@
  * Enhanced security policies for Electron app
  */
 
-import logger from '@shared/globals';
+import { logger } from '../../shared/globals/logger';
 import { session } from 'electron';
 
 export async function setupSecurityPolicies(): Promise<void> {

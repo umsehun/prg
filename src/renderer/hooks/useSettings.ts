@@ -41,11 +41,18 @@ export function useSettings(): UseSettingsReturn {
                 let current: any = newSettings
 
                 for (let i = 0; i < keys.length - 1; i++) {
-                    current[keys[i]] = { ...current[keys[i]] }
-                    current = current[keys[i]]
+                    const keyName = keys[i]
+                    if (keyName && current && typeof current === 'object') {
+                        current[keyName] = { ...current[keyName] }
+                        current = current[keyName]
+                    }
                 }
 
-                current[keys[keys.length - 1]] = value
+                const lastKey = keys[keys.length - 1]
+                if (lastKey && current && typeof current === 'object') {
+                    current[lastKey] = value
+                }
+
                 return newSettings
             })
         } catch (err) {

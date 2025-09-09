@@ -6,6 +6,7 @@
 import { BrowserWindow, screen } from 'electron';
 import { join } from 'path';
 import { logger } from '../../shared/globals/logger';
+import { PlatformUtils } from '../utils/platform';
 
 /**
  * Window configuration interface
@@ -73,10 +74,10 @@ export class WindowManager {
       this.mainWindow.once('ready-to-show', () => {
         if (this.mainWindow) {
           this.mainWindow.show();
-          
+
           // Restore window state if available
           this.restoreWindowState();
-          
+
           logger.info('window', 'Main window shown');
         }
       });
@@ -102,7 +103,7 @@ export class WindowManager {
    */
   public closeAllWindows(): void {
     logger.info('window', 'Closing all windows');
-    
+
     if (this.mainWindow && !this.mainWindow.isDestroyed()) {
       this.saveWindowState();
       this.mainWindow.close();
@@ -131,12 +132,14 @@ export class WindowManager {
     const windowWidth = Math.min(1280, Math.floor(screenWidth * 0.8));
     const windowHeight = Math.min(800, Math.floor(screenHeight * 0.8));
 
+    // Get platform-specific base configuration
+    const platformConfig = PlatformUtils.getWindowConfig();
+
     const baseConfig: WindowConfig = {
+      ...platformConfig,
       width: windowWidth,
       height: windowHeight,
-      minWidth: 800,
-      minHeight: 600,
-      show: false,
+      show: true,
       autoHideMenuBar: true,
       webPreferences: {
         nodeIntegration: false,
@@ -148,21 +151,18 @@ export class WindowManager {
         devTools: process.env.NODE_ENV === 'development',
         webSecurity: true,
       },
-      titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     };
 
-    // Platform-specific configurations
-    const platformConfig: Partial<WindowConfig> = {};
-    
-    if (process.platform === 'darwin') {
-      platformConfig.vibrancy = 'under-window';
+    // Additional platform-specific configurations
+    if (PlatformUtils.isMacOS) {
+      (baseConfig as any).vibrancy = 'under-window';
     }
 
-    if (process.platform === 'linux') {
-      platformConfig.icon = join(__dirname, '../../../public/icon.png');
+    if (PlatformUtils.isLinux) {
+      (baseConfig as any).icon = join(__dirname, '../../../public/icon.png');
     }
 
-    return { ...baseConfig, ...platformConfig };
+    return baseConfig;
   }
 
   /**
@@ -224,9 +224,9 @@ export class WindowManager {
       if (process.env.NODE_ENV === 'development') {
         // Development: Load from dev server
         await this.mainWindow.loadURL('http://localhost:5173');
-        
-        // Open DevTools in development
-        this.mainWindow.webContents.openDevTools();
+
+        // Open DevTools in development (detached mode)
+        this.mainWindow.webContents.openDevTools({ mode: 'detach' });
       } else {
         // Production: Load from built files
         await this.mainWindow.loadFile(
@@ -276,15 +276,15 @@ export class WindowManager {
         width: this.windowState.width,
         height: this.windowState.height,
       };
-      
+
       if (this.windowState.x !== undefined) {
         bounds.x = this.windowState.x;
       }
-      
+
       if (this.windowState.y !== undefined) {
         bounds.y = this.windowState.y;
       }
-      
+
       this.mainWindow.setBounds(bounds);
 
       // Restore maximized state

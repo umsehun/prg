@@ -1,8 +1,8 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
   "/settings/page": "app/settings/page.js",
-  "/page": "app/page.js",
-  "/settings_new/page": "app/settings_new/page.js",
   "/select/page": "app/select/page.js",
-  "/game/page": "app/game/page.js"
+  "/settings_new/page": "app/settings_new/page.js",
+  "/game/page": "app/game/page.js",
+  "/page": "app/page.js"
 }

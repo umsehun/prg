@@ -12,8 +12,7 @@ export {
     WindowManager,
     IPCManager,
     LifecycleManager,
-    SettingsManager,
-    type AppSettings
+    SettingsManager
 } from '../managers';
 
 // Re-export commonly used types

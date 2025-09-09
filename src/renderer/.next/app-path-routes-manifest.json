@@ -1,8 +1,8 @@
 {
   "/_not-found/page": "/_not-found",
   "/settings/page": "/settings",
-  "/page": "/",
-  "/settings_new/page": "/settings_new",
   "/select/page": "/select",
-  "/game/page": "/game"
+  "/settings_new/page": "/settings_new",
+  "/game/page": "/game",
+  "/page": "/"
 }

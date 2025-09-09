@@ -8,6 +8,7 @@ import { logger } from '../../shared/globals/logger';
 import { setupGameHandlers } from '../handlers/game.handler';
 import { setupOszHandlers } from '../handlers/osz.handler';
 import { setupSettingsHandlers } from '../handlers/settings.handler';
+import { setupSystemHandlers } from '../handlers/system.handler';
 
 /**
  * IPC Handler setup function type
@@ -106,10 +107,13 @@ export class IPCManager {
         name: 'settings',
         setup: setupSettingsHandlers,
         description: 'Application settings handlers (get, set, reset, etc.)'
+      },
+      {
+        name: 'system',
+        setup: setupSystemHandlers,
+        description: 'System-level handlers (window controls, platform info, etc.)'
       }
-    ];
-
-    logger.debug('ipc', `Registered ${this.handlers.length} handler types`);
+    ]; logger.debug('ipc', `Registered ${this.handlers.length} handler types`);
   }
 
   /**

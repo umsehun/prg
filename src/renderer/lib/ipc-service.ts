@@ -52,47 +52,6 @@ interface Settings {
     }
 }
 
-declare global {
-    interface Window {
-        electronAPI: {
-            // Game API
-            game: {
-                start: (chartId: string) => Promise<GameSession>
-                stop: () => Promise<void>
-                pause: () => Promise<void>
-                resume: () => Promise<void>
-                throwKnife: (data: { id: string; time: number; lane: number }) => void
-                onKnifeResult: (callback: (result: any) => void) => () => void
-            }
-
-            // OSZ/Chart API
-            charts: {
-                getLibrary: () => Promise<ChartData[]>
-                getChart: (chartId: string) => Promise<ChartData>
-                import: (filePath?: string) => Promise<{ success: boolean; error?: string }>
-                remove: (chartId: string) => Promise<void>
-                getAudio: (chartId: string) => Promise<string>
-                getBackground: (chartId: string) => Promise<string>
-            }
-
-            // Settings API
-            settings: {
-                getAll: () => Promise<Settings>
-                set: (key: string, value: any) => Promise<void>
-                reset: () => Promise<void>
-                onChange: (callback: (settings: Settings) => void) => () => void
-            }
-
-            // System API
-            system: {
-                getVersion: () => Promise<string>
-                openExternal: (url: string) => Promise<void>
-                showMessageBox: (options: any) => Promise<any>
-            }
-        }
-    }
-}
-
 class IPCService {
     private static instance: IPCService
 
@@ -104,90 +63,177 @@ class IPCService {
     }
 
     private get api() {
-        if (!window.electronAPI) {
+        if (!(window as any).electronAPI) {
             throw new Error('Electron API not available. Make sure this is running in Electron.')
         }
-        return window.electronAPI
+        return (window as any).electronAPI
     }
 
     // Game methods
     async startGame(chartId: string): Promise<GameSession> {
-        return this.api.game.start(chartId)
+        const result = await this.api.game.start(chartId)
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to start game')
+        }
+        // Mock GameSession for now - this should come from the backend
+        return {
+            sessionId: 'mock-session-' + Date.now(),
+            chartId,
+            startTime: Date.now(),
+            score: 0,
+            accuracy: 1.0,
+            combo: 0
+        }
     }
 
     async stopGame(): Promise<void> {
-        return this.api.game.stop()
+        const result = await this.api.game.stop()
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to stop game')
+        }
     }
 
     async pauseGame(): Promise<void> {
-        return this.api.game.pause()
+        const result = await this.api.game.pause()
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to pause game')
+        }
     }
 
     async resumeGame(): Promise<void> {
-        return this.api.game.resume()
+        const result = await this.api.game.resume()
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to resume game')
+        }
     }
 
     throwKnife(data: { id: string; time: number; lane: number }): void {
-        this.api.game.throwKnife(data)
+        this.api.game.throwKnife({ id: data.id, time: data.time })
     }
 
     onKnifeResult(callback: (result: any) => void): () => void {
         return this.api.game.onKnifeResult(callback)
     }
 
-    // Chart methods
+    // Chart methods (using osz API)
     async getChartLibrary(): Promise<ChartData[]> {
-        return this.api.charts.getLibrary()
+        const result = await this.api.osz.getLibrary()
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to load chart library')
+        }
+        return result.charts || []
     }
 
     async getChart(chartId: string): Promise<ChartData> {
-        return this.api.charts.getChart(chartId)
+        // For now, get from library and find by ID
+        const library = await this.getChartLibrary()
+        const chart = library.find(c => c.id === chartId)
+        if (!chart) {
+            throw new Error(`Chart ${chartId} not found`)
+        }
+        return chart
     }
 
     async importChart(filePath?: string): Promise<{ success: boolean; error?: string }> {
-        return this.api.charts.import(filePath)
+        const result = await this.api.osz.import(filePath)
+        return {
+            success: result.success,
+            error: result.error
+        }
     }
 
     async removeChart(chartId: string): Promise<void> {
-        return this.api.charts.remove(chartId)
+        const result = await this.api.osz.removeChart(chartId)
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to remove chart')
+        }
     }
 
     async getChartAudio(chartId: string): Promise<string> {
-        return this.api.charts.getAudio(chartId)
+        const result = await this.api.osz.getAudio(chartId)
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to get audio')
+        }
+        // Convert ArrayBuffer to URL if needed
+        return 'mock-audio-url'
     }
 
     async getChartBackground(chartId: string): Promise<string> {
-        return this.api.charts.getBackground(chartId)
+        // Mock implementation for now
+        return 'mock-background-url'
     }
 
     // Settings methods
     async getSettings(): Promise<Settings> {
-        return this.api.settings.getAll()
+        const result = await this.api.settings.getAll()
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to load settings')
+        }
+
+        // Return default settings if none exist
+        return result.settings || {
+            audio: {
+                masterVolume: 1.0,
+                musicVolume: 0.8,
+                effectVolume: 0.6,
+                enableFeedback: true
+            },
+            game: {
+                scrollSpeed: 1.0,
+                noteSize: 1.0,
+                enableParticles: true,
+                showFps: false
+            },
+            display: {
+                fullscreen: false,
+                vsync: true,
+                targetFps: 60
+            },
+            controls: {
+                keyBindings: {
+                    lane1: 'D',
+                    lane2: 'F',
+                    lane3: 'J',
+                    lane4: 'K'
+                }
+            }
+        }
     }
 
     async setSetting(key: string, value: any): Promise<void> {
-        return this.api.settings.set(key, value)
+        const result = await this.api.settings.set(key, value)
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to update setting')
+        }
     }
 
     async resetSettings(): Promise<void> {
-        return this.api.settings.reset()
+        const result = await this.api.settings.reset()
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to reset settings')
+        }
     }
 
     onSettingsChange(callback: (settings: Settings) => void): () => void {
-        return this.api.settings.onChange(callback)
+        return this.api.settings.onChange((change: any) => {
+            // For now, just trigger a reload - in production this would be more sophisticated
+            this.getSettings().then(callback).catch(console.error)
+        })
     }
 
     // System methods
     async getVersion(): Promise<string> {
-        return this.api.system.getVersion()
+        return this.api.system.version || '0.1.0'
     }
 
     async openExternal(url: string): Promise<void> {
-        return this.api.system.openExternal(url)
+        // Mock implementation - would need to add to backend
+        window.open(url, '_blank')
     }
 
     async showMessageBox(options: any): Promise<any> {
-        return this.api.system.showMessageBox(options)
+        // Mock implementation - would use alert for now
+        return { response: 0 }
     }
 }
 
