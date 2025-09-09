@@ -24,16 +24,16 @@ interface GameMode {
 const gameModes: GameMode[] = [
     {
         id: 'osu',
-        name: 'osu! Mode',
-        description: 'Classic circle-tapping gameplay with approach circles',
+        name: 'osu! 모드',
+        description: '어프로치 서클과 함께하는 클래식 서클 탭핑 게임플레이',
         icon: Target,
         difficulty: 'Medium',
         color: 'from-blue-500 to-cyan-500'
     },
     {
         id: 'pin',
-        name: 'Pin Mode',
-        description: 'Knife Hit style gameplay - throw pins at the spinning target',
+        name: '핀 모드',
+        description: '칼던지기 스타일 게임플레이 - 회전하는 타겟에 핀을 던지세요',
         icon: Target,
         difficulty: 'Easy',
         color: 'from-purple-500 to-pink-500'
@@ -77,18 +77,18 @@ export default function PlayPage() {
                     <Link href="/">
                         <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white">
                             <ArrowLeft className="w-4 h-4 mr-2" />
-                            Back
+                            돌아가기
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-4xl font-bold text-white mb-2">Play Mode</h1>
-                        <p className="text-slate-400 text-lg">Choose your game mode and start playing</p>
+                        <h1 className="text-4xl font-bold text-white mb-2">플레이 모드</h1>
+                        <p className="text-slate-400 text-lg">게임 모드를 선택하고 플레이를 시작하세요</p>
                     </div>
                 </div>
 
                 {/* Game Mode Selection */}
                 <div className="mb-8">
-                    <h2 className="text-2xl font-semibold text-white mb-4">Select Game Mode</h2>
+                    <h2 className="text-2xl font-semibold text-white mb-4">게임 모드 선택</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {gameModes.map((mode) => {
                             const Icon = mode.icon;
@@ -136,30 +136,30 @@ export default function PlayPage() {
                         <CardHeader>
                             <CardTitle className="text-white flex items-center gap-2">
                                 <Music className="w-5 h-5" />
-                                Select a Song
+                                곡 선택
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             {loading ? (
                                 <div className="text-center py-8">
                                     <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                                    <p className="text-slate-400">Loading songs...</p>
+                                    <p className="text-slate-400">곡을 불러오는 중...</p>
                                 </div>
                             ) : songs.length === 0 ? (
                                 <div className="text-center py-12">
                                     <div className="text-slate-400 mb-4">
                                         <Music className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                                        No songs available yet
+                                        아직 사용 가능한 곡이 없습니다
                                     </div>
                                     <p className="text-slate-500 mb-6">
-                                        Import .osz files from the Library section to start playing
+                                        라이브러리 섹션에서 .osz 파일을 가져와서 플레이를 시작하세요
                                     </p>
                                     <Button
                                         variant="outline"
                                         className="border-slate-600 text-slate-300 hover:bg-slate-700"
                                         onClick={() => window.location.href = '/select'}
                                     >
-                                        Go to Library
+                                        라이브러리로 가기
                                     </Button>
                                 </div>
                             ) : (
@@ -205,7 +205,7 @@ export default function PlayPage() {
                                             className="bg-purple-500 hover:bg-purple-600 text-white px-8"
                                         >
                                             <Play className="w-4 h-4 mr-2" />
-                                            Start Game
+                                            게임 시작
                                         </Button>
                                     </div>
                                 </div>

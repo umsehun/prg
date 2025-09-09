@@ -547,16 +547,16 @@ var _s = __turbopack_context__.k.signature();
 const gameModes = [
     {
         id: 'osu',
-        name: 'osu! Mode',
-        description: 'Classic circle-tapping gameplay with approach circles',
+        name: 'osu! 모드',
+        description: '어프로치 서클과 함께하는 클래식 서클 탭핑 게임플레이',
         icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$target$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Target$3e$__["Target"],
         difficulty: 'Medium',
         color: 'from-blue-500 to-cyan-500'
     },
     {
         id: 'pin',
-        name: 'Pin Mode',
-        description: 'Knife Hit style gameplay - throw pins at the spinning target',
+        name: '핀 모드',
+        description: '칼던지기 스타일 게임플레이 - 회전하는 타겟에 핀을 던지세요',
         icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$target$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Target$3e$__["Target"],
         difficulty: 'Easy',
         color: 'from-purple-500 to-pink-500'
@@ -607,60 +607,60 @@ function PlayPage() {
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/play/page.tsx",
                                         lineNumber: 79,
-                                        columnNumber: 15
+                                        columnNumber: 29
                                     }, this),
-                                    "Back"
+                                    "돌아가기"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/app/play/page.tsx",
                                 lineNumber: 78,
-                                columnNumber: 13
+                                columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/play/page.tsx",
                             lineNumber: 77,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
                                     className: "text-4xl font-bold text-white mb-2",
-                                    children: "Play Mode"
+                                    children: "플레이 모드"
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/play/page.tsx",
                                     lineNumber: 84,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                     className: "text-slate-400 text-lg",
-                                    children: "Choose your game mode and start playing"
+                                    children: "게임 모드를 선택하고 플레이를 시작하세요"
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/play/page.tsx",
                                     lineNumber: 85,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/play/page.tsx",
                             lineNumber: 83,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/play/page.tsx",
                     lineNumber: 76,
-                    columnNumber: 9
+                    columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "mb-8",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
                             className: "text-2xl font-semibold text-white mb-4",
-                            children: "Select Game Mode"
+                            children: "게임 모드 선택"
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/play/page.tsx",
                             lineNumber: 91,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "grid grid-cols-1 md:grid-cols-2 gap-6",
@@ -680,13 +680,13 @@ function PlayPage() {
                                                             className: "w-8 h-8 text-white"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                            lineNumber: 108,
-                                                            columnNumber: 25
+                                                            lineNumber: 107,
+                                                            columnNumber: 49
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                        lineNumber: 107,
-                                                        columnNumber: 23
+                                                        lineNumber: 106,
+                                                        columnNumber: 45
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         children: [
@@ -695,8 +695,8 @@ function PlayPage() {
                                                                 children: mode.name
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                                lineNumber: 111,
-                                                                columnNumber: 25
+                                                                lineNumber: 110,
+                                                                columnNumber: 49
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                 className: "flex items-center gap-2 mt-1",
@@ -705,30 +705,30 @@ function PlayPage() {
                                                                     children: mode.difficulty
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                                    lineNumber: 113,
-                                                                    columnNumber: 27
+                                                                    lineNumber: 112,
+                                                                    columnNumber: 53
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                                lineNumber: 112,
-                                                                columnNumber: 25
+                                                                lineNumber: 111,
+                                                                columnNumber: 49
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                        lineNumber: 110,
-                                                        columnNumber: 23
+                                                        lineNumber: 109,
+                                                        columnNumber: 45
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                lineNumber: 106,
-                                                columnNumber: 21
+                                                lineNumber: 105,
+                                                columnNumber: 41
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 105,
-                                            columnNumber: 19
+                                            lineNumber: 104,
+                                            columnNumber: 37
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -736,31 +736,31 @@ function PlayPage() {
                                                 children: mode.description
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                lineNumber: 125,
-                                                columnNumber: 21
+                                                lineNumber: 123,
+                                                columnNumber: 41
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 124,
-                                            columnNumber: 19
+                                            lineNumber: 122,
+                                            columnNumber: 37
                                         }, this)
                                     ]
                                 }, mode.id, true, {
                                     fileName: "[project]/src/renderer/app/play/page.tsx",
                                     lineNumber: 96,
-                                    columnNumber: 17
+                                    columnNumber: 33
                                 }, this);
                             })
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/play/page.tsx",
                             lineNumber: 92,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/play/page.tsx",
                     lineNumber: 90,
-                    columnNumber: 9
+                    columnNumber: 17
                 }, this),
                 selectedMode && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
                     className: "bg-slate-800/50 border-slate-700",
@@ -773,20 +773,20 @@ function PlayPage() {
                                         className: "w-5 h-5"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/play/page.tsx",
-                                        lineNumber: 140,
-                                        columnNumber: 17
+                                        lineNumber: 138,
+                                        columnNumber: 33
                                     }, this),
-                                    "Select a Song"
+                                    "곡 선택"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/app/play/page.tsx",
-                                lineNumber: 139,
-                                columnNumber: 15
+                                lineNumber: 137,
+                                columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                            lineNumber: 138,
-                            columnNumber: 13
+                            lineNumber: 136,
+                            columnNumber: 25
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
                             children: [
@@ -797,22 +797,22 @@ function PlayPage() {
                                             className: "w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 147,
-                                            columnNumber: 19
+                                            lineNumber: 145,
+                                            columnNumber: 37
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                             className: "text-slate-400",
-                                            children: "Loading songs..."
+                                            children: "곡을 불러오는 중..."
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 148,
-                                            columnNumber: 19
+                                            lineNumber: 146,
+                                            columnNumber: 37
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                                    lineNumber: 146,
-                                    columnNumber: 17
+                                    lineNumber: 144,
+                                    columnNumber: 33
                                 }, this) : songs.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "text-center py-12",
                                     children: [
@@ -823,39 +823,39 @@ function PlayPage() {
                                                     className: "w-16 h-16 mx-auto mb-4 opacity-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                    lineNumber: 153,
-                                                    columnNumber: 21
+                                                    lineNumber: 151,
+                                                    columnNumber: 41
                                                 }, this),
-                                                "No songs available yet"
+                                                "아직 사용 가능한 곡이 없습니다"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 152,
-                                            columnNumber: 19
+                                            lineNumber: 150,
+                                            columnNumber: 37
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                             className: "text-slate-500 mb-6",
-                                            children: "Import .osz files from the Library section to start playing"
+                                            children: "라이브러리 섹션에서 .osz 파일을 가져와서 플레이를 시작하세요"
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 156,
-                                            columnNumber: 19
+                                            lineNumber: 154,
+                                            columnNumber: 37
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                             variant: "outline",
                                             className: "border-slate-600 text-slate-300 hover:bg-slate-700",
                                             onClick: ()=>window.location.href = '/select',
-                                            children: "Go to Library"
+                                            children: "라이브러리로 가기"
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 159,
-                                            columnNumber: 19
+                                            lineNumber: 157,
+                                            columnNumber: 37
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                                    lineNumber: 151,
-                                    columnNumber: 17
+                                    lineNumber: 149,
+                                    columnNumber: 33
                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "grid grid-cols-1 md:grid-cols-2 gap-4",
                                     children: songs.slice(0, 8).map((song)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -870,22 +870,22 @@ function PlayPage() {
                                                             children: song.title
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                            lineNumber: 180,
-                                                            columnNumber: 25
+                                                            lineNumber: 177,
+                                                            columnNumber: 49
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                             className: "text-slate-400 truncate",
                                                             children: song.artist
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                            lineNumber: 181,
-                                                            columnNumber: 25
+                                                            lineNumber: 178,
+                                                            columnNumber: 49
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                    lineNumber: 179,
-                                                    columnNumber: 23
+                                                    lineNumber: 176,
+                                                    columnNumber: 45
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -898,15 +898,15 @@ function PlayPage() {
                                                                         className: "w-4 h-4"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                                        lineNumber: 186,
-                                                                        columnNumber: 29
+                                                                        lineNumber: 183,
+                                                                        columnNumber: 57
                                                                     }, this),
                                                                     formatDuration(song.duration)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                                lineNumber: 185,
-                                                                columnNumber: 27
+                                                                lineNumber: 182,
+                                                                columnNumber: 53
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                 className: "text-slate-500",
@@ -916,30 +916,30 @@ function PlayPage() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                                lineNumber: 189,
-                                                                columnNumber: 27
+                                                                lineNumber: 186,
+                                                                columnNumber: 53
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                        lineNumber: 184,
-                                                        columnNumber: 25
+                                                        lineNumber: 181,
+                                                        columnNumber: 49
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                    lineNumber: 183,
-                                                    columnNumber: 23
+                                                    lineNumber: 180,
+                                                    columnNumber: 45
                                                 }, this)
                                             ]
                                         }, song.id, true, {
                                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 170,
-                                            columnNumber: 21
+                                            lineNumber: 168,
+                                            columnNumber: 41
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                                    lineNumber: 168,
-                                    columnNumber: 17
+                                    lineNumber: 166,
+                                    columnNumber: 33
                                 }, this),
                                 selectedSong && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "mt-6 pt-6 border-t border-slate-600",
@@ -953,22 +953,22 @@ function PlayPage() {
                                                         children: selectedSong.title
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                        lineNumber: 203,
-                                                        columnNumber: 23
+                                                        lineNumber: 200,
+                                                        columnNumber: 45
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                         className: "text-slate-400",
                                                         children: selectedSong.artist
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                        lineNumber: 204,
-                                                        columnNumber: 23
+                                                        lineNumber: 201,
+                                                        columnNumber: 45
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                lineNumber: 202,
-                                                columnNumber: 21
+                                                lineNumber: 199,
+                                                columnNumber: 41
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                                 onClick: startSelectedGame,
@@ -978,49 +978,49 @@ function PlayPage() {
                                                         className: "w-4 h-4 mr-2"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                        lineNumber: 210,
-                                                        columnNumber: 23
+                                                        lineNumber: 207,
+                                                        columnNumber: 45
                                                     }, this),
-                                                    "Start Game"
+                                                    "게임 시작"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                lineNumber: 206,
-                                                columnNumber: 21
+                                                lineNumber: 203,
+                                                columnNumber: 41
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/app/play/page.tsx",
-                                        lineNumber: 201,
-                                        columnNumber: 19
+                                        lineNumber: 198,
+                                        columnNumber: 37
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                                    lineNumber: 200,
-                                    columnNumber: 17
+                                    lineNumber: 197,
+                                    columnNumber: 33
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                            lineNumber: 144,
-                            columnNumber: 13
+                            lineNumber: 142,
+                            columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                    lineNumber: 137,
-                    columnNumber: 11
+                    lineNumber: 135,
+                    columnNumber: 21
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/renderer/app/play/page.tsx",
             lineNumber: 74,
-            columnNumber: 7
+            columnNumber: 13
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/renderer/app/play/page.tsx",
         lineNumber: 73,
-        columnNumber: 5
+        columnNumber: 9
     }, this);
 }
 _s(PlayPage, "EWAliRHZq5eXS3xlN4VvoE+Kjdk=", false, function() {

@@ -98,7 +98,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 ;
 function useGameState() {
     const [currentSong, setCurrentSong] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
-    const [gameMode, setGameMode] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [gameMode, setGameMode] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('osu'); // Default to osu mode
     const [gameState, setGameState] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('idle');
     const [stats, setStats] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])({
         score: 0,
@@ -382,19 +382,19 @@ function PinModePage() {
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                     lineNumber: 114,
-                                    columnNumber: 15
+                                    columnNumber: 29
                                 }, this),
-                                "Pin Mode"
+                                "핀 모드"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                             lineNumber: 113,
-                            columnNumber: 13
+                            columnNumber: 25
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/app/pin/page.tsx",
                         lineNumber: 112,
-                        columnNumber: 11
+                        columnNumber: 21
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
                         className: "text-center py-8",
@@ -407,58 +407,58 @@ function PinModePage() {
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/pin/page.tsx",
                                         lineNumber: 120,
-                                        columnNumber: 15
+                                        columnNumber: 29
                                     }, this),
-                                    "No song selected for Pin Mode"
+                                    "핀 모드에 선택된 곡이 없습니다"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
                                 lineNumber: 119,
-                                columnNumber: 13
+                                columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 className: "text-slate-300 mb-6",
-                                children: "Select a song from the Play page to start the Pin Mode game."
+                                children: "플레이 페이지에서 곡을 선택하여 핀 모드 게임을 시작하세요."
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
                                 lineNumber: 123,
-                                columnNumber: 13
+                                columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                                 href: "/play",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
                                     className: "bg-purple-500 hover:bg-purple-600 text-white",
-                                    children: "Select Song"
+                                    children: "곡 선택하기"
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                     lineNumber: 127,
-                                    columnNumber: 15
+                                    columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
                                 lineNumber: 126,
-                                columnNumber: 13
+                                columnNumber: 25
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/app/pin/page.tsx",
                         lineNumber: 118,
-                        columnNumber: 11
+                        columnNumber: 21
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/app/pin/page.tsx",
                 lineNumber: 111,
-                columnNumber: 9
+                columnNumber: 17
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/renderer/app/pin/page.tsx",
             lineNumber: 110,
-            columnNumber: 7
+            columnNumber: 13
         }, this);
     }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "min-h-full bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 p-4",
+        className: "min-h-full bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 p-4 pt-20",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "max-w-6xl mx-auto",
             children: [
@@ -480,19 +480,19 @@ function PinModePage() {
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
                                                 lineNumber: 145,
-                                                columnNumber: 17
+                                                columnNumber: 33
                                             }, this),
-                                            "Back"
+                                            "돌아가기"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/app/pin/page.tsx",
                                         lineNumber: 144,
-                                        columnNumber: 15
+                                        columnNumber: 29
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                     lineNumber: 143,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     children: [
@@ -502,7 +502,7 @@ function PinModePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                                             lineNumber: 150,
-                                            columnNumber: 15
+                                            columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                             className: "text-slate-400",
@@ -510,19 +510,19 @@ function PinModePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                                             lineNumber: 151,
-                                            columnNumber: 15
+                                            columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                     lineNumber: 149,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                             lineNumber: 142,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "flex items-center gap-2",
@@ -540,7 +540,7 @@ function PinModePage() {
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
                                                 lineNumber: 166,
-                                                columnNumber: 19
+                                                columnNumber: 37
                                             }, this),
                                             "Pause"
                                         ]
@@ -551,7 +551,7 @@ function PinModePage() {
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
                                                 lineNumber: 171,
-                                                columnNumber: 19
+                                                columnNumber: 37
                                             }, this),
                                             "Resume"
                                         ]
@@ -559,7 +559,7 @@ function PinModePage() {
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                     lineNumber: 157,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
                                     onClick: handleStop,
@@ -573,26 +573,26 @@ function PinModePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                                             lineNumber: 183,
-                                            columnNumber: 15
+                                            columnNumber: 29
                                         }, this),
-                                        "Stop"
+                                        "정지"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                     lineNumber: 176,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                             lineNumber: 156,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                     lineNumber: 141,
-                    columnNumber: 9
+                    columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "grid grid-cols-3 gap-4 mb-8",
@@ -608,26 +608,26 @@ function PinModePage() {
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/pin/page.tsx",
                                         lineNumber: 193,
-                                        columnNumber: 15
+                                        columnNumber: 29
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "text-slate-400 text-sm",
-                                        children: "Score"
+                                        children: "점수"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/pin/page.tsx",
                                         lineNumber: 194,
-                                        columnNumber: 15
+                                        columnNumber: 29
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
                                 lineNumber: 192,
-                                columnNumber: 13
+                                columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                             lineNumber: 191,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
                             className: "bg-slate-800/50 border-slate-700",
@@ -643,26 +643,26 @@ function PinModePage() {
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/app/pin/page.tsx",
                                         lineNumber: 199,
-                                        columnNumber: 15
+                                        columnNumber: 29
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "text-slate-400 text-sm",
-                                        children: "Combo"
+                                        children: "콤보"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/pin/page.tsx",
                                         lineNumber: 200,
-                                        columnNumber: 15
+                                        columnNumber: 29
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
                                 lineNumber: 198,
-                                columnNumber: 13
+                                columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                             lineNumber: 197,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
                             className: "bg-slate-800/50 border-slate-700",
@@ -678,32 +678,32 @@ function PinModePage() {
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/app/pin/page.tsx",
                                         lineNumber: 205,
-                                        columnNumber: 15
+                                        columnNumber: 29
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "text-slate-400 text-sm",
-                                        children: "Accuracy"
+                                        children: "정확도"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/pin/page.tsx",
                                         lineNumber: 206,
-                                        columnNumber: 15
+                                        columnNumber: 29
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
                                 lineNumber: 204,
-                                columnNumber: 13
+                                columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                             lineNumber: 203,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                     lineNumber: 190,
-                    columnNumber: 9
+                    columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "flex flex-col lg:flex-row gap-8",
@@ -728,12 +728,12 @@ function PinModePage() {
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/renderer/app/pin/page.tsx",
                                                         lineNumber: 225,
-                                                        columnNumber: 19
+                                                        columnNumber: 37
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                                     lineNumber: 224,
-                                                    columnNumber: 17
+                                                    columnNumber: 33
                                                 }, this),
                                                 pins.map((pin)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "absolute w-1 h-8 bg-yellow-400 origin-bottom",
@@ -744,26 +744,26 @@ function PinModePage() {
                                                     }, pin.id, false, {
                                                         fileName: "[project]/src/renderer/app/pin/page.tsx",
                                                         lineNumber: 230,
-                                                        columnNumber: 19
+                                                        columnNumber: 37
                                                     }, this))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                                             lineNumber: 217,
-                                            columnNumber: 15
+                                            columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "absolute top-1/2 left-1/2 w-1 h-20 bg-red-500 transform -translate-x-1/2 -translate-y-full opacity-80"
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                                             lineNumber: 242,
-                                            columnNumber: 15
+                                            columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                     lineNumber: 215,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
                                     onClick: handlePinThrow,
@@ -775,20 +775,20 @@ function PinModePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                                             lineNumber: 251,
-                                            columnNumber: 15
+                                            columnNumber: 29
                                         }, this),
-                                        "Throw Pin (Space)"
+                                        "핀 던지기 (스페이스)"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                     lineNumber: 246,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                             lineNumber: 214,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "lg:w-80 space-y-4",
@@ -799,59 +799,59 @@ function PinModePage() {
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardHeader"], {
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardTitle"], {
                                                 className: "text-white text-lg",
-                                                children: "How to Play"
+                                                children: "게임 방법"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
                                                 lineNumber: 260,
-                                                columnNumber: 17
+                                                columnNumber: 33
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                                             lineNumber: 259,
-                                            columnNumber: 15
+                                            columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
                                             className: "space-y-2 text-slate-300 text-sm",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                    children: '• Press SPACE or click "Throw Pin" to shoot pins'
+                                                    children: '• 스페이스 키 또는 "핀 던지기" 버튼을 눌러 핀을 발사하세요'
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                                     lineNumber: 263,
-                                                    columnNumber: 17
+                                                    columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                    children: "• Aim for the rotating target"
+                                                    children: "• 회전하는 타겟을 조준하세요"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                                     lineNumber: 264,
-                                                    columnNumber: 17
+                                                    columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                    children: "• Build combo for higher scores"
+                                                    children: "• 콤보를 쌓아 더 높은 점수를 획득하세요"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                                     lineNumber: 265,
-                                                    columnNumber: 17
+                                                    columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                    children: "• Speed increases with combo!"
+                                                    children: "• 콤보가 증가할수록 속도가 빨라집니다!"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                                     lineNumber: 266,
-                                                    columnNumber: 17
+                                                    columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                                             lineNumber: 262,
-                                            columnNumber: 15
+                                            columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                     lineNumber: 258,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
                                     className: "bg-slate-800/50 border-slate-700",
@@ -859,16 +859,16 @@ function PinModePage() {
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardHeader"], {
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardTitle"], {
                                                 className: "text-white text-lg",
-                                                children: "Game Status"
+                                                children: "게임 상태"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
                                                 lineNumber: 272,
-                                                columnNumber: 17
+                                                columnNumber: 33
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                                             lineNumber: 271,
-                                            columnNumber: 15
+                                            columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
                                             className: "space-y-2 text-slate-300 text-sm",
@@ -877,35 +877,35 @@ function PinModePage() {
                                                     className: "flex justify-between",
                                                     children: [
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                            children: "State:"
+                                                            children: "상태:"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                                                             lineNumber: 276,
-                                                            columnNumber: 19
+                                                            columnNumber: 37
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                             className: `font-medium ${gameState === 'playing' ? 'text-green-400' : gameState === 'paused' ? 'text-yellow-400' : 'text-slate-400'}`,
-                                                            children: gameState.charAt(0).toUpperCase() + gameState.slice(1)
+                                                            children: gameState === 'playing' ? '플레이 중' : gameState === 'paused' ? '일시정지' : gameState === 'idle' ? '대기' : gameState
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                                                             lineNumber: 277,
-                                                            columnNumber: 19
+                                                            columnNumber: 37
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                                     lineNumber: 275,
-                                                    columnNumber: 17
+                                                    columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "flex justify-between",
                                                     children: [
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                            children: "Speed:"
+                                                            children: "속도:"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                                            lineNumber: 286,
-                                                            columnNumber: 19
+                                                            lineNumber: 287,
+                                                            columnNumber: 37
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                             className: "text-purple-400",
@@ -915,73 +915,73 @@ function PinModePage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                                            lineNumber: 287,
-                                                            columnNumber: 19
+                                                            lineNumber: 288,
+                                                            columnNumber: 37
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                                    lineNumber: 285,
-                                                    columnNumber: 17
+                                                    lineNumber: 286,
+                                                    columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "flex justify-between",
                                                     children: [
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                            children: "Pins:"
+                                                            children: "핀 개수:"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                                            lineNumber: 290,
-                                                            columnNumber: 19
+                                                            lineNumber: 291,
+                                                            columnNumber: 37
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                             className: "text-blue-400",
                                                             children: pins.length
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                                            lineNumber: 291,
-                                                            columnNumber: 19
+                                                            lineNumber: 292,
+                                                            columnNumber: 37
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                                    lineNumber: 289,
-                                                    columnNumber: 17
+                                                    lineNumber: 290,
+                                                    columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                                             lineNumber: 274,
-                                            columnNumber: 15
+                                            columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                                     lineNumber: 270,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/pin/page.tsx",
                             lineNumber: 257,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/pin/page.tsx",
                     lineNumber: 212,
-                    columnNumber: 9
+                    columnNumber: 17
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/renderer/app/pin/page.tsx",
             lineNumber: 139,
-            columnNumber: 7
+            columnNumber: 13
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/renderer/app/pin/page.tsx",
         lineNumber: 138,
-        columnNumber: 5
+        columnNumber: 9
     }, this);
 }
 }),

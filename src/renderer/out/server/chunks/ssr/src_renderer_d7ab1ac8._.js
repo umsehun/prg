@@ -506,7 +506,7 @@ function SelectPage() {
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/app/select/page.tsx",
                         lineNumber: 56,
-                        columnNumber: 11
+                        columnNumber: 21
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                         className: "text-white text-lg",
@@ -514,18 +514,18 @@ function SelectPage() {
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/app/select/page.tsx",
                         lineNumber: 57,
-                        columnNumber: 11
+                        columnNumber: 21
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/app/select/page.tsx",
                 lineNumber: 55,
-                columnNumber: 9
+                columnNumber: 17
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/renderer/app/select/page.tsx",
             lineNumber: 54,
-            columnNumber: 7
+            columnNumber: 13
         }, this);
     }
     if (error) {
@@ -543,12 +543,12 @@ function SelectPage() {
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/select/page.tsx",
                                 lineNumber: 69,
-                                columnNumber: 15
+                                columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/select/page.tsx",
                             lineNumber: 68,
-                            columnNumber: 13
+                            columnNumber: 25
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
                             children: [
@@ -558,7 +558,7 @@ function SelectPage() {
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
                                     lineNumber: 72,
-                                    columnNumber: 15
+                                    columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
                                     onClick: refreshLibrary,
@@ -570,36 +570,36 @@ function SelectPage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
                                             lineNumber: 74,
-                                            columnNumber: 17
+                                            columnNumber: 33
                                         }, this),
                                         "Retry"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
                                     lineNumber: 73,
-                                    columnNumber: 15
+                                    columnNumber: 29
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/select/page.tsx",
                             lineNumber: 71,
-                            columnNumber: 13
+                            columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/select/page.tsx",
                     lineNumber: 67,
-                    columnNumber: 11
+                    columnNumber: 21
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/renderer/app/select/page.tsx",
                 lineNumber: 66,
-                columnNumber: 9
+                columnNumber: 17
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/renderer/app/select/page.tsx",
             lineNumber: 65,
-            columnNumber: 7
+            columnNumber: 13
         }, this);
     }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -625,19 +625,19 @@ function SelectPage() {
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/select/page.tsx",
                                                 lineNumber: 92,
-                                                columnNumber: 17
+                                                columnNumber: 33
                                             }, this),
                                             "Back"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/app/select/page.tsx",
                                         lineNumber: 91,
-                                        columnNumber: 15
+                                        columnNumber: 29
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
                                     lineNumber: 90,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     children: [
@@ -647,7 +647,7 @@ function SelectPage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
                                             lineNumber: 97,
-                                            columnNumber: 15
+                                            columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                             className: "text-slate-400 text-lg",
@@ -658,19 +658,19 @@ function SelectPage() {
                                         }, void 0, true, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
                                             lineNumber: 98,
-                                            columnNumber: 15
+                                            columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
                                     lineNumber: 96,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/select/page.tsx",
                             lineNumber: 89,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
                             onClick: refreshLibrary,
@@ -682,20 +682,20 @@ function SelectPage() {
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
                                     lineNumber: 103,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this),
                                 "새로고침"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/select/page.tsx",
                             lineNumber: 102,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/select/page.tsx",
                     lineNumber: 88,
-                    columnNumber: 9
+                    columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "flex flex-col md:flex-row gap-4 mb-8",
@@ -708,7 +708,7 @@ function SelectPage() {
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
                                     lineNumber: 111,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
                                     placeholder: "곡이나 아티스트 검색...",
@@ -718,13 +718,13 @@ function SelectPage() {
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
                                     lineNumber: 112,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/select/page.tsx",
                             lineNumber: 110,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "flex gap-2",
@@ -743,18 +743,18 @@ function SelectPage() {
                                 }, difficulty, false, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
                                     lineNumber: 122,
-                                    columnNumber: 15
+                                    columnNumber: 29
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/select/page.tsx",
                             lineNumber: 120,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/select/page.tsx",
                     lineNumber: 109,
-                    columnNumber: 9
+                    columnNumber: 17
                 }, this),
                 filteredSongs.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
                     className: "bg-slate-800/50 border-slate-700",
@@ -766,7 +766,7 @@ function SelectPage() {
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/select/page.tsx",
                                 lineNumber: 145,
-                                columnNumber: 15
+                                columnNumber: 29
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
                                 className: "text-xl font-semibold text-white mb-2",
@@ -774,7 +774,7 @@ function SelectPage() {
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/select/page.tsx",
                                 lineNumber: 146,
-                                columnNumber: 15
+                                columnNumber: 29
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 className: "text-slate-400 mb-4",
@@ -782,7 +782,7 @@ function SelectPage() {
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/select/page.tsx",
                                 lineNumber: 147,
-                                columnNumber: 15
+                                columnNumber: 29
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
                                 variant: "outline",
@@ -791,18 +791,18 @@ function SelectPage() {
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/select/page.tsx",
                                 lineNumber: 150,
-                                columnNumber: 15
+                                columnNumber: 29
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/app/select/page.tsx",
                         lineNumber: 144,
-                        columnNumber: 13
+                        columnNumber: 25
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/renderer/app/select/page.tsx",
                     lineNumber: 143,
-                    columnNumber: 11
+                    columnNumber: 21
                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
                     children: filteredSongs.map((song)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -821,7 +821,7 @@ function SelectPage() {
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/renderer/app/select/page.tsx",
                                                         lineNumber: 165,
-                                                        columnNumber: 23
+                                                        columnNumber: 45
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                         className: "text-slate-400 truncate",
@@ -829,13 +829,13 @@ function SelectPage() {
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/renderer/app/select/page.tsx",
                                                         lineNumber: 166,
-                                                        columnNumber: 23
+                                                        columnNumber: 45
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/renderer/app/select/page.tsx",
                                                 lineNumber: 164,
-                                                columnNumber: 21
+                                                columnNumber: 41
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
                                                 variant: "ghost",
@@ -846,23 +846,23 @@ function SelectPage() {
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/select/page.tsx",
                                                     lineNumber: 169,
-                                                    columnNumber: 23
+                                                    columnNumber: 45
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/select/page.tsx",
                                                 lineNumber: 168,
-                                                columnNumber: 21
+                                                columnNumber: 41
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/app/select/page.tsx",
                                         lineNumber: 163,
-                                        columnNumber: 19
+                                        columnNumber: 37
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
                                     lineNumber: 162,
-                                    columnNumber: 17
+                                    columnNumber: 33
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
                                     className: "space-y-4",
@@ -878,14 +878,14 @@ function SelectPage() {
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/select/page.tsx",
                                                             lineNumber: 178,
-                                                            columnNumber: 23
+                                                            columnNumber: 45
                                                         }, this),
                                                         formatDuration(song.duration)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/renderer/app/select/page.tsx",
                                                     lineNumber: 177,
-                                                    columnNumber: 21
+                                                    columnNumber: 41
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "flex items-center gap-2",
@@ -895,7 +895,7 @@ function SelectPage() {
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/select/page.tsx",
                                                             lineNumber: 182,
-                                                            columnNumber: 23
+                                                            columnNumber: 45
                                                         }, this),
                                                         song.bpm,
                                                         " BPM"
@@ -903,13 +903,13 @@ function SelectPage() {
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/renderer/app/select/page.tsx",
                                                     lineNumber: 181,
-                                                    columnNumber: 21
+                                                    columnNumber: 41
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
                                             lineNumber: 176,
-                                            columnNumber: 19
+                                            columnNumber: 37
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "flex gap-1",
@@ -924,12 +924,12 @@ function SelectPage() {
                                                 }, diff, true, {
                                                     fileName: "[project]/src/renderer/app/select/page.tsx",
                                                     lineNumber: 191,
-                                                    columnNumber: 25
+                                                    columnNumber: 49
                                                 }, this) : null)
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
                                             lineNumber: 188,
-                                            columnNumber: 19
+                                            columnNumber: 37
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "flex gap-2 pt-2",
@@ -943,15 +943,15 @@ function SelectPage() {
                                                             className: "w-4 h-4 mr-2"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                            lineNumber: 216,
-                                                            columnNumber: 23
+                                                            lineNumber: 215,
+                                                            columnNumber: 45
                                                         }, this),
                                                         "핀 모드"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                    lineNumber: 211,
-                                                    columnNumber: 21
+                                                    lineNumber: 210,
+                                                    columnNumber: 41
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
                                                     size: "sm",
@@ -961,42 +961,42 @@ function SelectPage() {
                                                     children: "osu! 모드"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                    lineNumber: 219,
-                                                    columnNumber: 21
+                                                    lineNumber: 218,
+                                                    columnNumber: 41
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                            lineNumber: 210,
-                                            columnNumber: 19
+                                            lineNumber: 209,
+                                            columnNumber: 37
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
                                     lineNumber: 174,
-                                    columnNumber: 17
+                                    columnNumber: 33
                                 }, this)
                             ]
                         }, song.id, true, {
                             fileName: "[project]/src/renderer/app/select/page.tsx",
                             lineNumber: 158,
-                            columnNumber: 15
+                            columnNumber: 29
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/src/renderer/app/select/page.tsx",
                     lineNumber: 156,
-                    columnNumber: 11
+                    columnNumber: 21
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/renderer/app/select/page.tsx",
             lineNumber: 86,
-            columnNumber: 7
+            columnNumber: 13
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/renderer/app/select/page.tsx",
         lineNumber: 85,
-        columnNumber: 5
+        columnNumber: 9
     }, this);
 }
 }),

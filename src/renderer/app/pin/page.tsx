@@ -112,20 +112,20 @@ export default function PinModePage() {
                     <CardHeader>
                         <CardTitle className="text-white flex items-center gap-2">
                             <Target className="w-6 h-6" />
-                            Pin Mode
+                            핀 모드
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="text-center py-8">
                         <div className="text-slate-400 mb-6">
                             <Target className="w-24 h-24 mx-auto mb-4 opacity-50" />
-                            No song selected for Pin Mode
+                            핀 모드에 선택된 곡이 없습니다
                         </div>
                         <p className="text-slate-300 mb-6">
-                            Select a song from the Play page to start the Pin Mode game.
+                            플레이 페이지에서 곡을 선택하여 핀 모드 게임을 시작하세요.
                         </p>
                         <Link href="/play">
                             <Button className="bg-purple-500 hover:bg-purple-600 text-white">
-                                Select Song
+                                곡 선택하기
                             </Button>
                         </Link>
                     </CardContent>
@@ -143,7 +143,7 @@ export default function PinModePage() {
                         <Link href="/play">
                             <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white">
                                 <ArrowLeft className="w-4 h-4 mr-2" />
-                                Back
+                                돌아가기
                             </Button>
                         </Link>
                         <div>
@@ -181,7 +181,7 @@ export default function PinModePage() {
                             disabled={gameState === 'idle'}
                         >
                             <Square className="w-4 h-4 mr-2" />
-                            Stop
+                            정지
                         </Button>
                     </div>
                 </div>
@@ -191,19 +191,19 @@ export default function PinModePage() {
                     <Card className="bg-slate-800/50 border-slate-700">
                         <CardContent className="text-center py-4">
                             <div className="text-3xl font-bold text-white mb-1">{stats.score.toLocaleString()}</div>
-                            <div className="text-slate-400 text-sm">Score</div>
+                            <div className="text-slate-400 text-sm">점수</div>
                         </CardContent>
                     </Card>
                     <Card className="bg-slate-800/50 border-slate-700">
                         <CardContent className="text-center py-4">
                             <div className="text-3xl font-bold text-purple-400 mb-1">{stats.combo}x</div>
-                            <div className="text-slate-400 text-sm">Combo</div>
+                            <div className="text-slate-400 text-sm">콤보</div>
                         </CardContent>
                     </Card>
                     <Card className="bg-slate-800/50 border-slate-700">
                         <CardContent className="text-center py-4">
                             <div className="text-3xl font-bold text-green-400 mb-1">{stats.accuracy}%</div>
-                            <div className="text-slate-400 text-sm">Accuracy</div>
+                            <div className="text-slate-400 text-sm">정확도</div>
                         </CardContent>
                     </Card>
                 </div>
@@ -249,7 +249,7 @@ export default function PinModePage() {
                             className="mt-8 px-12 py-4 text-xl bg-purple-500 hover:bg-purple-600 text-white disabled:opacity-50"
                         >
                             <Zap className="w-6 h-6 mr-2" />
-                            Throw Pin (Space)
+                            핀 던지기 (스페이스)
                         </Button>
                     </div>
 
@@ -257,36 +257,38 @@ export default function PinModePage() {
                     <div className="lg:w-80 space-y-4">
                         <Card className="bg-slate-800/50 border-slate-700">
                             <CardHeader>
-                                <CardTitle className="text-white text-lg">How to Play</CardTitle>
+                                <CardTitle className="text-white text-lg">게임 방법</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-2 text-slate-300 text-sm">
-                                <p>• Press SPACE or click "Throw Pin" to shoot pins</p>
-                                <p>• Aim for the rotating target</p>
-                                <p>• Build combo for higher scores</p>
-                                <p>• Speed increases with combo!</p>
+                                <p>• 스페이스 키 또는 "핀 던지기" 버튼을 눌러 핀을 발사하세요</p>
+                                <p>• 회전하는 타겟을 조준하세요</p>
+                                <p>• 콤보를 쌓아 더 높은 점수를 획득하세요</p>
+                                <p>• 콤보가 증가할수록 속도가 빨라집니다!</p>
                             </CardContent>
                         </Card>
 
                         <Card className="bg-slate-800/50 border-slate-700">
                             <CardHeader>
-                                <CardTitle className="text-white text-lg">Game Status</CardTitle>
+                                <CardTitle className="text-white text-lg">게임 상태</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-2 text-slate-300 text-sm">
                                 <div className="flex justify-between">
-                                    <span>State:</span>
+                                    <span>상태:</span>
                                     <span className={`font-medium ${gameState === 'playing' ? 'text-green-400' :
                                         gameState === 'paused' ? 'text-yellow-400' :
                                             'text-slate-400'
                                         }`}>
-                                        {gameState.charAt(0).toUpperCase() + gameState.slice(1)}
+                                        {gameState === 'playing' ? '플레이 중' :
+                                         gameState === 'paused' ? '일시정지' :
+                                         gameState === 'idle' ? '대기' : gameState}
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span>Speed:</span>
+                                    <span>속도:</span>
                                     <span className="text-purple-400">{rotationSpeed.toFixed(1)}x</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span>Pins:</span>
+                                    <span>핀 개수:</span>
                                     <span className="text-blue-400">{pins.length}</span>
                                 </div>
                             </CardContent>
