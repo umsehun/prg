@@ -1,167 +1,218 @@
-"use client"
+/**
+ * Home Page - Pin Rhythm Game Welcome Screen
+ */
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { AnimatedButton } from '@/components/ui/animated-button'
-import { PageTransition } from '@/components/ui/page-transition'
-import { Play, Settings, Folder, Info } from 'lucide-react'
-import Link from 'next/link'
-import { motion } from 'framer-motion'
+'use client';
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      delayChildren: 0.2,
-      staggerChildren: 0.1
-    }
-  }
-}
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 100
-    }
-  }
-}
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { 
+  Target, 
+  Play, 
+  Music, 
+  Settings, 
+  Download,
+  Zap,
+  RotateCw,
+  Medal
+} from 'lucide-react';
 
 export default function HomePage() {
+  const [stats, setStats] = useState({
+    songsImported: 0,
+    totalPlays: 0,
+    highScore: 0,
+    accuracy: 0
+  });
+
+  useEffect(() => {
+    // TODO: Load stats from backend
+    setStats({
+      songsImported: 12,
+      totalPlays: 45,
+      highScore: 125800,
+      accuracy: 87.5
+    });
+  }, []);
+
+  const quickActions = [
+    {
+      title: 'Start Playing',
+      description: 'Jump into Pin Mode or osu! style gameplay',
+      icon: Play,
+      color: 'from-purple-500 to-pink-500',
+      href: '/play'
+    },
+    {
+      title: 'Browse Library',
+      description: 'Manage your .osz files and beatmaps',
+      icon: Music,
+      color: 'from-blue-500 to-cyan-500',
+      href: '/select'
+    },
+    {
+      title: 'Settings',
+      description: 'Customize your rhythm experience',
+      icon: Settings,
+      color: 'from-green-500 to-teal-500',
+      href: '/settings'
+    }
+  ];
+
   return (
-    <PageTransition className="flex h-full items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="w-full max-w-md space-y-8 p-8"
-      >
-        {/* Logo/Title */}
-        <motion.div variants={itemVariants} className="text-center space-y-4">
-          <motion.h1 
-            className="text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
-            animate={{ 
-              backgroundPosition: ["0%", "100%", "0%"]
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          >
-            PRG
-          </motion.h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400">
-            Pixel Rhythm Game
+    <div className="min-h-full bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Hero Section */}
+        <div className="text-center mb-12">
+          <div className="flex justify-center mb-6">
+            <div className="relative">
+              <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-purple-500/25">
+                <Target className="w-12 h-12 text-white" />
+              </div>
+              <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
+                <Zap className="w-4 h-4 text-slate-900" />
+              </div>
+            </div>
+          </div>
+          
+          <h1 className="text-6xl font-bold text-white mb-4">
+            Pin Rhythm
+          </h1>
+          <p className="text-2xl text-slate-300 mb-6 max-w-3xl mx-auto">
+            Experience osu! beatmaps in a completely new way
           </p>
-        </motion.div>
+          <p className="text-lg text-slate-400 mb-8">
+            Throw pins at spinning targets, follow the rhythm, and master the timing
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              size="lg" 
+              className="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 text-lg h-auto"
+            >
+              <Target className="w-6 h-6 mr-2" />
+              Try Pin Mode
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="border-slate-600 text-slate-300 hover:bg-slate-700 px-8 py-4 text-lg h-auto"
+            >
+              <Download className="w-6 h-6 mr-2" />
+              Import .osz Files
+            </Button>
+          </div>
+        </div>
 
-        {/* Menu Items */}
-        <motion.div variants={itemVariants} className="space-y-4">
-          <AnimatedButton 
-            asChild 
-            size="lg" 
-            className="w-full justify-start text-left h-16 bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
-            hoverScale={1.02}
-          >
-            <Link href="/select" className="flex items-center space-x-4">
-              <Play className="h-6 w-6" />
-              <div>
-                <div className="font-semibold">Play</div>
-                <div className="text-sm opacity-80">Start your rhythm adventure</div>
-              </div>
-            </Link>
-          </AnimatedButton>
-
-          <AnimatedButton 
-            asChild 
-            variant="outline" 
-            size="lg" 
-            className="w-full justify-start text-left h-16 border-2 hover:bg-slate-50 dark:hover:bg-slate-800"
-            hoverScale={1.02}
-          >
-            <Link href="/settings" className="flex items-center space-x-4">
-              <Settings className="h-6 w-6" />
-              <div>
-                <div className="font-semibold">Settings</div>
-                <div className="text-sm opacity-60">Configure your experience</div>
-              </div>
-            </Link>
-          </AnimatedButton>
-
-          <AnimatedButton 
-            asChild 
-            variant="outline" 
-            size="lg" 
-            className="w-full justify-start text-left h-16 border-2 hover:bg-slate-50 dark:hover:bg-slate-800"
-            hoverScale={1.02}
-          >
-            <Link href="/import" className="flex items-center space-x-4">
-              <Folder className="h-6 w-6" />
-              <div>
-                <div className="font-semibold">Import Songs</div>
-                <div className="text-sm opacity-60">Add your music collection</div>
-              </div>
-            </Link>
-          </AnimatedButton>
-        </motion.div>
-
-        {/* Footer */}
-        <motion.div variants={itemVariants} className="text-center">
-          <Card className="border-2 border-dashed border-slate-200 dark:border-slate-700 bg-transparent">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-center space-x-2 text-sm text-slate-500 dark:text-slate-400">
-                <Info className="h-4 w-4" />
-                <span>v0.1.0 - Alpha Build</span>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="pt-4">
+              <div className="text-center">
+                <Music className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-white">{stats.songsImported}</div>
+                <div className="text-slate-400 text-sm">Songs</div>
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+          
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="pt-4">
+              <div className="text-center">
+                <Play className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-white">{stats.totalPlays}</div>
+                <div className="text-slate-400 text-sm">Plays</div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="pt-4">
+              <div className="text-center">
+                <Medal className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-white">{stats.highScore.toLocaleString()}</div>
+                <div className="text-slate-400 text-sm">High Score</div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="pt-4">
+              <div className="text-center">
+                <Target className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-white">{stats.accuracy}%</div>
+                <div className="text-slate-400 text-sm">Accuracy</div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Floating orbs for visual flair */}
-        <motion.div
-          className="absolute top-10 left-10 w-4 h-4 bg-blue-400 rounded-full opacity-30"
-          animate={{
-            y: [0, -20, 0],
-            x: [0, 10, 0],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-10 w-6 h-6 bg-purple-400 rounded-full opacity-20"
-          animate={{
-            y: [0, 15, 0],
-            x: [0, -15, 0],
-          }}
-          transition={{
-            duration: 5,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1
-          }}
-        />
-        <motion.div
-          className="absolute top-1/2 right-4 w-3 h-3 bg-pink-400 rounded-full opacity-25"
-          animate={{
-            scale: [1, 1.5, 1],
-            opacity: [0.25, 0.5, 0.25],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2
-          }}
-        />
-      </motion.div>
-    </PageTransition>
-  )
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {quickActions.map((action, index) => {
+            const Icon = action.icon;
+            return (
+              <Card 
+                key={index}
+                className="bg-slate-800/50 border-slate-700 hover:bg-slate-800 transition-all duration-300 cursor-pointer hover:scale-105"
+              >
+                <CardHeader>
+                  <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center mb-4`}>
+                    <Icon className="w-8 h-8 text-white" />
+                  </div>
+                  <CardTitle className="text-white text-xl">{action.title}</CardTitle>
+                  <CardDescription className="text-slate-300">
+                    {action.description}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Features Section */}
+        <Card className="bg-slate-800/30 border-slate-700">
+          <CardHeader>
+            <CardTitle className="text-white text-2xl text-center">
+              Why Pin Rhythm?
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Target className="w-8 h-8 text-purple-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">osu! Compatible</h3>
+                <p className="text-slate-400">
+                  Use your existing .osz beatmaps with a fresh new gameplay style
+                </p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <RotateCw className="w-8 h-8 text-blue-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">Pin Mode</h3>
+                <p className="text-slate-400">
+                  Knife Hit inspired gameplay meets rhythm gaming precision
+                </p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Zap className="w-8 h-8 text-green-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">Easy to Learn</h3>
+                <p className="text-slate-400">
+                  Intuitive controls that focus on timing over complex movements
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
 }

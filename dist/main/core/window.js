@@ -30,8 +30,12 @@ async function createWindow() {
             webSecurity: true // Always keep web security enabled
         },
         // Window styling
-        titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
-        ...(process.platform === 'darwin' && { vibrancy: 'under-window' }),
+        frame: false,
+        titleBarStyle: 'hidden',
+        ...(process.platform === 'darwin' && {
+            vibrancy: 'under-window',
+            trafficLightPosition: { x: 15, y: 13 },
+        }),
         // Icon (only set for Linux)
         ...(process.platform === 'linux' && { icon: (0, path_1.join)(__dirname, '../../../public/icon.png') })
     });

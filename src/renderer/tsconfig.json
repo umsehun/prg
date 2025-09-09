@@ -46,7 +46,8 @@
     "**/*.tsx",
     "../renderer/out/types/**/*.ts",
     "next-env.d.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "../shared/d.ts/ipc.d.ts"
   ],
   "exclude": [
     "node_modules"

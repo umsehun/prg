@@ -5,6 +5,8 @@ import { ThemeProvider } from '@/components/providers/theme-provider'
 import { AppHeader } from '@/components/ui/app-header'
 import { cn } from '@/lib/utils'
 
+
+
 const inter = Inter({
     subsets: ['latin'],
     variable: '--font-sans',
@@ -18,10 +20,10 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-    title: 'Prg',
-    description: 'A modern rhythm game experience',
-    authors: [{ name: 'PRG Team' }],
-    keywords: ['rhythm game', 'music', 'osu', 'electron'],
+    title: 'Pin Rhythm - 혁신적인 리듬 게임',
+    description: 'osu! 비트맵을 새로운 방식으로 즐기는 핀 던지기 리듬 게임',
+    authors: [{ name: 'Pin Rhythm Team' }],
+    keywords: ['리듬게임', '음악게임', 'osu', '핀모드', 'rhythm game', 'music game'],
 }
 
 export default function RootLayout({
@@ -31,10 +33,18 @@ export default function RootLayout({
 }) {
     return (
         <html lang="ko" suppressHydrationWarning>
+            <head>
+                <meta charSet="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta name="description" content="Pin Rhythm - osu! 비트맵을 새로운 방식으로 즐기는 핀 던지기 리듬 게임" />
+                <meta name="keywords" content="리듬게임,음악게임,osu,핀모드,rhythm game,music game" />
+                <meta name="author" content="Pin Rhythm Team" />
+                <title>Pin Rhythm - 혁신적인 리듬 게임</title>
+            </head>
             <body
                 className={cn(
                     'min-h-screen bg-background font-sans antialiased',
-                    'overflow-hidden', // Prevent scrolling in Electron
+                    'overflow-x-hidden', // Allow vertical scroll, prevent horizontal
                     inter.variable,
                     jetbrainsMono.variable
                 )}
@@ -45,9 +55,9 @@ export default function RootLayout({
                     enableSystem
                     disableTransitionOnChange
                 >
-                    <div className="relative flex h-screen w-screen flex-col">
+                    <div className="relative flex h-screen w-screen flex-col bg-slate-950">
                         <AppHeader />
-                        <main className="flex-1 overflow-hidden">
+                        <main className="flex-1 overflow-y-auto pt-20">
                             {children}
                         </main>
                     </div>

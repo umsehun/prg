@@ -696,13 +696,13 @@ export declare const AllSchemas: {
                     MISS: "MISS";
                 }>, import("zod").ZodNumber>;
                 grade: import("zod").ZodEnum<{
+                    D: "D";
+                    F: "F";
                     B: "B";
                     C: "C";
                     SS: "SS";
                     S: "S";
                     A: "A";
-                    D: "D";
-                    F: "F";
                 }>;
                 modifiers: import("zod").ZodObject<{
                     noFail: import("zod").ZodDefault<import("zod").ZodBoolean>;

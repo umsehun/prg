@@ -79,13 +79,13 @@ export declare const GameStopResponseSchema: z.ZodObject<{
             MISS: "MISS";
         }>, z.ZodNumber>;
         grade: z.ZodEnum<{
+            D: "D";
+            F: "F";
             B: "B";
             C: "C";
             SS: "SS";
             S: "S";
             A: "A";
-            D: "D";
-            F: "F";
         }>;
         modifiers: z.ZodObject<{
             noFail: z.ZodDefault<z.ZodBoolean>;
@@ -930,13 +930,13 @@ export declare const IpcSchemas: {
                 MISS: "MISS";
             }>, z.ZodNumber>;
             grade: z.ZodEnum<{
+                D: "D";
+                F: "F";
                 B: "B";
                 C: "C";
                 SS: "SS";
                 S: "S";
                 A: "A";
-                D: "D";
-                F: "F";
             }>;
             modifiers: z.ZodObject<{
                 noFail: z.ZodDefault<z.ZodBoolean>;
