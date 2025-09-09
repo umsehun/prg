@@ -78,9 +78,9 @@ export default function SettingsPage() {
                             <p className="text-slate-400 text-lg">Pin Rhythm 게임 경험을 커스터마이즈하세요</p>
                         </div>
                     </div>
-                    <Button 
-                        onClick={resetSettings} 
-                        variant="outline" 
+                    <Button
+                        onClick={resetSettings}
+                        variant="outline"
                         className="border-slate-600 text-slate-300 hover:bg-red-900/30 hover:border-red-500 hover:text-red-300"
                     >
                         <RotateCcw className="w-4 h-4 mr-2" />
@@ -110,7 +110,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Slider
                                     value={audioSettings.masterVolume}
-                                    onValueChange={(value) => setAudioSettings({...audioSettings, masterVolume: value})}
+                                    onValueChange={(value) => setAudioSettings({ ...audioSettings, masterVolume: value })}
                                     max={100}
                                     step={1}
                                     className="slider-gaming"
@@ -126,7 +126,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Slider
                                     value={audioSettings.musicVolume}
-                                    onValueChange={(value) => setAudioSettings({...audioSettings, musicVolume: value})}
+                                    onValueChange={(value) => setAudioSettings({ ...audioSettings, musicVolume: value })}
                                     max={100}
                                     step={1}
                                     className="slider-gaming"
@@ -142,7 +142,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Slider
                                     value={audioSettings.effectVolume}
-                                    onValueChange={(value) => setAudioSettings({...audioSettings, effectVolume: value})}
+                                    onValueChange={(value) => setAudioSettings({ ...audioSettings, effectVolume: value })}
                                     max={100}
                                     step={1}
                                     className="slider-gaming"
@@ -158,7 +158,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Switch
                                     checked={audioSettings.enableAudioFeedback}
-                                    onCheckedChange={(checked) => setAudioSettings({...audioSettings, enableAudioFeedback: checked})}
+                                    onCheckedChange={(checked) => setAudioSettings({ ...audioSettings, enableAudioFeedback: checked })}
                                 />
                             </div>
                         </CardContent>
@@ -181,8 +181,8 @@ export default function SettingsPage() {
                                     <div key={lane} className="space-y-2">
                                         <label className="text-sm font-medium capitalize text-white">
                                             {lane === 'lane1' ? '1번 레인' :
-                                             lane === 'lane2' ? '2번 레인' :
-                                             lane === 'lane3' ? '3번 레인' : '4번 레인'}
+                                                lane === 'lane2' ? '2번 레인' :
+                                                    lane === 'lane3' ? '3번 레인' : '4번 레인'}
                                         </label>
                                         <div className="flex items-center justify-center h-12 w-full rounded-lg border-2 border-purple-500/50 bg-purple-900/20 font-mono text-lg font-bold text-white shadow-glow-purple">
                                             {key}
@@ -229,7 +229,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Slider
                                     value={gameSettings.scrollSpeed}
-                                    onValueChange={(value) => setGameSettings({...gameSettings, scrollSpeed: value})}
+                                    onValueChange={(value) => setGameSettings({ ...gameSettings, scrollSpeed: value })}
                                     min={10}
                                     max={200}
                                     step={5}
@@ -246,7 +246,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Slider
                                     value={gameSettings.noteSize}
-                                    onValueChange={(value) => setGameSettings({...gameSettings, noteSize: value})}
+                                    onValueChange={(value) => setGameSettings({ ...gameSettings, noteSize: value })}
                                     min={50}
                                     max={150}
                                     step={5}
@@ -263,7 +263,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Switch
                                     checked={gameSettings.enableParticles}
-                                    onCheckedChange={(checked) => setGameSettings({...gameSettings, enableParticles: checked})}
+                                    onCheckedChange={(checked) => setGameSettings({ ...gameSettings, enableParticles: checked })}
                                 />
                             </div>
 
@@ -276,7 +276,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Switch
                                     checked={gameSettings.showFps}
-                                    onCheckedChange={(checked) => setGameSettings({...gameSettings, showFps: checked})}
+                                    onCheckedChange={(checked) => setGameSettings({ ...gameSettings, showFps: checked })}
                                 />
                             </div>
                         </CardContent>
@@ -303,7 +303,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Switch
                                     checked={displaySettings.fullscreen}
-                                    onCheckedChange={(checked) => setDisplaySettings({...displaySettings, fullscreen: checked})}
+                                    onCheckedChange={(checked) => setDisplaySettings({ ...displaySettings, fullscreen: checked })}
                                 />
                             </div>
 
@@ -316,7 +316,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Switch
                                     checked={displaySettings.vsync}
-                                    onCheckedChange={(checked) => setDisplaySettings({...displaySettings, vsync: checked})}
+                                    onCheckedChange={(checked) => setDisplaySettings({ ...displaySettings, vsync: checked })}
                                 />
                             </div>
 
@@ -329,7 +329,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Slider
                                     value={displaySettings.targetFps}
-                                    onValueChange={(value) => setDisplaySettings({...displaySettings, targetFps: value})}
+                                    onValueChange={(value) => setDisplaySettings({ ...displaySettings, targetFps: value })}
                                     min={30}
                                     max={240}
                                     step={30}

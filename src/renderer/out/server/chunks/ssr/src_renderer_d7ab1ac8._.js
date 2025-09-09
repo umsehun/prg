@@ -118,6 +118,8 @@ CardFooter.displayName = "CardFooter";
 /**
  * useSongs Hook - Manages song library and OSZ files
  */ __turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__,
     "useSongs",
     ()=>useSongs
 ]);
@@ -135,15 +137,15 @@ function useSongs() {
             if ("undefined" !== 'undefined' && window.electronAPI?.osz) //TURBOPACK unreachable
             ;
             else {
-                // Fallback for web or missing IPC
-                console.warn('Electron IPC not available, using mock data');
-                setSongs(getMockSongs());
+                // Electron IPC를 사용할 수 없는 경우
+                console.warn('Electron IPC not available');
+                setSongs([]);
+                setError('Electron IPC를 사용할 수 없습니다');
             }
         } catch (err) {
             console.error('Failed to load song library:', err);
-            setError(err instanceof Error ? err.message : 'Failed to load songs');
-            // Fallback to mock data on error
-            setSongs(getMockSongs());
+            setError('곡 라이브러리를 불러오는 데 실패했습니다');
+            setSongs([]);
         } finally{
             setLoading(false);
         }
@@ -154,21 +156,40 @@ function useSongs() {
             if ("undefined" !== 'undefined' && window.electronAPI?.osz) //TURBOPACK unreachable
             ;
             else {
-                console.warn('Electron IPC not available for OSZ import');
+                setError('Electron IPC를 사용할 수 없습니다');
                 return false;
             }
         } catch (err) {
-            console.error('Failed to import OSZ file:', err);
-            setError(err instanceof Error ? err.message : 'Failed to import OSZ');
+            console.error('Failed to import OSZ:', err);
+            setError('OSZ 파일 가져오기 중 오류가 발생했습니다');
             return false;
         }
-    }, []);
+    }, [
+        refreshLibrary
+    ]);
+    const importFromFile = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (file)=>{
+        try {
+            setError(null);
+            if ("undefined" !== 'undefined' && window.electronAPI?.osz) //TURBOPACK unreachable
+            ;
+            else {
+                setError('Electron IPC를 사용할 수 없습니다');
+                return false;
+            }
+        } catch (err) {
+            console.error('Failed to import file:', err);
+            setError('파일 가져오기 중 오류가 발생했습니다');
+            return false;
+        }
+    }, [
+        refreshLibrary
+    ]);
     const getSong = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])((id)=>{
         return songs.find((song)=>song.id === id);
     }, [
         songs
     ]);
-    // Load library on mount
+    // Load songs on mount
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         refreshLibrary();
     }, [
@@ -180,82 +201,11 @@ function useSongs() {
         error,
         refreshLibrary,
         importOsz,
-        getSong
+        getSong,
+        importFromFile
     };
 }
-// Mock data for development/fallback
-function getMockSongs() {
-    return [
-        {
-            id: 'ahoy',
-            title: 'Ahoy! 我ら宝鳥海賊団☆',
-            artist: '宝鳥マリン',
-            audioFile: '/assets/ahoy/ahoy.mp3',
-            backgroundImage: '/assets/ahoy/bg.jpg',
-            difficulty: {
-                easy: 2,
-                normal: 4,
-                hard: 6,
-                expert: 8
-            },
-            bpm: 160,
-            duration: 180000,
-            filePath: '/assets/ahoy/ahoy.osz',
-            notes: []
-        },
-        {
-            id: 'badapple',
-            title: 'Bad Apple!!',
-            artist: 'Alstroemeria Records',
-            audioFile: '/assets/bad-apple/badapple.mp3',
-            backgroundImage: '/assets/bad-apple/bg.jpg',
-            difficulty: {
-                easy: 3,
-                normal: 5,
-                hard: 7,
-                expert: 9
-            },
-            bpm: 138,
-            duration: 219000,
-            filePath: '/assets/bad-apple/badapple.osz',
-            notes: []
-        },
-        {
-            id: 'jinxed',
-            title: 'Get Jinxed',
-            artist: 'Riot Games',
-            audioFile: '/assets/jink/Get-Jinxed.mp3',
-            backgroundImage: '/assets/jink/bg.jpg',
-            difficulty: {
-                easy: 4,
-                normal: 6,
-                hard: 8,
-                expert: 10
-            },
-            bpm: 175,
-            duration: 195000,
-            filePath: '/assets/jink/Get-Jinxed.osz',
-            notes: []
-        },
-        {
-            id: 'popinto',
-            title: 'Pop in to',
-            artist: 'Various Artists',
-            audioFile: '/assets/pop/popInTo.mp3',
-            backgroundImage: '/assets/pop/bg.jpg',
-            difficulty: {
-                easy: 2,
-                normal: 4,
-                hard: 6,
-                expert: 7
-            },
-            bpm: 120,
-            duration: 165000,
-            filePath: '/assets/pop/popInTo.osz',
-            notes: []
-        }
-    ];
-}
+const __TURBOPACK__default__export__ = useSongs;
 }),
 "[project]/src/renderer/hooks/useGameState.ts [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
@@ -313,7 +263,7 @@ function useGameState() {
             ;
             setGameState('idle');
             setCurrentSong(null);
-            setGameMode(null);
+            setGameMode('pin'); // 기본값을 'pin'으로 설정
         } catch (error) {
             console.error('Failed to stop game:', error);
         }

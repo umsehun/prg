@@ -140,7 +140,7 @@ function useGameState() {
             ;
             setGameState('idle');
             setCurrentSong(null);
-            setGameMode(null);
+            setGameMode('pin'); // 기본값을 'pin'으로 설정
         } catch (error) {
             console.error('Failed to stop game:', error);
         }

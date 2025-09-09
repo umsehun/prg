@@ -2,7 +2,8 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { PathService } from './PathService';
-import { OszParser } from '../utils/OszParser'; // Assuming you have this parser
+import { OszParser } from '../utils/OszParser';
+import type { SongData } from '../../shared/d.ts/ipc';
 
 export class ChartImportService {
     private pathService: PathService;
@@ -21,7 +22,7 @@ export class ChartImportService {
         const chartPromises = oszFiles.map(async (file) => {
             const filePath = path.join(assetsPath, file);
             try {
-                const chartInfo = await this.parser.parse(filePath);
+                const chartInfo = await this.parser.parseOszFile(filePath, path.join(assetsPath, path.basename(file, '.osz')));
                 return chartInfo;
             } catch (error) {
                 console.error(`Failed to parse ${file}:`, error);
@@ -30,6 +31,6 @@ export class ChartImportService {
         });
 
         const charts = await Promise.all(chartPromises);
-        return charts.filter(chart => chart !== null);
+        return charts.filter((chart: SongData | null): chart is SongData => chart !== null);
     }
 }

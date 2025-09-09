@@ -2,7 +2,7 @@
  * Electron window creation with enhanced security
  */
 
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, Menu, app } from 'electron';
 import { join } from 'path';
 
 export async function createWindow(): Promise<BrowserWindow> {
@@ -35,8 +35,7 @@ export async function createWindow(): Promise<BrowserWindow> {
         },
 
         // Window styling
-        frame: false,
-        titleBarStyle: 'hidden',
+        frame: true,
         ...(process.platform === 'darwin' && {
             vibrancy: 'under-window',
             trafficLightPosition: { x: 15, y: 13 },

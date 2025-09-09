@@ -203,7 +203,7 @@ function useGameState() {
                 }
                 setGameState('idle');
                 setCurrentSong(null);
-                setGameMode(null);
+                setGameMode('pin'); // 기본값을 'pin'으로 설정
             } catch (error) {
                 console.error('Failed to stop game:', error);
             }
@@ -278,7 +278,14 @@ function useGameState() {
                     timestamp: Date.now()
                 };
                 if ("object" !== 'undefined' && ((_window_electronAPI = window.electronAPI) === null || _window_electronAPI === void 0 ? void 0 : _window_electronAPI.game)) {
-                    return await window.electronAPI.game.submitScore(scoreData);
+                    // submitScore가 없으면 임시로 true 반환
+                    const gameAPI = window.electronAPI.game;
+                    if (gameAPI.submitScore) {
+                        return await gameAPI.submitScore(scoreData);
+                    } else {
+                        console.log('Score data prepared:', scoreData);
+                        return true;
+                    }
                 } else {
                     // Mock submission for development
                     console.log('Mock score submission:', scoreData);

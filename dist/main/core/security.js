@@ -18,7 +18,9 @@ async function setupSecurityPolicies() {
                 responseHeaders: {
                     ...details.responseHeaders,
                     'Content-Security-Policy': [
-                        "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: ws: wss: http://localhost:*;"
+                        "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: ws: wss: http://localhost:* https://fonts.googleapis.com https://fonts.gstatic.com; " +
+                            "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+                            "font-src 'self' https://fonts.gstatic.com data:;"
                     ]
                 }
             });
@@ -33,7 +35,9 @@ async function setupSecurityPolicies() {
                     'Content-Security-Policy': [
                         "default-src 'self'; " +
                             "script-src 'self' 'wasm-unsafe-eval'; " +
-                            "style-src 'self' 'unsafe-inline'; " +
+                            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+                            "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+                            "font-src 'self' https://fonts.gstatic.com data:; " +
                             "img-src 'self' data: blob: prg-media:; " +
                             "media-src 'self' blob: prg-media:; " +
                             "connect-src 'self';"
@@ -64,6 +68,12 @@ async function setupSecurityPolicies() {
             callback({});
             return;
         }
+        // Allow Google Fonts
+        if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
+            logger_1.logger.debug('security', `✅ Allowed font request: ${details.url}`);
+            callback({});
+            return;
+        }
         // Allow file:// protocol
         if (url.protocol === 'file:') {
             callback({});
@@ -75,7 +85,7 @@ async function setupSecurityPolicies() {
             return;
         }
         // Block everything else
-        console.warn('🔒 Blocked external request:', details.url);
+        logger_1.logger.warn('security', `🔒 Blocked external request: ${details.url}`);
         callback({ cancel: true });
     });
     // Clear cache and cookies on startup

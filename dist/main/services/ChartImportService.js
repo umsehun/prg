@@ -8,7 +8,7 @@ exports.ChartImportService = void 0;
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 const PathService_1 = require("./PathService");
-const OszParser_1 = require("../utils/OszParser"); // Assuming you have this parser
+const OszParser_1 = require("../utils/OszParser");
 class ChartImportService {
     constructor() {
         Object.defineProperty(this, "pathService", {
@@ -33,7 +33,7 @@ class ChartImportService {
         const chartPromises = oszFiles.map(async (file) => {
             const filePath = path_1.default.join(assetsPath, file);
             try {
-                const chartInfo = await this.parser.parse(filePath);
+                const chartInfo = await this.parser.parseOszFile(filePath, path_1.default.join(assetsPath, path_1.default.basename(file, '.osz')));
                 return chartInfo;
             }
             catch (error) {
@@ -42,7 +42,7 @@ class ChartImportService {
             }
         });
         const charts = await Promise.all(chartPromises);
-        return charts.filter(chart => chart !== null);
+        return charts.filter((chart) => chart !== null);
     }
 }
 exports.ChartImportService = ChartImportService;

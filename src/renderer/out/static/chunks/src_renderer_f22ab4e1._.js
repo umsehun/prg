@@ -312,14 +312,7 @@ function AppHeader(param) {
         }
     ];
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
-        className: "fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-6 select-none",
-        style: {
-            zIndex: 999999,
-            background: 'linear-gradient(135deg, #1e1b4b 0%, #3730a3 50%, #7c3aed 100%)',
-            backdropFilter: 'blur(20px)',
-            borderBottom: '3px solid rgba(139, 92, 246, 0.5)',
-            boxShadow: '0 4px 30px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-        },
+        className: "isolate fixed top-0 left-0 right-0 z-[9999] h-16 flex items-center justify-between px-4 select-none bg-gray-900 border-b border-gray-700 shadow-lg",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "flex items-center gap-8",
@@ -328,103 +321,91 @@ function AppHeader(param) {
                         className: "flex items-center gap-4",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "w-14 h-14 bg-gradient-to-br from-purple-400 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl animate-pulse",
-                                style: {
-                                    filter: 'drop-shadow(0 0 25px rgba(168, 85, 247, 0.6))'
-                                },
+                                className: "w-8 h-8 bg-purple-600 rounded flex items-center justify-center",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$target$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Target$3e$__["Target"], {
-                                    className: "w-7 h-7 text-white"
+                                    className: "w-5 h-5 text-white"
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                                    lineNumber: 101,
+                                    lineNumber: 87,
                                     columnNumber: 25
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                                lineNumber: 95,
+                                lineNumber: 86,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "flex flex-col",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "font-black text-2xl text-white tracking-wide",
-                                        style: {
-                                            textShadow: '0 0 15px rgba(255, 255, 255, 0.4), 0 3px 6px rgba(0, 0, 0, 0.8)',
-                                            fontFamily: 'Inter, -apple-system, sans-serif'
-                                        },
+                                        className: "font-semibold text-lg text-white",
                                         children: "Pin Rhythm"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                                        lineNumber: 104,
+                                        lineNumber: 90,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "text-purple-200 text-xs font-medium -mt-1",
-                                        children: "혁신적인 리듬 게임"
+                                        className: "text-gray-400 text-xs -mt-1",
+                                        children: "리듬 게임"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                                        lineNumber: 113,
+                                        lineNumber: 93,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                                lineNumber: 103,
+                                lineNumber: 89,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                        lineNumber: 94,
+                        lineNumber: 85,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
-                        className: "flex items-center gap-2",
+                        className: "flex items-center gap-1",
                         children: navItems.map((item)=>{
                             const Icon = item.icon;
                             const isActive = currentPage === item.id || currentPage === 'home' && item.id === 'home';
                             return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                 variant: "ghost",
                                 size: "sm",
-                                className: "h-12 px-5 gap-2 font-bold text-sm transition-all duration-300 border-2 rounded-xl ".concat(isActive ? 'bg-purple-600/80 text-white border-purple-300 shadow-lg backdrop-blur-sm' : 'text-purple-100 hover:bg-purple-800/50 hover:text-white hover:border-purple-400/50 border-transparent backdrop-blur-sm'),
-                                style: isActive ? {
-                                    boxShadow: '0 0 20px rgba(168, 85, 247, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-                                    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.8) 0%, rgba(168, 85, 247, 0.9) 100%)'
-                                } : {},
+                                className: "h-9 px-3 gap-2 font-medium text-sm transition-all duration-200 rounded ".concat(isActive ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'),
                                 onClick: ()=>handleNavigation(item.id),
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Icon, {
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                                        lineNumber: 139,
+                                        lineNumber: 114,
                                         columnNumber: 33
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "font-bold",
                                         children: item.label
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                                        lineNumber: 140,
+                                        lineNumber: 115,
                                         columnNumber: 33
                                     }, this)
                                 ]
                             }, item.id, true, {
                                 fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                                lineNumber: 124,
+                                lineNumber: 104,
                                 columnNumber: 29
                             }, this);
                         })
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                        lineNumber: 117,
+                        lineNumber: 97,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                lineNumber: 93,
+                lineNumber: 84,
                 columnNumber: 13
             }, this),
             platform !== 'darwin' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -433,58 +414,58 @@ function AppHeader(param) {
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                         variant: "ghost",
                         size: "sm",
-                        className: "h-8 w-8 p-0 hover:bg-yellow-500/20 text-purple-200 hover:text-yellow-300",
+                        className: "h-8 w-8 p-0 hover:bg-gray-700 text-gray-400 hover:text-white rounded",
                         onClick: handleMinimize,
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$minus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Minus$3e$__["Minus"], {
                             className: "h-4 w-4"
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                            lineNumber: 156,
+                            lineNumber: 131,
                             columnNumber: 25
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                        lineNumber: 150,
+                        lineNumber: 125,
                         columnNumber: 21
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                         variant: "ghost",
                         size: "sm",
-                        className: "h-8 w-8 p-0 hover:bg-green-500/20 text-purple-200 hover:text-green-300",
+                        className: "h-8 w-8 p-0 hover:bg-gray-700 text-gray-400 hover:text-white rounded",
                         onClick: handleMaximize,
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$square$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Square$3e$__["Square"], {
                             className: "h-4 w-4"
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                            lineNumber: 164,
+                            lineNumber: 139,
                             columnNumber: 25
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                        lineNumber: 158,
+                        lineNumber: 133,
                         columnNumber: 21
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                         variant: "ghost",
                         size: "sm",
-                        className: "h-8 w-8 p-0 hover:bg-red-500/20 text-purple-200 hover:text-red-300",
+                        className: "h-8 w-8 p-0 hover:bg-red-600 text-gray-400 hover:text-white rounded",
                         onClick: handleClose,
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__["X"], {
                             className: "h-4 w-4"
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                            lineNumber: 172,
+                            lineNumber: 147,
                             columnNumber: 25
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                        lineNumber: 166,
+                        lineNumber: 141,
                         columnNumber: 21
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/ui/app-header.tsx",
-                lineNumber: 149,
+                lineNumber: 124,
                 columnNumber: 17
             }, this)
         ]

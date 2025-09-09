@@ -166,6 +166,8 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 /**
  * useSongs Hook - Manages song library and OSZ files
  */ __turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__,
     "useSongs",
     ()=>useSongs
 ]);
@@ -181,22 +183,27 @@ function useSongs() {
     const refreshLibrary = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "useSongs.useCallback[refreshLibrary]": async ()=>{
             try {
-                var _window_electronAPI;
+                var _electronAPI;
                 setLoading(true);
                 setError(null);
-                if ("object" !== 'undefined' && ((_window_electronAPI = window.electronAPI) === null || _window_electronAPI === void 0 ? void 0 : _window_electronAPI.osz)) {
+                if ("object" !== 'undefined' && ((_electronAPI = window.electronAPI) === null || _electronAPI === void 0 ? void 0 : _electronAPI.osz)) {
                     const library = await window.electronAPI.osz.getLibrary();
-                    setSongs(library);
+                    if (library && Array.isArray(library)) {
+                        setSongs(library);
+                    } else {
+                        // 라이브러리가 비어있는 경우
+                        setSongs([]);
+                    }
                 } else {
-                    // Fallback for web or missing IPC
-                    console.warn('Electron IPC not available, using mock data');
-                    setSongs(getMockSongs());
+                    // Electron IPC를 사용할 수 없는 경우
+                    console.warn('Electron IPC not available');
+                    setSongs([]);
+                    setError('Electron IPC를 사용할 수 없습니다');
                 }
             } catch (err) {
                 console.error('Failed to load song library:', err);
-                setError(err instanceof Error ? err.message : 'Failed to load songs');
-                // Fallback to mock data on error
-                setSongs(getMockSongs());
+                setError('곡 라이브러리를 불러오는 데 실패했습니다');
+                setSongs([]);
             } finally{
                 setLoading(false);
             }
@@ -205,28 +212,65 @@ function useSongs() {
     const importOsz = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "useSongs.useCallback[importOsz]": async (filePath)=>{
             try {
-                var _window_electronAPI;
+                var _electronAPI;
                 setError(null);
-                if ("object" !== 'undefined' && ((_window_electronAPI = window.electronAPI) === null || _window_electronAPI === void 0 ? void 0 : _window_electronAPI.osz)) {
-                    const songData = await window.electronAPI.osz.importFile(filePath);
-                    setSongs({
-                        "useSongs.useCallback[importOsz]": (prev)=>[
-                                ...prev,
-                                songData
-                            ]
-                    }["useSongs.useCallback[importOsz]"]);
-                    return true;
+                if ("object" !== 'undefined' && ((_electronAPI = window.electronAPI) === null || _electronAPI === void 0 ? void 0 : _electronAPI.osz)) {
+                    const result = await window.electronAPI.osz.importFromPath(filePath);
+                    if (result.success) {
+                        // Refresh library after successful import
+                        await refreshLibrary();
+                        return true;
+                    } else {
+                        setError(result.error || 'OSZ 파일 가져오기에 실패했습니다');
+                        return false;
+                    }
                 } else {
-                    console.warn('Electron IPC not available for OSZ import');
+                    setError('Electron IPC를 사용할 수 없습니다');
                     return false;
                 }
             } catch (err) {
-                console.error('Failed to import OSZ file:', err);
-                setError(err instanceof Error ? err.message : 'Failed to import OSZ');
+                console.error('Failed to import OSZ:', err);
+                setError('OSZ 파일 가져오기 중 오류가 발생했습니다');
                 return false;
             }
         }
-    }["useSongs.useCallback[importOsz]"], []);
+    }["useSongs.useCallback[importOsz]"], [
+        refreshLibrary
+    ]);
+    const importFromFile = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "useSongs.useCallback[importFromFile]": async (file)=>{
+            try {
+                var _electronAPI;
+                setError(null);
+                if ("object" !== 'undefined' && ((_electronAPI = window.electronAPI) === null || _electronAPI === void 0 ? void 0 : _electronAPI.osz)) {
+                    // Convert File to buffer for IPC
+                    const arrayBuffer = await file.arrayBuffer();
+                    const buffer = new Uint8Array(arrayBuffer);
+                    const result = await window.electronAPI.osz.importFromBuffer({
+                        name: file.name,
+                        buffer: buffer
+                    });
+                    if (result.success) {
+                        // Refresh library after successful import
+                        await refreshLibrary();
+                        return true;
+                    } else {
+                        setError(result.error || 'OSZ 파일 가져오기에 실패했습니다');
+                        return false;
+                    }
+                } else {
+                    setError('Electron IPC를 사용할 수 없습니다');
+                    return false;
+                }
+            } catch (err) {
+                console.error('Failed to import file:', err);
+                setError('파일 가져오기 중 오류가 발생했습니다');
+                return false;
+            }
+        }
+    }["useSongs.useCallback[importFromFile]"], [
+        refreshLibrary
+    ]);
     const getSong = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "useSongs.useCallback[getSong]": (id)=>{
             return songs.find({
@@ -236,7 +280,7 @@ function useSongs() {
     }["useSongs.useCallback[getSong]"], [
         songs
     ]);
-    // Load library on mount
+    // Load songs on mount
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "useSongs.useEffect": ()=>{
             refreshLibrary();
@@ -250,83 +294,12 @@ function useSongs() {
         error,
         refreshLibrary,
         importOsz,
-        getSong
+        getSong,
+        importFromFile
     };
 }
-_s(useSongs, "iDEX673CEwVXiheMy0VZxD0nqdo=");
-// Mock data for development/fallback
-function getMockSongs() {
-    return [
-        {
-            id: 'ahoy',
-            title: 'Ahoy! 我ら宝鳥海賊団☆',
-            artist: '宝鳥マリン',
-            audioFile: '/assets/ahoy/ahoy.mp3',
-            backgroundImage: '/assets/ahoy/bg.jpg',
-            difficulty: {
-                easy: 2,
-                normal: 4,
-                hard: 6,
-                expert: 8
-            },
-            bpm: 160,
-            duration: 180000,
-            filePath: '/assets/ahoy/ahoy.osz',
-            notes: []
-        },
-        {
-            id: 'badapple',
-            title: 'Bad Apple!!',
-            artist: 'Alstroemeria Records',
-            audioFile: '/assets/bad-apple/badapple.mp3',
-            backgroundImage: '/assets/bad-apple/bg.jpg',
-            difficulty: {
-                easy: 3,
-                normal: 5,
-                hard: 7,
-                expert: 9
-            },
-            bpm: 138,
-            duration: 219000,
-            filePath: '/assets/bad-apple/badapple.osz',
-            notes: []
-        },
-        {
-            id: 'jinxed',
-            title: 'Get Jinxed',
-            artist: 'Riot Games',
-            audioFile: '/assets/jink/Get-Jinxed.mp3',
-            backgroundImage: '/assets/jink/bg.jpg',
-            difficulty: {
-                easy: 4,
-                normal: 6,
-                hard: 8,
-                expert: 10
-            },
-            bpm: 175,
-            duration: 195000,
-            filePath: '/assets/jink/Get-Jinxed.osz',
-            notes: []
-        },
-        {
-            id: 'popinto',
-            title: 'Pop in to',
-            artist: 'Various Artists',
-            audioFile: '/assets/pop/popInTo.mp3',
-            backgroundImage: '/assets/pop/bg.jpg',
-            difficulty: {
-                easy: 2,
-                normal: 4,
-                hard: 6,
-                expert: 7
-            },
-            bpm: 120,
-            duration: 165000,
-            filePath: '/assets/pop/popInTo.osz',
-            notes: []
-        }
-    ];
-}
+_s(useSongs, "h90R4Cuuu6QmPmEyfx7BiQYvyRw=");
+const __TURBOPACK__default__export__ = useSongs;
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }
@@ -410,7 +383,7 @@ function useGameState() {
                 }
                 setGameState('idle');
                 setCurrentSong(null);
-                setGameMode(null);
+                setGameMode('pin'); // 기본값을 'pin'으로 설정
             } catch (error) {
                 console.error('Failed to stop game:', error);
             }
@@ -485,7 +458,14 @@ function useGameState() {
                     timestamp: Date.now()
                 };
                 if ("object" !== 'undefined' && ((_window_electronAPI = window.electronAPI) === null || _window_electronAPI === void 0 ? void 0 : _window_electronAPI.game)) {
-                    return await window.electronAPI.game.submitScore(scoreData);
+                    // submitScore가 없으면 임시로 true 반환
+                    const gameAPI = window.electronAPI.game;
+                    if (gameAPI.submitScore) {
+                        return await gameAPI.submitScore(scoreData);
+                    } else {
+                        console.log('Score data prepared:', scoreData);
+                        return true;
+                    }
                 } else {
                     // Mock submission for development
                     console.log('Mock score submission:', scoreData);

@@ -279,8 +279,8 @@ export default function PinModePage() {
                                             'text-slate-400'
                                         }`}>
                                         {gameState === 'playing' ? '플레이 중' :
-                                         gameState === 'paused' ? '일시정지' :
-                                         gameState === 'idle' ? '대기' : gameState}
+                                            gameState === 'paused' ? '일시정지' :
+                                                gameState === 'idle' ? '대기' : gameState}
                                     </span>
                                 </div>
                                 <div className="flex justify-between">

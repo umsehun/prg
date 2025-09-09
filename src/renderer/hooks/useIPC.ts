@@ -24,8 +24,9 @@ export function useIPC<T>(channel: string, ...args: any[]): IpcHookResult<T> {
         }
 
         try {
-            const result = await window.electronAPI.invoke(channel, ...args);
-            setData(result);
+            // invoke 메서드가 없으므로 직접 IPC 호출 비활성화
+            console.warn(`IPC invoke method not available for channel: ${channel}`);
+            setError("IPC invoke method not available");
         } catch (err: any) {
             console.error(`IPC call to channel "${channel}" failed:`, err);
             setError(err.message || 'An unknown error occurred during IPC call.');

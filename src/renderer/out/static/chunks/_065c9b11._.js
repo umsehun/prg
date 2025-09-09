@@ -173,22 +173,22 @@ function HomePage() {
     }["HomePage.useEffect"], []);
     const quickActions = [
         {
-            title: 'Start Playing',
-            description: 'Jump into Pin Mode or osu! style gameplay',
+            title: '게임 시작',
+            description: '핀 모드로 리듬 게임을 즐기세요',
             icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$play$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Play$3e$__["Play"],
             color: 'from-purple-500 to-pink-500',
             href: '/play'
         },
         {
-            title: 'Browse Library',
-            description: 'Manage your .osz files and beatmaps',
+            title: '곡 라이브러리',
+            description: '.osz 파일과 비트맵을 관리하세요',
             icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$music$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Music$3e$__["Music"],
             color: 'from-blue-500 to-cyan-500',
             href: '/select'
         },
         {
-            title: 'Settings',
-            description: 'Customize your rhythm experience',
+            title: '설정',
+            description: '리듬 게임 경험을 커스터마이즈하세요',
             icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$settings$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Settings$3e$__["Settings"],
             color: 'from-green-500 to-teal-500',
             href: '/settings'
@@ -214,12 +214,12 @@ function HomePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 71,
-                                            columnNumber: 17
+                                            columnNumber: 33
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/page.tsx",
                                         lineNumber: 70,
-                                        columnNumber: 15
+                                        columnNumber: 29
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center",
@@ -228,23 +228,23 @@ function HomePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 74,
-                                            columnNumber: 17
+                                            columnNumber: 33
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/page.tsx",
                                         lineNumber: 73,
-                                        columnNumber: 15
+                                        columnNumber: 29
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/app/page.tsx",
                                 lineNumber: 69,
-                                columnNumber: 13
+                                columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/page.tsx",
                             lineNumber: 68,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
                             className: "text-6xl font-bold text-white mb-4",
@@ -252,23 +252,23 @@ function HomePage() {
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/page.tsx",
                             lineNumber: 79,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                             className: "text-2xl text-slate-300 mb-6 max-w-3xl mx-auto",
-                            children: "Experience osu! beatmaps in a completely new way"
+                            children: "osu! 비트맵을 완전히 새로운 방식으로 경험하세요"
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/page.tsx",
                             lineNumber: 82,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                             className: "text-lg text-slate-400 mb-8",
-                            children: "Throw pins at spinning targets, follow the rhythm, and master the timing"
+                            children: "회전하는 타겟에 핀을 던지고, 리듬을 따라가며, 타이밍을 마스터하세요"
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/page.tsx",
                             lineNumber: 85,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "flex flex-col sm:flex-row gap-4 justify-center",
@@ -282,14 +282,14 @@ function HomePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 94,
-                                            columnNumber: 15
+                                            columnNumber: 29
                                         }, this),
-                                        "Try Pin Mode"
+                                        "핀 모드 체험"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/page.tsx",
                                     lineNumber: 90,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                     size: "lg",
@@ -301,26 +301,26 @@ function HomePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 102,
-                                            columnNumber: 15
+                                            columnNumber: 29
                                         }, this),
-                                        "Import .osz Files"
+                                        ".osz 파일 가져오기"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/page.tsx",
                                     lineNumber: 97,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/page.tsx",
                             lineNumber: 89,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/page.tsx",
                     lineNumber: 67,
-                    columnNumber: 9
+                    columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "grid grid-cols-2 md:grid-cols-4 gap-4 mb-12",
@@ -337,7 +337,7 @@ function HomePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 113,
-                                            columnNumber: 17
+                                            columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "text-2xl font-bold text-white",
@@ -345,31 +345,31 @@ function HomePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 114,
-                                            columnNumber: 17
+                                            columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "text-slate-400 text-sm",
-                                            children: "Songs"
+                                            children: "곡 수"
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 115,
-                                            columnNumber: 17
+                                            columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/page.tsx",
                                     lineNumber: 112,
-                                    columnNumber: 15
+                                    columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/page.tsx",
                                 lineNumber: 111,
-                                columnNumber: 13
+                                columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/page.tsx",
                             lineNumber: 110,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
                             className: "bg-slate-800/50 border-slate-700",
@@ -383,7 +383,7 @@ function HomePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 123,
-                                            columnNumber: 17
+                                            columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "text-2xl font-bold text-white",
@@ -391,31 +391,31 @@ function HomePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 124,
-                                            columnNumber: 17
+                                            columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "text-slate-400 text-sm",
-                                            children: "Plays"
+                                            children: "플레이 횟수"
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 125,
-                                            columnNumber: 17
+                                            columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/page.tsx",
                                     lineNumber: 122,
-                                    columnNumber: 15
+                                    columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/page.tsx",
                                 lineNumber: 121,
-                                columnNumber: 13
+                                columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/page.tsx",
                             lineNumber: 120,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
                             className: "bg-slate-800/50 border-slate-700",
@@ -429,7 +429,7 @@ function HomePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 133,
-                                            columnNumber: 17
+                                            columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "text-2xl font-bold text-white",
@@ -437,31 +437,31 @@ function HomePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 134,
-                                            columnNumber: 17
+                                            columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "text-slate-400 text-sm",
-                                            children: "High Score"
+                                            children: "최고 점수"
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 135,
-                                            columnNumber: 17
+                                            columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/page.tsx",
                                     lineNumber: 132,
-                                    columnNumber: 15
+                                    columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/page.tsx",
                                 lineNumber: 131,
-                                columnNumber: 13
+                                columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/page.tsx",
                             lineNumber: 130,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
                             className: "bg-slate-800/50 border-slate-700",
@@ -475,7 +475,7 @@ function HomePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 143,
-                                            columnNumber: 17
+                                            columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "text-2xl font-bold text-white",
@@ -486,37 +486,37 @@ function HomePage() {
                                         }, void 0, true, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 144,
-                                            columnNumber: 17
+                                            columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "text-slate-400 text-sm",
-                                            children: "Accuracy"
+                                            children: "정확도"
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 145,
-                                            columnNumber: 17
+                                            columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/page.tsx",
                                     lineNumber: 142,
-                                    columnNumber: 15
+                                    columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/page.tsx",
                                 lineNumber: 141,
-                                columnNumber: 13
+                                columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/page.tsx",
                             lineNumber: 140,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/page.tsx",
                     lineNumber: 109,
-                    columnNumber: 9
+                    columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "grid grid-cols-1 md:grid-cols-3 gap-6 mb-12",
@@ -533,12 +533,12 @@ function HomePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/page.tsx",
                                             lineNumber: 162,
-                                            columnNumber: 21
+                                            columnNumber: 41
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/page.tsx",
                                         lineNumber: 161,
-                                        columnNumber: 19
+                                        columnNumber: 37
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardTitle"], {
                                         className: "text-white text-xl",
@@ -546,7 +546,7 @@ function HomePage() {
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/page.tsx",
                                         lineNumber: 164,
-                                        columnNumber: 19
+                                        columnNumber: 37
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                         className: "text-slate-300",
@@ -554,24 +554,24 @@ function HomePage() {
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/page.tsx",
                                         lineNumber: 165,
-                                        columnNumber: 19
+                                        columnNumber: 37
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/app/page.tsx",
                                 lineNumber: 160,
-                                columnNumber: 17
+                                columnNumber: 33
                             }, this)
                         }, index, false, {
                             fileName: "[project]/src/renderer/app/page.tsx",
                             lineNumber: 156,
-                            columnNumber: 15
+                            columnNumber: 29
                         }, this);
                     })
                 }, void 0, false, {
                     fileName: "[project]/src/renderer/app/page.tsx",
                     lineNumber: 152,
-                    columnNumber: 9
+                    columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
                     className: "bg-slate-800/30 border-slate-700",
@@ -579,16 +579,16 @@ function HomePage() {
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardHeader"], {
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardTitle"], {
                                 className: "text-white text-2xl text-center",
-                                children: "Why Pin Rhythm?"
+                                children: "왜 Pin Rhythm인가?"
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/page.tsx",
                                 lineNumber: 177,
-                                columnNumber: 13
+                                columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/page.tsx",
                             lineNumber: 176,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -604,34 +604,34 @@ function HomePage() {
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/page.tsx",
                                                     lineNumber: 185,
-                                                    columnNumber: 19
+                                                    columnNumber: 37
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/page.tsx",
                                                 lineNumber: 184,
-                                                columnNumber: 17
+                                                columnNumber: 33
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
                                                 className: "text-lg font-semibold text-white mb-2",
-                                                children: "osu! Compatible"
+                                                children: "osu! 호환"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/page.tsx",
                                                 lineNumber: 187,
-                                                columnNumber: 17
+                                                columnNumber: 33
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 className: "text-slate-400",
-                                                children: "Use your existing .osz beatmaps with a fresh new gameplay style"
+                                                children: "기존 .osz 비트맵을 새로운 게임플레이 스타일로 즐기세요"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/page.tsx",
                                                 lineNumber: 188,
-                                                columnNumber: 17
+                                                columnNumber: 33
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/app/page.tsx",
                                         lineNumber: 183,
-                                        columnNumber: 15
+                                        columnNumber: 29
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "text-center",
@@ -643,34 +643,34 @@ function HomePage() {
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/page.tsx",
                                                     lineNumber: 195,
-                                                    columnNumber: 19
+                                                    columnNumber: 37
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/page.tsx",
                                                 lineNumber: 194,
-                                                columnNumber: 17
+                                                columnNumber: 33
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
                                                 className: "text-lg font-semibold text-white mb-2",
-                                                children: "Pin Mode"
+                                                children: "핀 모드"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/page.tsx",
                                                 lineNumber: 197,
-                                                columnNumber: 17
+                                                columnNumber: 33
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 className: "text-slate-400",
-                                                children: "Knife Hit inspired gameplay meets rhythm gaming precision"
+                                                children: "나이프 히트에서 영감받은 게임플레이와 리듬 게임의 정밀함이 만나다"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/page.tsx",
                                                 lineNumber: 198,
-                                                columnNumber: 17
+                                                columnNumber: 33
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/app/page.tsx",
                                         lineNumber: 193,
-                                        columnNumber: 15
+                                        columnNumber: 29
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "text-center",
@@ -682,65 +682,65 @@ function HomePage() {
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/page.tsx",
                                                     lineNumber: 205,
-                                                    columnNumber: 19
+                                                    columnNumber: 37
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/page.tsx",
                                                 lineNumber: 204,
-                                                columnNumber: 17
+                                                columnNumber: 33
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
                                                 className: "text-lg font-semibold text-white mb-2",
-                                                children: "Easy to Learn"
+                                                children: "쉬운 학습"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/page.tsx",
                                                 lineNumber: 207,
-                                                columnNumber: 17
+                                                columnNumber: 33
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 className: "text-slate-400",
-                                                children: "Intuitive controls that focus on timing over complex movements"
+                                                children: "복잡한 움직임보다 타이밍에 집중하는 직관적인 컨트롤"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/page.tsx",
                                                 lineNumber: 208,
-                                                columnNumber: 17
+                                                columnNumber: 33
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/app/page.tsx",
                                         lineNumber: 203,
-                                        columnNumber: 15
+                                        columnNumber: 29
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/app/page.tsx",
                                 lineNumber: 182,
-                                columnNumber: 13
+                                columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/page.tsx",
                             lineNumber: 181,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/page.tsx",
                     lineNumber: 175,
-                    columnNumber: 9
+                    columnNumber: 17
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/renderer/app/page.tsx",
             lineNumber: 65,
-            columnNumber: 7
+            columnNumber: 13
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/renderer/app/page.tsx",
         lineNumber: 64,
-        columnNumber: 5
+        columnNumber: 9
     }, this);
 }
-_s(HomePage, "l84qPEtBqldWw+UvlJW1VbVMMsU=");
+_s(HomePage, "4IhMbpA5qiY/GWECoHPJ9Ei55+s=");
 _c = HomePage;
 var _c;
 __turbopack_context__.k.register(_c, "HomePage");

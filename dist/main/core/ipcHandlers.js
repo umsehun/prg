@@ -15,7 +15,7 @@ function setupIpcHandlers() {
             throw new Error('Failed to retrieve chart list from the backend.');
         }
     });
-    electron_1.ipcMain.handle('songs:toggle-favorite', async (event, songId) => {
+    electron_1.ipcMain.handle('songs:toggle-favorite', async (_event, songId) => {
         // This is a placeholder. In a real app, you would have a database or
         // a file where you store user preferences.
         console.log(`Toggling favorite for song ID: ${songId}`);

@@ -130,6 +130,8 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 /**
  * useSongs Hook - Manages song library and OSZ files
  */ __turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__,
     "useSongs",
     ()=>useSongs
 ]);
@@ -145,22 +147,27 @@ function useSongs() {
     const refreshLibrary = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "useSongs.useCallback[refreshLibrary]": async ()=>{
             try {
-                var _window_electronAPI;
+                var _electronAPI;
                 setLoading(true);
                 setError(null);
-                if ("object" !== 'undefined' && ((_window_electronAPI = window.electronAPI) === null || _window_electronAPI === void 0 ? void 0 : _window_electronAPI.osz)) {
+                if ("object" !== 'undefined' && ((_electronAPI = window.electronAPI) === null || _electronAPI === void 0 ? void 0 : _electronAPI.osz)) {
                     const library = await window.electronAPI.osz.getLibrary();
-                    setSongs(library);
+                    if (library && Array.isArray(library)) {
+                        setSongs(library);
+                    } else {
+                        // 라이브러리가 비어있는 경우
+                        setSongs([]);
+                    }
                 } else {
-                    // Fallback for web or missing IPC
-                    console.warn('Electron IPC not available, using mock data');
-                    setSongs(getMockSongs());
+                    // Electron IPC를 사용할 수 없는 경우
+                    console.warn('Electron IPC not available');
+                    setSongs([]);
+                    setError('Electron IPC를 사용할 수 없습니다');
                 }
             } catch (err) {
                 console.error('Failed to load song library:', err);
-                setError(err instanceof Error ? err.message : 'Failed to load songs');
-                // Fallback to mock data on error
-                setSongs(getMockSongs());
+                setError('곡 라이브러리를 불러오는 데 실패했습니다');
+                setSongs([]);
             } finally{
                 setLoading(false);
             }
@@ -169,28 +176,65 @@ function useSongs() {
     const importOsz = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "useSongs.useCallback[importOsz]": async (filePath)=>{
             try {
-                var _window_electronAPI;
+                var _electronAPI;
                 setError(null);
-                if ("object" !== 'undefined' && ((_window_electronAPI = window.electronAPI) === null || _window_electronAPI === void 0 ? void 0 : _window_electronAPI.osz)) {
-                    const songData = await window.electronAPI.osz.importFile(filePath);
-                    setSongs({
-                        "useSongs.useCallback[importOsz]": (prev)=>[
-                                ...prev,
-                                songData
-                            ]
-                    }["useSongs.useCallback[importOsz]"]);
-                    return true;
+                if ("object" !== 'undefined' && ((_electronAPI = window.electronAPI) === null || _electronAPI === void 0 ? void 0 : _electronAPI.osz)) {
+                    const result = await window.electronAPI.osz.importFromPath(filePath);
+                    if (result.success) {
+                        // Refresh library after successful import
+                        await refreshLibrary();
+                        return true;
+                    } else {
+                        setError(result.error || 'OSZ 파일 가져오기에 실패했습니다');
+                        return false;
+                    }
                 } else {
-                    console.warn('Electron IPC not available for OSZ import');
+                    setError('Electron IPC를 사용할 수 없습니다');
                     return false;
                 }
             } catch (err) {
-                console.error('Failed to import OSZ file:', err);
-                setError(err instanceof Error ? err.message : 'Failed to import OSZ');
+                console.error('Failed to import OSZ:', err);
+                setError('OSZ 파일 가져오기 중 오류가 발생했습니다');
                 return false;
             }
         }
-    }["useSongs.useCallback[importOsz]"], []);
+    }["useSongs.useCallback[importOsz]"], [
+        refreshLibrary
+    ]);
+    const importFromFile = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "useSongs.useCallback[importFromFile]": async (file)=>{
+            try {
+                var _electronAPI;
+                setError(null);
+                if ("object" !== 'undefined' && ((_electronAPI = window.electronAPI) === null || _electronAPI === void 0 ? void 0 : _electronAPI.osz)) {
+                    // Convert File to buffer for IPC
+                    const arrayBuffer = await file.arrayBuffer();
+                    const buffer = new Uint8Array(arrayBuffer);
+                    const result = await window.electronAPI.osz.importFromBuffer({
+                        name: file.name,
+                        buffer: buffer
+                    });
+                    if (result.success) {
+                        // Refresh library after successful import
+                        await refreshLibrary();
+                        return true;
+                    } else {
+                        setError(result.error || 'OSZ 파일 가져오기에 실패했습니다');
+                        return false;
+                    }
+                } else {
+                    setError('Electron IPC를 사용할 수 없습니다');
+                    return false;
+                }
+            } catch (err) {
+                console.error('Failed to import file:', err);
+                setError('파일 가져오기 중 오류가 발생했습니다');
+                return false;
+            }
+        }
+    }["useSongs.useCallback[importFromFile]"], [
+        refreshLibrary
+    ]);
     const getSong = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "useSongs.useCallback[getSong]": (id)=>{
             return songs.find({
@@ -200,7 +244,7 @@ function useSongs() {
     }["useSongs.useCallback[getSong]"], [
         songs
     ]);
-    // Load library on mount
+    // Load songs on mount
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "useSongs.useEffect": ()=>{
             refreshLibrary();
@@ -214,83 +258,12 @@ function useSongs() {
         error,
         refreshLibrary,
         importOsz,
-        getSong
+        getSong,
+        importFromFile
     };
 }
-_s(useSongs, "iDEX673CEwVXiheMy0VZxD0nqdo=");
-// Mock data for development/fallback
-function getMockSongs() {
-    return [
-        {
-            id: 'ahoy',
-            title: 'Ahoy! 我ら宝鳥海賊団☆',
-            artist: '宝鳥マリン',
-            audioFile: '/assets/ahoy/ahoy.mp3',
-            backgroundImage: '/assets/ahoy/bg.jpg',
-            difficulty: {
-                easy: 2,
-                normal: 4,
-                hard: 6,
-                expert: 8
-            },
-            bpm: 160,
-            duration: 180000,
-            filePath: '/assets/ahoy/ahoy.osz',
-            notes: []
-        },
-        {
-            id: 'badapple',
-            title: 'Bad Apple!!',
-            artist: 'Alstroemeria Records',
-            audioFile: '/assets/bad-apple/badapple.mp3',
-            backgroundImage: '/assets/bad-apple/bg.jpg',
-            difficulty: {
-                easy: 3,
-                normal: 5,
-                hard: 7,
-                expert: 9
-            },
-            bpm: 138,
-            duration: 219000,
-            filePath: '/assets/bad-apple/badapple.osz',
-            notes: []
-        },
-        {
-            id: 'jinxed',
-            title: 'Get Jinxed',
-            artist: 'Riot Games',
-            audioFile: '/assets/jink/Get-Jinxed.mp3',
-            backgroundImage: '/assets/jink/bg.jpg',
-            difficulty: {
-                easy: 4,
-                normal: 6,
-                hard: 8,
-                expert: 10
-            },
-            bpm: 175,
-            duration: 195000,
-            filePath: '/assets/jink/Get-Jinxed.osz',
-            notes: []
-        },
-        {
-            id: 'popinto',
-            title: 'Pop in to',
-            artist: 'Various Artists',
-            audioFile: '/assets/pop/popInTo.mp3',
-            backgroundImage: '/assets/pop/bg.jpg',
-            difficulty: {
-                easy: 2,
-                normal: 4,
-                hard: 6,
-                expert: 7
-            },
-            bpm: 120,
-            duration: 165000,
-            filePath: '/assets/pop/popInTo.osz',
-            notes: []
-        }
-    ];
-}
+_s(useSongs, "h90R4Cuuu6QmPmEyfx7BiQYvyRw=");
+const __TURBOPACK__default__export__ = useSongs;
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }
@@ -374,7 +347,7 @@ function useGameState() {
                 }
                 setGameState('idle');
                 setCurrentSong(null);
-                setGameMode(null);
+                setGameMode('pin'); // 기본값을 'pin'으로 설정
             } catch (error) {
                 console.error('Failed to stop game:', error);
             }
@@ -449,7 +422,14 @@ function useGameState() {
                     timestamp: Date.now()
                 };
                 if ("object" !== 'undefined' && ((_window_electronAPI = window.electronAPI) === null || _window_electronAPI === void 0 ? void 0 : _window_electronAPI.game)) {
-                    return await window.electronAPI.game.submitScore(scoreData);
+                    // submitScore가 없으면 임시로 true 반환
+                    const gameAPI = window.electronAPI.game;
+                    if (gameAPI.submitScore) {
+                        return await gameAPI.submitScore(scoreData);
+                    } else {
+                        console.log('Score data prepared:', scoreData);
+                        return true;
+                    }
                 } else {
                     // Mock submission for development
                     console.log('Mock score submission:', scoreData);
@@ -517,7 +497,7 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 "use strict";
 
 /**
- * Play Page - Game Selection with Real Data
+ * Play Page - Pin Mode Game Selection with Real Data
  */ __turbopack_context__.s([
     "default",
     ()=>PlayPage
@@ -526,7 +506,6 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/components/ui/button.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/components/ui/card.tsx [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$play$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Play$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/play.js [app-client] (ecmascript) <export default as Play>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$target$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Target$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/target.js [app-client] (ecmascript) <export default as Target>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$music$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Music$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/music.js [app-client] (ecmascript) <export default as Music>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/clock.js [app-client] (ecmascript) <export default as Clock>");
@@ -544,48 +523,26 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-const gameModes = [
-    {
-        id: 'osu',
-        name: 'osu! 모드',
-        description: '어프로치 서클과 함께하는 클래식 서클 탭핑 게임플레이',
-        icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$target$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Target$3e$__["Target"],
-        difficulty: 'Medium',
-        color: 'from-blue-500 to-cyan-500'
-    },
-    {
-        id: 'pin',
-        name: '핀 모드',
-        description: '칼던지기 스타일 게임플레이 - 회전하는 타겟에 핀을 던지세요',
-        icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$target$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Target$3e$__["Target"],
-        difficulty: 'Easy',
-        color: 'from-purple-500 to-pink-500'
-    }
-];
 function PlayPage() {
     _s();
     const { songs, loading } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useSongs$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSongs"])();
     const { startGame } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useGameState$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useGameState"])();
-    const [selectedMode, setSelectedMode] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [selectedSong, setSelectedSong] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
-    const handleModeSelect = (modeId)=>{
-        setSelectedMode(modeId);
-    };
     const handleSongSelect = (song)=>{
         setSelectedSong(song);
     };
-    const startSelectedGame = async ()=>{
-        if (selectedMode && selectedSong) {
-            const success = await startGame(selectedSong, selectedMode);
+    const startPinGame = async ()=>{
+        if (selectedSong) {
+            const success = await startGame(selectedSong, 'pin');
             if (success) {
-                window.location.href = selectedMode === 'pin' ? '/pin' : '/game';
+                window.location.href = '/pin';
             }
         }
     };
-    const formatDuration = (ms)=>{
-        const minutes = Math.floor(ms / 60000);
-        const seconds = Math.floor(ms % 60000 / 1000);
-        return "".concat(minutes, ":").concat(seconds.toString().padStart(2, '0'));
+    const formatDuration = (seconds)=>{
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return "".concat(minutes, ":").concat(remainingSeconds.toString().padStart(2, '0'));
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "min-h-full bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 p-6 pt-20",
@@ -606,49 +563,109 @@ function PlayPage() {
                                         className: "w-4 h-4 mr-2"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/play/page.tsx",
-                                        lineNumber: 79,
+                                        lineNumber: 46,
                                         columnNumber: 29
                                     }, this),
                                     "돌아가기"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/app/play/page.tsx",
-                                lineNumber: 78,
+                                lineNumber: 45,
                                 columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                            lineNumber: 77,
+                            lineNumber: 44,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
                                     className: "text-4xl font-bold text-white mb-2",
-                                    children: "플레이 모드"
+                                    children: "핀 모드"
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                                    lineNumber: 84,
+                                    lineNumber: 51,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                     className: "text-slate-400 text-lg",
-                                    children: "게임 모드를 선택하고 플레이를 시작하세요"
+                                    children: "회전하는 타겟에 핀을 던지며 리듬을 즐기세요"
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                                    lineNumber: 85,
+                                    lineNumber: 52,
                                     columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                            lineNumber: 83,
+                            lineNumber: 50,
                             columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                    lineNumber: 76,
+                    lineNumber: 43,
+                    columnNumber: 17
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
+                    className: "mb-8 bg-gradient-to-r from-purple-900/30 to-pink-900/30 border-purple-500/50",
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardHeader"], {
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex items-center gap-4",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$target$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Target$3e$__["Target"], {
+                                        className: "w-8 h-8 text-white"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/renderer/app/play/page.tsx",
+                                        lineNumber: 61,
+                                        columnNumber: 33
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "[project]/src/renderer/app/play/page.tsx",
+                                    lineNumber: 60,
+                                    columnNumber: 29
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardTitle"], {
+                                            className: "text-white text-2xl",
+                                            children: "핀 모드"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/renderer/app/play/page.tsx",
+                                            lineNumber: 64,
+                                            columnNumber: 33
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
+                                            className: "text-purple-200 text-lg",
+                                            children: "회전하는 타겟에 핀을 던지며 리듬을 즐기는 게임플레이"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/renderer/app/play/page.tsx",
+                                            lineNumber: 65,
+                                            columnNumber: 33
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/renderer/app/play/page.tsx",
+                                    lineNumber: 63,
+                                    columnNumber: 29
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/renderer/app/play/page.tsx",
+                            lineNumber: 59,
+                            columnNumber: 25
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/src/renderer/app/play/page.tsx",
+                        lineNumber: 58,
+                        columnNumber: 21
+                    }, this)
+                }, void 0, false, {
+                    fileName: "[project]/src/renderer/app/play/page.tsx",
+                    lineNumber: 57,
                     columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -656,374 +673,270 @@ function PlayPage() {
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
                             className: "text-2xl font-semibold text-white mb-4",
-                            children: "게임 모드 선택"
+                            children: "곡 선택"
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                            lineNumber: 91,
+                            lineNumber: 75,
                             columnNumber: 21
                         }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "grid grid-cols-1 md:grid-cols-2 gap-6",
-                            children: gameModes.map((mode)=>{
-                                const Icon = mode.icon;
-                                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
-                                    className: "cursor-pointer transition-all duration-300 hover:scale-105 ".concat(selectedMode === mode.id ? 'bg-slate-700 border-purple-500 shadow-lg shadow-purple-500/25' : 'bg-slate-800/50 border-slate-700 hover:border-slate-600'),
-                                    onClick: ()=>handleModeSelect(mode.id),
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardHeader"], {
-                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "flex items-center gap-4",
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        className: "w-16 h-16 rounded-xl bg-gradient-to-br ".concat(mode.color, " flex items-center justify-center"),
-                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Icon, {
-                                                            className: "w-8 h-8 text-white"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                            lineNumber: 107,
-                                                            columnNumber: 49
-                                                        }, this)
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                        lineNumber: 106,
-                                                        columnNumber: 45
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardTitle"], {
-                                                                className: "text-white text-xl",
-                                                                children: mode.name
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                                lineNumber: 110,
-                                                                columnNumber: 49
-                                                            }, this),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                className: "flex items-center gap-2 mt-1",
-                                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                    className: "px-2 py-1 rounded text-xs font-medium ".concat(mode.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' : mode.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'),
-                                                                    children: mode.difficulty
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                                    lineNumber: 112,
-                                                                    columnNumber: 53
-                                                                }, this)
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                                lineNumber: 111,
-                                                                columnNumber: 49
-                                                            }, this)
-                                                        ]
-                                                    }, void 0, true, {
-                                                        fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                        lineNumber: 109,
-                                                        columnNumber: 45
-                                                    }, this)
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                lineNumber: 105,
-                                                columnNumber: 41
-                                            }, this)
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 104,
-                                            columnNumber: 37
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
-                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
-                                                className: "text-slate-300 text-base",
-                                                children: mode.description
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                lineNumber: 123,
-                                                columnNumber: 41
-                                            }, this)
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 122,
-                                            columnNumber: 37
-                                        }, this)
-                                    ]
-                                }, mode.id, true, {
+                        loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "text-center py-12",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"
+                                }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                                    lineNumber: 96,
-                                    columnNumber: 33
-                                }, this);
-                            })
-                        }, void 0, false, {
+                                    lineNumber: 79,
+                                    columnNumber: 29
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    className: "text-slate-400 mt-4",
+                                    children: "곡 목록을 불러오는 중..."
+                                }, void 0, false, {
+                                    fileName: "[project]/src/renderer/app/play/page.tsx",
+                                    lineNumber: 80,
+                                    columnNumber: 29
+                                }, this)
+                            ]
+                        }, void 0, true, {
                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                            lineNumber: 92,
-                            columnNumber: 21
-                        }, this)
-                    ]
-                }, void 0, true, {
-                    fileName: "[project]/src/renderer/app/play/page.tsx",
-                    lineNumber: 90,
-                    columnNumber: 17
-                }, this),
-                selectedMode && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
-                    className: "bg-slate-800/50 border-slate-700",
-                    children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardHeader"], {
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardTitle"], {
-                                className: "text-white flex items-center gap-2",
+                            lineNumber: 78,
+                            columnNumber: 25
+                        }, this) : songs.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
+                            className: "bg-slate-800/50 border-slate-700",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
+                                className: "py-12 text-center",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$music$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Music$3e$__["Music"], {
-                                        className: "w-5 h-5"
+                                        className: "w-16 h-16 text-slate-500 mx-auto mb-4"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/play/page.tsx",
-                                        lineNumber: 138,
+                                        lineNumber: 85,
                                         columnNumber: 33
                                     }, this),
-                                    "곡 선택"
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                        className: "text-xl font-semibold text-slate-300 mb-2",
+                                        children: "곡이 없습니다"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/renderer/app/play/page.tsx",
+                                        lineNumber: 86,
+                                        columnNumber: 33
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "text-slate-500 mb-6",
+                                        children: ".osz 파일을 가져와서 게임을 시작하세요"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/renderer/app/play/page.tsx",
+                                        lineNumber: 87,
+                                        columnNumber: 33
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                        href: "/select",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                            className: "bg-purple-500 hover:bg-purple-600",
+                                            children: "곡 라이브러리로 가기"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/renderer/app/play/page.tsx",
+                                            lineNumber: 91,
+                                            columnNumber: 37
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/renderer/app/play/page.tsx",
+                                        lineNumber: 90,
+                                        columnNumber: 33
+                                    }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/app/play/page.tsx",
-                                lineNumber: 137,
+                                lineNumber: 84,
                                 columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                            lineNumber: 136,
+                            lineNumber: 83,
                             columnNumber: 25
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
-                            children: [
-                                loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "text-center py-8",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 145,
-                                            columnNumber: 37
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                            className: "text-slate-400",
-                                            children: "곡을 불러오는 중..."
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 146,
-                                            columnNumber: 37
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/renderer/app/play/page.tsx",
-                                    lineNumber: 144,
-                                    columnNumber: 33
-                                }, this) : songs.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "text-center py-12",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "text-slate-400 mb-4",
+                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "grid gap-4",
+                            children: songs.map((song)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
+                                    className: "cursor-pointer transition-all duration-300 ".concat((selectedSong === null || selectedSong === void 0 ? void 0 : selectedSong.id) === song.id ? 'bg-purple-900/50 border-purple-500 shadow-lg shadow-purple-500/25' : 'bg-slate-800/50 border-slate-700 hover:border-purple-500/50 hover:bg-slate-700/50'),
+                                    onClick: ()=>handleSongSelect(song),
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
+                                        className: "p-6",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "flex items-center gap-6",
                                             children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$music$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Music$3e$__["Music"], {
-                                                    className: "w-16 h-16 mx-auto mb-4 opacity-50"
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0",
+                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$music$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Music$3e$__["Music"], {
+                                                        className: "w-8 h-8 text-white"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/renderer/app/play/page.tsx",
+                                                        lineNumber: 111,
+                                                        columnNumber: 49
+                                                    }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                    lineNumber: 151,
-                                                    columnNumber: 41
+                                                    lineNumber: 110,
+                                                    columnNumber: 45
                                                 }, this),
-                                                "아직 사용 가능한 곡이 없습니다"
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 150,
-                                            columnNumber: 37
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                            className: "text-slate-500 mb-6",
-                                            children: "라이브러리 섹션에서 .osz 파일을 가져와서 플레이를 시작하세요"
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 154,
-                                            columnNumber: 37
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                            variant: "outline",
-                                            className: "border-slate-600 text-slate-300 hover:bg-slate-700",
-                                            onClick: ()=>window.location.href = '/select',
-                                            children: "라이브러리로 가기"
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 157,
-                                            columnNumber: 37
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/renderer/app/play/page.tsx",
-                                    lineNumber: 149,
-                                    columnNumber: 33
-                                }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "grid grid-cols-1 md:grid-cols-2 gap-4",
-                                    children: songs.slice(0, 8).map((song)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
-                                            className: "cursor-pointer transition-all duration-300 hover:scale-105 ".concat((selectedSong === null || selectedSong === void 0 ? void 0 : selectedSong.id) === song.id ? 'bg-slate-700 border-purple-500 shadow-lg shadow-purple-500/25' : 'bg-slate-800/50 border-slate-700 hover:border-slate-600'),
-                                            onClick: ()=>handleSongSelect(song),
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardHeader"], {
-                                                    className: "pb-2",
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "flex-1 min-w-0",
                                                     children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardTitle"], {
-                                                            className: "text-white text-lg truncate",
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                                            className: "text-xl font-semibold text-white mb-1 truncate",
                                                             children: song.title
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                            lineNumber: 177,
+                                                            lineNumber: 115,
                                                             columnNumber: 49
                                                         }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
-                                                            className: "text-slate-400 truncate",
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                            className: "text-slate-400 mb-2 truncate",
                                                             children: song.artist
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                            lineNumber: 178,
+                                                            lineNumber: 118,
+                                                            columnNumber: 49
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "flex items-center gap-4 text-sm text-slate-500",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: "flex items-center gap-1",
+                                                                    children: [
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__["Clock"], {
+                                                                            className: "w-4 h-4"
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/src/renderer/app/play/page.tsx",
+                                                                            lineNumber: 124,
+                                                                            columnNumber: 57
+                                                                        }, this),
+                                                                        formatDuration(song.duration)
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "[project]/src/renderer/app/play/page.tsx",
+                                                                    lineNumber: 123,
+                                                                    columnNumber: 53
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    children: [
+                                                                        "BPM: ",
+                                                                        song.bpm
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "[project]/src/renderer/app/play/page.tsx",
+                                                                    lineNumber: 127,
+                                                                    columnNumber: 53
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    children: [
+                                                                        "난이도: ★",
+                                                                        song.difficulty.easy
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "[project]/src/renderer/app/play/page.tsx",
+                                                                    lineNumber: 130,
+                                                                    columnNumber: 53
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/renderer/app/play/page.tsx",
+                                                            lineNumber: 122,
                                                             columnNumber: 49
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                    lineNumber: 176,
+                                                    lineNumber: 114,
                                                     columnNumber: 45
                                                 }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
+                                                (selectedSong === null || selectedSong === void 0 ? void 0 : selectedSong.id) === song.id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "flex-shrink-0",
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        className: "flex items-center justify-between text-sm text-slate-400",
-                                                        children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                className: "flex items-center gap-2",
-                                                                children: [
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__["Clock"], {
-                                                                        className: "w-4 h-4"
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                                        lineNumber: 183,
-                                                                        columnNumber: 57
-                                                                    }, this),
-                                                                    formatDuration(song.duration)
-                                                                ]
-                                                            }, void 0, true, {
-                                                                fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                                lineNumber: 182,
-                                                                columnNumber: 53
-                                                            }, this),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                className: "text-slate-500",
-                                                                children: [
-                                                                    song.bpm,
-                                                                    " BPM"
-                                                                ]
-                                                            }, void 0, true, {
-                                                                fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                                lineNumber: 186,
-                                                                columnNumber: 53
-                                                            }, this)
-                                                        ]
-                                                    }, void 0, true, {
+                                                        className: "w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center",
+                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "w-2 h-2 bg-white rounded-full"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/renderer/app/play/page.tsx",
+                                                            lineNumber: 139,
+                                                            columnNumber: 57
+                                                        }, this)
+                                                    }, void 0, false, {
                                                         fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                        lineNumber: 181,
-                                                        columnNumber: 49
+                                                        lineNumber: 138,
+                                                        columnNumber: 53
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                    lineNumber: 180,
-                                                    columnNumber: 45
+                                                    lineNumber: 137,
+                                                    columnNumber: 49
                                                 }, this)
                                             ]
-                                        }, song.id, true, {
+                                        }, void 0, true, {
                                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                                            lineNumber: 168,
+                                            lineNumber: 109,
                                             columnNumber: 41
-                                        }, this))
-                                }, void 0, false, {
-                                    fileName: "[project]/src/renderer/app/play/page.tsx",
-                                    lineNumber: 166,
-                                    columnNumber: 33
-                                }, this),
-                                selectedSong && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "mt-6 pt-6 border-t border-slate-600",
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "flex items-center justify-between",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
-                                                        className: "text-lg font-semibold text-white",
-                                                        children: selectedSong.title
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                        lineNumber: 200,
-                                                        columnNumber: 45
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                        className: "text-slate-400",
-                                                        children: selectedSong.artist
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                        lineNumber: 201,
-                                                        columnNumber: 45
-                                                    }, this)
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                lineNumber: 199,
-                                                columnNumber: 41
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                                onClick: startSelectedGame,
-                                                className: "bg-purple-500 hover:bg-purple-600 text-white px-8",
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$play$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Play$3e$__["Play"], {
-                                                        className: "w-4 h-4 mr-2"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                        lineNumber: 207,
-                                                        columnNumber: 45
-                                                    }, this),
-                                                    "게임 시작"
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/src/renderer/app/play/page.tsx",
-                                                lineNumber: 203,
-                                                columnNumber: 41
-                                            }, this)
-                                        ]
-                                    }, void 0, true, {
+                                        }, this)
+                                    }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/play/page.tsx",
-                                        lineNumber: 198,
+                                        lineNumber: 108,
                                         columnNumber: 37
                                     }, this)
-                                }, void 0, false, {
+                                }, song.id, false, {
                                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                                    lineNumber: 197,
+                                    lineNumber: 100,
                                     columnNumber: 33
-                                }, this)
-                            ]
-                        }, void 0, true, {
+                                }, this))
+                        }, void 0, false, {
                             fileName: "[project]/src/renderer/app/play/page.tsx",
-                            lineNumber: 142,
+                            lineNumber: 98,
                             columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/play/page.tsx",
-                    lineNumber: 135,
+                    lineNumber: 74,
+                    columnNumber: 17
+                }, this),
+                selectedSong && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "text-center",
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                        size: "lg",
+                        className: "bg-purple-500 hover:bg-purple-600 text-white px-12 py-4 text-lg",
+                        onClick: startPinGame,
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$target$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Target$3e$__["Target"], {
+                                className: "w-6 h-6 mr-2"
+                            }, void 0, false, {
+                                fileName: "[project]/src/renderer/app/play/page.tsx",
+                                lineNumber: 159,
+                                columnNumber: 29
+                            }, this),
+                            "핀 모드 시작"
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/renderer/app/play/page.tsx",
+                        lineNumber: 154,
+                        columnNumber: 25
+                    }, this)
+                }, void 0, false, {
+                    fileName: "[project]/src/renderer/app/play/page.tsx",
+                    lineNumber: 153,
                     columnNumber: 21
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/renderer/app/play/page.tsx",
-            lineNumber: 74,
+            lineNumber: 41,
             columnNumber: 13
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/renderer/app/play/page.tsx",
-        lineNumber: 73,
+        lineNumber: 40,
         columnNumber: 9
     }, this);
 }
-_s(PlayPage, "EWAliRHZq5eXS3xlN4VvoE+Kjdk=", false, function() {
+_s(PlayPage, "kf0J+dS8x3jl6PLUs9MeVN37eCI=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useSongs$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSongs"],
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useGameState$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useGameState"]

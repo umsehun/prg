@@ -14,7 +14,7 @@ export function setupIpcHandlers() {
         }
     });
 
-    ipcMain.handle('songs:toggle-favorite', async (event, songId: string) => {
+    ipcMain.handle('songs:toggle-favorite', async (_event, songId: string) => {
         // This is a placeholder. In a real app, you would have a database or
         // a file where you store user preferences.
         console.log(`Toggling favorite for song ID: ${songId}`);

@@ -5,7 +5,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import type { SongData } from '@shared/d.ts/ipc';
+import type { SongData } from '../../shared/d.ts/ipc';
 
 interface UseSongsReturn {
     songs: SongData[];
@@ -14,6 +14,7 @@ interface UseSongsReturn {
     refreshLibrary: () => Promise<void>;
     importOsz: (filePath: string) => Promise<boolean>;
     getSong: (id: string) => SongData | undefined;
+    importFromFile: (file: File) => Promise<boolean>;
 }
 
 export function useSongs(): UseSongsReturn {
@@ -26,20 +27,24 @@ export function useSongs(): UseSongsReturn {
             setLoading(true);
             setError(null);
 
-            if (typeof window !== 'undefined' && window.electronAPI?.osz) {
-                const library = await window.electronAPI.osz.getLibrary();
-                setSongs(library);
+            if (typeof window !== 'undefined' && (window as any).electronAPI?.osz) {
+                const library = await (window as any).electronAPI.osz.getLibrary();
+                if (library && Array.isArray(library)) {
+                    setSongs(library);
+                } else {
+                    // 라이브러리가 비어있는 경우
+                    setSongs([]);
+                }
             } else {
-                // Fallback for web or missing IPC
-                console.warn('Electron IPC not available, using mock data');
-                setSongs(getMockSongs());
+                // Electron IPC를 사용할 수 없는 경우
+                console.warn('Electron IPC not available');
+                setSongs([]);
+                setError('Electron IPC를 사용할 수 없습니다');
             }
         } catch (err) {
             console.error('Failed to load song library:', err);
-            setError(err instanceof Error ? err.message : 'Failed to load songs');
-
-            // Fallback to mock data on error
-            setSongs(getMockSongs());
+            setError('곡 라이브러리를 불러오는 데 실패했습니다');
+            setSongs([]);
         } finally {
             setLoading(false);
         }
@@ -49,26 +54,66 @@ export function useSongs(): UseSongsReturn {
         try {
             setError(null);
 
-            if (typeof window !== 'undefined' && window.electronAPI?.osz) {
-                const songData = await window.electronAPI.osz.importFile(filePath);
-                setSongs(prev => [...prev, songData]);
-                return true;
+            if (typeof window !== 'undefined' && (window as any).electronAPI?.osz) {
+                const result = await (window as any).electronAPI.osz.importFromPath(filePath);
+
+                if (result.success) {
+                    // Refresh library after successful import
+                    await refreshLibrary();
+                    return true;
+                } else {
+                    setError(result.error || 'OSZ 파일 가져오기에 실패했습니다');
+                    return false;
+                }
             } else {
-                console.warn('Electron IPC not available for OSZ import');
+                setError('Electron IPC를 사용할 수 없습니다');
                 return false;
             }
         } catch (err) {
-            console.error('Failed to import OSZ file:', err);
-            setError(err instanceof Error ? err.message : 'Failed to import OSZ');
+            console.error('Failed to import OSZ:', err);
+            setError('OSZ 파일 가져오기 중 오류가 발생했습니다');
             return false;
         }
-    }, []);
+    }, [refreshLibrary]);
+
+    const importFromFile = useCallback(async (file: File): Promise<boolean> => {
+        try {
+            setError(null);
+
+            if (typeof window !== 'undefined' && (window as any).electronAPI?.osz) {
+                // Convert File to buffer for IPC
+                const arrayBuffer = await file.arrayBuffer();
+                const buffer = new Uint8Array(arrayBuffer);
+
+                const result = await (window as any).electronAPI.osz.importFromBuffer({
+                    name: file.name,
+                    buffer: buffer
+                });
+
+                if (result.success) {
+                    // Refresh library after successful import
+                    await refreshLibrary();
+                    return true;
+                } else {
+                    setError(result.error || 'OSZ 파일 가져오기에 실패했습니다');
+                    return false;
+                }
+            } else {
+                setError('Electron IPC를 사용할 수 없습니다');
+                return false;
+            }
+        } catch (err) {
+            console.error('Failed to import file:', err);
+            setError('파일 가져오기 중 오류가 발생했습니다');
+            return false;
+        }
+    }, [refreshLibrary]);
 
     const getSong = useCallback((id: string): SongData | undefined => {
         return songs.find(song => song.id === id);
     }, [songs]);
 
-    // Load library on mount
+    // Load songs on mount
     useEffect(() => {
         refreshLibrary();
     }, [refreshLibrary]);
@@ -79,80 +124,9 @@ export function useSongs(): UseSongsReturn {
         error,
         refreshLibrary,
         importOsz,
-        getSong
+        getSong,
+        importFromFile,
     };
 }
 
-// Mock data for development/fallback
-function getMockSongs(): SongData[] {
-    return [
-        {
-            id: 'ahoy',
-            title: 'Ahoy! 我ら宝鳥海賊団☆',
-            artist: '宝鳥マリン',
-            audioFile: '/assets/ahoy/ahoy.mp3',
-            backgroundImage: '/assets/ahoy/bg.jpg',
-            difficulty: {
-                easy: 2,
-                normal: 4,
-                hard: 6,
-                expert: 8
-            },
-            bpm: 160,
-            duration: 180000, // 3 minutes
-            filePath: '/assets/ahoy/ahoy.osz',
-            notes: []
-        },
-        {
-            id: 'badapple',
-            title: 'Bad Apple!!',
-            artist: 'Alstroemeria Records',
-            audioFile: '/assets/bad-apple/badapple.mp3',
-            backgroundImage: '/assets/bad-apple/bg.jpg',
-            difficulty: {
-                easy: 3,
-                normal: 5,
-                hard: 7,
-                expert: 9
-            },
-            bpm: 138,
-            duration: 219000, // 3:39
-            filePath: '/assets/bad-apple/badapple.osz',
-            notes: []
-        },
-        {
-            id: 'jinxed',
-            title: 'Get Jinxed',
-            artist: 'Riot Games',
-            audioFile: '/assets/jink/Get-Jinxed.mp3',
-            backgroundImage: '/assets/jink/bg.jpg',
-            difficulty: {
-                easy: 4,
-                normal: 6,
-                hard: 8,
-                expert: 10
-            },
-            bpm: 175,
-            duration: 195000, // 3:15
-            filePath: '/assets/jink/Get-Jinxed.osz',
-            notes: []
-        },
-        {
-            id: 'popinto',
-            title: 'Pop in to',
-            artist: 'Various Artists',
-            audioFile: '/assets/pop/popInTo.mp3',
-            backgroundImage: '/assets/pop/bg.jpg',
-            difficulty: {
-                easy: 2,
-                normal: 4,
-                hard: 6,
-                expert: 7
-            },
-            bpm: 120,
-            duration: 165000, // 2:45
-            filePath: '/assets/pop/popInTo.osz',
-            notes: []
-        }
-    ];
-}
+export default useSongs;

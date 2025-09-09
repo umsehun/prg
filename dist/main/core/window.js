@@ -30,8 +30,7 @@ async function createWindow() {
             webSecurity: true // Always keep web security enabled
         },
         // Window styling
-        frame: false,
-        titleBarStyle: 'hidden',
+        frame: true,
         ...(process.platform === 'darwin' && {
             vibrancy: 'under-window',
             trafficLightPosition: { x: 15, y: 13 },
