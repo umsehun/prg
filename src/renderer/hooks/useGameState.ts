@@ -63,36 +63,44 @@ export function useGameState(): UseGameStateReturn {
     const gameStartTime = useRef<number>(0);
     const isPlaying = gameState === 'playing';
 
-    const startGame = useCallback(async (song: SongData, mode: GameMode): Promise<boolean> => {
+    const startGame = useCallback(async (song: SongData, mode: GameMode = 'pin'): Promise<boolean> => {
         try {
             setGameState('loading');
 
-            // ✅ CRITICAL FIX: Use unified ipc-service pattern
+            // ✅ CRITICAL FIX: Always stop any existing game first
+            try {
+                await ipcService.stopGame();
+                console.log('🛑 Stopped existing game session');
+            } catch (stopError) {
+                console.log('ℹ️ No existing game to stop:', stopError);
+            }
+
+            // ✅ SIMPLIFIED: Always use pin mode (osu mapping for backend compatibility)
             const chartData = {
                 id: song.id,
                 title: song.title,
                 artist: song.artist,
                 difficulty: 'Normal',
-                audioPath: song.audioFile || `/audio/${song.id}.mp3`, // ✅ Fix: Add audioPath
+                audioPath: song.audioFile || `/audio/${song.id}.mp3`,
                 backgroundPath: song.backgroundImage || undefined,
                 duration: song.duration,
                 bpm: song.bpm,
             };
 
-            console.log('🎮 Starting game with unified IPC service:', chartData);
+            console.log('🎮 Starting pin game with chart:', chartData);
 
             const gameStartParams = {
                 chartData,
-                gameMode: mode === 'pin' ? 'osu' : mode,
+                gameMode: 'osu', // Always use osu for backend compatibility
                 mods: [] as string[]
             };
 
-            // ✅ Use ipcService instead of direct window.electronAPI
+            // ✅ Start new game session
             const gameSession = await ipcService.startGame(gameStartParams);
-            console.log('🎮 Game session started:', gameSession);
+            console.log('🎮 Pin game session started:', gameSession);
 
             setCurrentSong(song);
-            setGameMode(mode);
+            setGameMode('pin'); // Always set to pin mode
             setGameState('playing');
             gameStartTime.current = Date.now();
             resetStats();
@@ -107,13 +115,22 @@ export function useGameState(): UseGameStateReturn {
 
     const stopGame = useCallback(async (): Promise<void> => {
         try {
-            await ipcService.stopGame();
+            // Only try to stop if game is actually running
+            if (gameState === 'playing' || gameState === 'paused') {
+                await ipcService.stopGame();
+            } else {
+                console.log('🛑 No game running, skipping stop command');
+            }
+
             setGameState('idle');
             setCurrentSong(null);
         } catch (error) {
-            console.error('❌ Failed to stop game:', error);
+            console.log('ℹ️ Stop game error (may be expected):', error);
+            // Always reset state even if stop fails
+            setGameState('idle');
+            setCurrentSong(null);
         }
-    }, []);
+    }, [gameState]);
 
     const pauseGame = useCallback(async (): Promise<void> => {
         try {

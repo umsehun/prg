@@ -14,7 +14,7 @@ import { useSongs } from '@/hooks/useSongs';
 import { useGameState } from '@/hooks/useGameState';
 
 export default function SelectPage() {
-    const { songs, loading, error, refreshLibrary } = useSongs();
+    const { songs, loading, error, refreshLibrary, hasDummyData } = useSongs();
     const { startGame } = useGameState();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
@@ -34,12 +34,19 @@ export default function SelectPage() {
         });
     }, [songs, searchQuery, selectedDifficulty]);
 
-    const handlePlaySong = async (songId: string, mode: 'osu' | 'pin' = 'pin') => {
+    const handlePlaySong = async (songId: string) => {
         const song = songs.find(s => s.id === songId);
         if (song) {
-            await startGame(song, mode);
-            // Navigate to game page or pin page based on mode
-            window.location.href = mode === 'pin' ? '/pin' : '/game';
+            console.log('🎯 Starting pin game for:', song.title);
+
+            // ✅ SIMPLIFIED: Always use pin mode, start game and navigate
+            const success = await startGame(song, 'pin');
+            if (success) {
+                console.log('✅ Pin game started, navigating to /pin');
+                window.location.href = '/pin';
+            } else {
+                console.error('❌ Failed to start pin game');
+            }
         }
     };
 
@@ -84,6 +91,29 @@ export default function SelectPage() {
     return (
         <div className="min-h-full bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 p-6 pt-20">
             <div className="max-w-7xl mx-auto">
+                {/* Dummy Data Warning */}
+                {hasDummyData && (
+                    <div className="mb-6">
+                        <Card className="bg-yellow-900/20 border-yellow-500/30">
+                            <CardContent className="p-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
+                                        <Zap className="w-4 h-4 text-yellow-900" />
+                                    </div>
+                                    <div>
+                                        <p className="text-yellow-200 font-medium">
+                                            테스트 모드: 더미 데이터를 사용 중입니다
+                                        </p>
+                                        <p className="text-yellow-300 text-sm">
+                                            OSZ 파일이 파싱되지 않았거나 곡이 부족합니다. 실제 음악을 들을 수 없습니다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
+
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-4">
@@ -117,10 +147,13 @@ export default function SelectPage() {
                                             const result = await electronAPI.charts.getLibrary();
                                             console.log('✅ Charts API test successful:', result);
 
-                                            // Copy to clipboard
-                                            navigator.clipboard.writeText(JSON.stringify(result, null, 2))
-                                                .then(() => console.log('📋 Results copied to clipboard!'))
-                                                .catch(err => console.error('❌ Failed to copy:', err));
+                                            // Try to copy to clipboard (with error handling)
+                                            try {
+                                                await navigator.clipboard.writeText(JSON.stringify(result, null, 2));
+                                                console.log('📋 Results copied to clipboard!');
+                                            } catch (clipboardError) {
+                                                console.log('ℹ️ Clipboard copy failed (expected in some environments):', clipboardError);
+                                            }
 
                                         } catch (error) {
                                             console.error('❌ Charts API test failed:', error);
@@ -260,23 +293,15 @@ export default function SelectPage() {
                                         )}
                                     </div>
 
-                                    {/* Action Buttons */}
+                                    {/* Action Button - Simplified to Pin Mode Only */}
                                     <div className="flex gap-2 pt-2">
                                         <Button
                                             size="sm"
-                                            onClick={() => handlePlaySong(song.id, 'pin')}
-                                            className="flex-1 bg-purple-500 hover:bg-purple-600 text-white"
+                                            onClick={() => handlePlaySong(song.id)}
+                                            className="w-full bg-purple-500 hover:bg-purple-600 text-white"
                                         >
                                             <Play className="w-4 h-4 mr-2" />
-                                            핀 모드
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => handlePlaySong(song.id, 'osu')}
-                                            className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700"
-                                        >
-                                            osu! 모드
+                                            핀 모드로 플레이
                                         </Button>
                                     </div>
                                 </CardContent>

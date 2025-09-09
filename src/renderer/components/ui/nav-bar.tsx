@@ -26,24 +26,6 @@ const navItems = [
         description: '곡 선택'
     },
     {
-        name: 'Play',
-        href: '/play',
-        icon: Play,
-        description: '플레이'
-    },
-    {
-        name: 'Game',
-        href: '/game',
-        icon: Gamepad2,
-        description: '게임'
-    },
-    {
-        name: 'Pin',
-        href: '/pin',
-        icon: Pin,
-        description: '핀 모드'
-    },
-    {
         name: 'Settings',
         href: '/settings',
         icon: Settings,

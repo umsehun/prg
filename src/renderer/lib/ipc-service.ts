@@ -8,11 +8,10 @@ interface ChartData {
     title: string
     artist: string
     difficulty: string
+    audioPath: string
+    backgroundPath?: string
     duration: number
     bpm: number
-    notes: any[]
-    audio?: string
-    background?: string
 }
 
 interface GameSession {

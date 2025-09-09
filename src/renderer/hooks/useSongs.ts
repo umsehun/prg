@@ -1,11 +1,12 @@
 /**
- * useSongs Hook - Manages song library and OSZ files
+ * useSongs Hook - Manages song library and OSZ files with dummy data fallback
  */
 
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import type { SongData } from '../../shared/d.ts/ipc';
+import { getMixedSongs, isDummySong } from '../lib/dummy-data';
 
 interface UseSongsReturn {
     songs: SongData[];
@@ -15,12 +16,14 @@ interface UseSongsReturn {
     importOsz: (filePath: string) => Promise<boolean>;
     getSong: (id: string) => SongData | undefined;
     importFromFile: (file: File) => Promise<boolean>;
+    hasDummyData: boolean;
 }
 
 export function useSongs(): UseSongsReturn {
     const [songs, setSongs] = useState<SongData[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [hasDummyData, setHasDummyData] = useState(false);
 
     const refreshLibrary = useCallback(async () => {
         console.log('🔄 refreshLibrary called');
@@ -35,6 +38,8 @@ export function useSongs(): UseSongsReturn {
                 hasOsz: !!((window as any).electronAPI?.osz),
                 apis: (window as any).electronAPI ? Object.keys((window as any).electronAPI) : 'undefined'
             });
+
+            let realSongs: SongData[] = [];
 
             if (typeof window !== 'undefined' && (window as any).electronAPI) {
                 const electronAPI = (window as any).electronAPI;
@@ -75,13 +80,13 @@ export function useSongs(): UseSongsReturn {
                 }
 
                 if (charts && Array.isArray(charts)) {
-                    console.log(`✅ Found ${charts.length} charts`);
+                    console.log(`✅ Found ${charts.length} real charts`);
                     // Convert chart data to SongData format
-                    const songData = charts.map((chart: any) => ({
+                    realSongs = charts.map((chart: any) => ({
                         id: chart.id,
                         title: chart.title,
                         artist: chart.artist,
-                        audioFile: chart.audioPath || '', // Use audioPath from chart data
+                        audioFile: chart.audioPath || chart.audioFile || '',
                         backgroundImage: chart.backgroundImage || '',
                         difficulty: {
                             easy: 2,
@@ -91,22 +96,23 @@ export function useSongs(): UseSongsReturn {
                         },
                         bpm: chart.bpm,
                         duration: chart.duration,
-                        filePath: '',
-                        notes: []
+                        filePath: chart.filePath || '',
+                        notes: chart.notes || []
                     }));
-                    setSongs(songData);
-                    console.log('✅ Songs set:', songData);
-                } else {
-                    // 라이브러리가 비어있거나 실패한 경우
-                    console.warn('⚠️ Library empty or failed:', charts);
-                    setSongs([]);
-                    setError('곡 라이브러리를 불러올 수 없습니다');
                 }
+            }
+
+            // Use mixed songs (real + dummy if needed)
+            const finalSongs = getMixedSongs(realSongs);
+            const hasDummy = finalSongs.some(song => isDummySong(song.id));
+
+            setSongs(finalSongs);
+            setHasDummyData(hasDummy);
+
+            if (hasDummy) {
+                console.log(`🎵 Using ${realSongs.length} real songs + ${finalSongs.length - realSongs.length} dummy songs`);
             } else {
-                // Electron IPC를 사용할 수 없는 경우
-                console.error('❌ Electron IPC not available');
-                setSongs([]);
-                setError('Electron IPC를 사용할 수 없습니다');
+                console.log(`✅ Using ${finalSongs.length} real songs only`);
             }
         } catch (err) {
             console.error('💥 Failed to load song library:', err);
@@ -191,6 +197,7 @@ export function useSongs(): UseSongsReturn {
         importOsz,
         getSong,
         importFromFile,
+        hasDummyData
     };
 }
 

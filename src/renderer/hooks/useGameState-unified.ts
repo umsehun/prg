@@ -67,17 +67,16 @@ export function useGameState(): UseGameStateReturn {
         try {
             setGameState('loading');
 
-            // ✅ CRITICAL FIX: Use unified ipc-service pattern
+            // ✅ CRITICAL FIX: Use unified ipc-service pattern with correct field names
             const chartData = {
                 id: song.id,
                 title: song.title,
                 artist: song.artist,
                 difficulty: 'Normal',
+                audioPath: song.audioFile || `/audio/${song.id}.mp3`,
+                backgroundPath: song.backgroundImage,
                 duration: song.duration,
                 bpm: song.bpm,
-                notes: [], // Add required field
-                audio: song.audioFile,
-                background: song.backgroundImage,
             };
 
             console.log('🎮 Starting game with unified IPC service:', chartData);

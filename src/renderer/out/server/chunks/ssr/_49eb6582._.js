@@ -467,10 +467,17 @@ function useGameState() {
     });
     const gameStartTime = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRef"])(0);
     const isPlaying = gameState === 'playing';
-    const startGame = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (song, mode)=>{
+    const startGame = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (song, mode = 'pin')=>{
         try {
             setGameState('loading');
-            // ✅ CRITICAL FIX: Use unified ipc-service pattern
+            // ✅ CRITICAL FIX: Always stop any existing game first
+            try {
+                await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$ipc$2d$service$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ipcService"].stopGame();
+                console.log('🛑 Stopped existing game session');
+            } catch (stopError) {
+                console.log('ℹ️ No existing game to stop:', stopError);
+            }
+            // ✅ SIMPLIFIED: Always use pin mode (osu mapping for backend compatibility)
             const chartData = {
                 id: song.id,
                 title: song.title,
@@ -481,17 +488,17 @@ function useGameState() {
                 duration: song.duration,
                 bpm: song.bpm
             };
-            console.log('🎮 Starting game with unified IPC service:', chartData);
+            console.log('🎮 Starting pin game with chart:', chartData);
             const gameStartParams = {
                 chartData,
-                gameMode: mode === 'pin' ? 'osu' : mode,
+                gameMode: 'osu',
                 mods: []
             };
-            // ✅ Use ipcService instead of direct window.electronAPI
+            // ✅ Start new game session
             const gameSession = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$ipc$2d$service$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ipcService"].startGame(gameStartParams);
-            console.log('🎮 Game session started:', gameSession);
+            console.log('🎮 Pin game session started:', gameSession);
             setCurrentSong(song);
-            setGameMode(mode);
+            setGameMode('pin'); // Always set to pin mode
             setGameState('playing');
             gameStartTime.current = Date.now();
             resetStats();
