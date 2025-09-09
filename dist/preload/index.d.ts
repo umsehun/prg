@@ -61,6 +61,12 @@ declare const chartsApi: {
     getAudio: (chartId: string) => Promise<ArrayBuffer | null>;
     getBackground: (chartId: string) => Promise<ArrayBuffer | null>;
 };
+declare const oszApi: {
+    getLibrary: () => Promise<any>;
+    importFile: (filePath: string) => Promise<any>;
+    parseOsz: (filePath: string) => Promise<any>;
+    getAudioPath: (songId: string) => Promise<string>;
+};
 declare const settingsApi: {
     getAll: () => Promise<Settings>;
     set: (key: string, value: any) => Promise<void>;
@@ -77,6 +83,7 @@ declare const systemApi: {
 export interface ElectronAPI {
     game: typeof gameApi;
     charts: typeof chartsApi;
+    osz: typeof oszApi;
     settings: typeof settingsApi;
     system: typeof systemApi;
 }

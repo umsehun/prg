@@ -31,23 +31,57 @@ export function useSongs(): UseSongsReturn {
             console.log('🔍 Checking window.electronAPI:', {
                 hasWindow: typeof window !== 'undefined',
                 hasElectronAPI: !!(window as any).electronAPI,
+                hasCharts: !!((window as any).electronAPI?.charts),
                 hasOsz: !!((window as any).electronAPI?.osz),
-                osz: (window as any).electronAPI?.osz ? Object.keys((window as any).electronAPI.osz) : 'undefined'
+                apis: (window as any).electronAPI ? Object.keys((window as any).electronAPI) : 'undefined'
             });
 
-            if (typeof window !== 'undefined' && (window as any).electronAPI?.osz) {
-                console.log('📞 Calling electronAPI.osz.getLibrary()');
-                const response = await (window as any).electronAPI.osz.getLibrary();
-                console.log('📨 IPC Response:', response);
+            if (typeof window !== 'undefined' && (window as any).electronAPI) {
+                const electronAPI = (window as any).electronAPI;
+                let charts = null;
 
-                if (response && response.success && Array.isArray(response.charts)) {
-                    console.log(`✅ Found ${response.charts.length} charts`);
-                    // Convert chart metadata to SongData format
-                    const songData = response.charts.map((chart: any) => ({
+                // Try charts API first (new way)
+                if (electronAPI.charts?.getLibrary) {
+                    console.log('📞 Calling electronAPI.charts.getLibrary()');
+                    try {
+                        const response = await electronAPI.charts.getLibrary();
+                        console.log('📨 Charts API Response:', response);
+
+                        if (response && response.success && Array.isArray(response.charts)) {
+                            charts = response.charts;
+                        } else if (Array.isArray(response)) {
+                            charts = response;
+                        }
+                    } catch (chartError) {
+                        console.warn('⚠️ Charts API failed:', chartError);
+                    }
+                }
+
+                // Try OSZ API as fallback (old way)
+                if (!charts && electronAPI.osz?.getLibrary) {
+                    console.log('📞 Fallback to electronAPI.osz.getLibrary()');
+                    try {
+                        const response = await electronAPI.osz.getLibrary();
+                        console.log('📨 OSZ API Response:', response);
+
+                        if (response && response.success && Array.isArray(response.charts)) {
+                            charts = response.charts;
+                        } else if (Array.isArray(response)) {
+                            charts = response;
+                        }
+                    } catch (oszError) {
+                        console.warn('⚠️ OSZ API failed:', oszError);
+                    }
+                }
+
+                if (charts && Array.isArray(charts)) {
+                    console.log(`✅ Found ${charts.length} charts`);
+                    // Convert chart data to SongData format
+                    const songData = charts.map((chart: any) => ({
                         id: chart.id,
                         title: chart.title,
                         artist: chart.artist,
-                        audioFile: '', // Will be loaded when needed
+                        audioFile: chart.audioPath || '', // Use audioPath from chart data
                         backgroundImage: chart.backgroundImage || '',
                         difficulty: {
                             easy: 2,
@@ -64,11 +98,9 @@ export function useSongs(): UseSongsReturn {
                     console.log('✅ Songs set:', songData);
                 } else {
                     // 라이브러리가 비어있거나 실패한 경우
-                    console.warn('⚠️ Library empty or failed:', response);
+                    console.warn('⚠️ Library empty or failed:', charts);
                     setSongs([]);
-                    if (response && response.error) {
-                        setError(response.error);
-                    }
+                    setError('곡 라이브러리를 불러올 수 없습니다');
                 }
             } else {
                 // Electron IPC를 사용할 수 없는 경우

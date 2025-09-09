@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/providers/theme-provider'
+import { NavBar } from '@/components/ui/nav-bar'
 import { cn } from '@/lib/utils'
 
 
@@ -55,6 +56,10 @@ export default function RootLayout({
                     disableTransitionOnChange
                 >
                     <div className="relative flex min-h-screen flex-col bg-slate-950">
+                        {/* Navigation Bar - positioned below title bar */}
+                        <NavBar />
+
+                        {/* Main Content Area */}
                         <main className="flex-1 overflow-y-auto">
                             {children}
                         </main>

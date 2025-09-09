@@ -102,6 +102,25 @@ const chartsApi = {
         ipcRenderer.invoke('osz:get-background', chartId),
 };
 
+// OSZ API (legacy compatibility)
+const oszApi = {
+    // Get chart library (same as charts.getLibrary)
+    getLibrary: (): Promise<any> =>
+        ipcRenderer.invoke('osz:get-library'),
+
+    // Import OSZ file
+    importFile: (filePath: string): Promise<any> =>
+        ipcRenderer.invoke('osz:import', filePath),
+
+    // Parse OSZ file
+    parseOsz: (filePath: string): Promise<any> =>
+        ipcRenderer.invoke('osz:parse', filePath),
+
+    // Get audio path
+    getAudioPath: (songId: string): Promise<string> =>
+        ipcRenderer.invoke('osz:get-audio-path', songId),
+};
+
 // Settings API with proper typing
 const settingsApi = {
     // Get all settings
@@ -149,6 +168,7 @@ const systemApi = {
 export interface ElectronAPI {
     game: typeof gameApi;
     charts: typeof chartsApi;
+    osz: typeof oszApi; // Add OSZ API for legacy compatibility
     settings: typeof settingsApi;
     system: typeof systemApi;
 }
@@ -157,6 +177,7 @@ export interface ElectronAPI {
 contextBridge.exposeInMainWorld('electronAPI', {
     game: gameApi,
     charts: chartsApi,
+    osz: oszApi, // Add OSZ API
     settings: settingsApi,
     system: systemApi
 } as ElectronAPI);
@@ -166,6 +187,7 @@ console.log('✅ Preload script (TypeScript) loaded successfully');
 console.log('✅ ElectronAPI exposed with types:', {
     game: Object.keys(gameApi),
     charts: Object.keys(chartsApi),
+    osz: Object.keys(oszApi), // Add OSZ API logging
     settings: Object.keys(settingsApi),
     system: Object.keys(systemApi)
 });

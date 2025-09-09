@@ -73,11 +73,10 @@ export function useGameState(): UseGameStateReturn {
                 title: song.title,
                 artist: song.artist,
                 difficulty: 'Normal',
+                audioPath: song.audioFile || `/audio/${song.id}.mp3`, // ✅ Fix: Add audioPath
+                backgroundPath: song.backgroundImage || undefined,
                 duration: song.duration,
                 bpm: song.bpm,
-                notes: [], // Add required field
-                audio: song.audioFile,
-                background: song.backgroundImage,
             };
 
             console.log('🎮 Starting game with unified IPC service:', chartData);

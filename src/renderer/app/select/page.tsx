@@ -101,14 +101,53 @@ export default function SelectPage() {
 
                     <div className="flex items-center gap-4">
                         <Button
-                            onClick={() => {
+                            onClick={async () => {
                                 console.log('🧪 Testing IPC connection...');
-                                console.log('window.electronAPI:', (window as any).electronAPI);
+                                const electronAPI = (window as any).electronAPI;
+                                console.log('window.electronAPI:', electronAPI);
+
+                                if (electronAPI) {
+                                    console.log('Available APIs:', Object.keys(electronAPI));
+
+                                    if (electronAPI.charts) {
+                                        console.log('Charts API methods:', Object.keys(electronAPI.charts));
+
+                                        // Test actual API call
+                                        try {
+                                            const result = await electronAPI.charts.getLibrary();
+                                            console.log('✅ Charts API test successful:', result);
+
+                                            // Copy to clipboard
+                                            navigator.clipboard.writeText(JSON.stringify(result, null, 2))
+                                                .then(() => console.log('📋 Results copied to clipboard!'))
+                                                .catch(err => console.error('❌ Failed to copy:', err));
+
+                                        } catch (error) {
+                                            console.error('❌ Charts API test failed:', error);
+                                        }
+                                    }
+
+                                    if (electronAPI.osz) {
+                                        console.log('OSZ API methods:', Object.keys(electronAPI.osz));
+
+                                        // Test OSZ API
+                                        try {
+                                            const result = await electronAPI.osz.getLibrary();
+                                            console.log('✅ OSZ API test successful:', result);
+                                        } catch (error) {
+                                            console.error('❌ OSZ API test failed:', error);
+                                        }
+                                    }
+
+                                } else {
+                                    console.error('❌ electronAPI not found on window object');
+                                    console.log('window keys:', Object.keys(window));
+                                }
                             }}
                             variant="outline"
                             className="border-blue-500 text-blue-300 hover:bg-blue-600 hover:text-white"
                         >
-                            Test IPC
+                            Test IPC & Copy
                         </Button>
                         <Button
                             onClick={refreshLibrary}

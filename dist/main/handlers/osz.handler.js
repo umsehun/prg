@@ -8,6 +8,7 @@ exports.setupOszHandlers = setupOszHandlers;
 const electron_1 = require("electron");
 const zod_1 = require("zod");
 const osz_parser_1 = require("../services/osz-parser");
+const simple_osz_parser_1 = require("../services/simple-osz-parser");
 const ChartImportService_1 = require("../services/ChartImportService");
 const logger_1 = require("../../shared/globals/logger");
 const error_handling_1 = require("../../shared/utils/error-handling");
@@ -97,6 +98,58 @@ function convertToChartMetadata(content) {
 }
 function setupOszHandlers(mainWindow) {
     logger_1.logger.ipc('info', 'Setting up OSZ handlers');
+    /**
+     * Parse OSZ file handler (Simple version)
+     */
+    electron_1.ipcMain.handle('osz:parse', async (_event, filePath) => {
+        const operationId = `osz-parse-${Date.now()}`;
+        logger_1.logger.ipc('info', 'OSZ parse requested (simple)', { operationId, filePath });
+        try {
+            if (!filePath) {
+                return { success: false, error: 'File path is required' };
+            }
+            // Use simple parser for more reliable parsing
+            const content = await simple_osz_parser_1.SimpleOSZParser.parseOSZFile(filePath);
+            if (!content) {
+                return { success: false, error: 'Failed to parse OSZ file' };
+            }
+            logger_1.logger.ipc('info', 'OSZ parsed successfully (simple)', {
+                operationId,
+                title: content.title,
+                artist: content.artist
+            });
+            return {
+                success: true,
+                chart: content
+            };
+        }
+        catch (error) {
+            logger_1.logger.ipc('error', 'OSZ parse failed (simple)', {
+                operationId,
+                error: error instanceof Error ? error.message : String(error)
+            });
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown parsing error'
+            };
+        }
+    });
+    /**
+     * Get audio path handler
+     */
+    electron_1.ipcMain.handle('osz:get-audio-path', async (_event, songId) => {
+        const operationId = `osz-audio-path-${Date.now()}`;
+        logger_1.logger.ipc('info', 'Audio path requested', { operationId, songId });
+        try {
+            // This is a simplified implementation
+            // In a real app, you'd look up the chart and return the actual audio path
+            return `/path/to/audio/${songId}.mp3`;
+        }
+        catch (error) {
+            logger_1.logger.ipc('error', 'Failed to get audio path', { operationId, error });
+            return '';
+        }
+    });
     /**
      * Import OSZ file handler
      */

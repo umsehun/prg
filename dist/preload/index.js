@@ -44,6 +44,17 @@ const chartsApi = {
     // Get background image
     getBackground: (chartId) => electron_1.ipcRenderer.invoke('osz:get-background', chartId),
 };
+// OSZ API (legacy compatibility)
+const oszApi = {
+    // Get chart library (same as charts.getLibrary)
+    getLibrary: () => electron_1.ipcRenderer.invoke('osz:get-library'),
+    // Import OSZ file
+    importFile: (filePath) => electron_1.ipcRenderer.invoke('osz:import', filePath),
+    // Parse OSZ file
+    parseOsz: (filePath) => electron_1.ipcRenderer.invoke('osz:parse', filePath),
+    // Get audio path
+    getAudioPath: (songId) => electron_1.ipcRenderer.invoke('osz:get-audio-path', songId),
+};
 // Settings API with proper typing
 const settingsApi = {
     // Get all settings
@@ -76,6 +87,7 @@ const systemApi = {
 electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     game: gameApi,
     charts: chartsApi,
+    osz: oszApi, // Add OSZ API
     settings: settingsApi,
     system: systemApi
 });
@@ -84,6 +96,7 @@ console.log('✅ Preload script (TypeScript) loaded successfully');
 console.log('✅ ElectronAPI exposed with types:', {
     game: Object.keys(gameApi),
     charts: Object.keys(chartsApi),
+    osz: Object.keys(oszApi), // Add OSZ API logging
     settings: Object.keys(settingsApi),
     system: Object.keys(systemApi)
 });
