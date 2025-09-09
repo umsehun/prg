@@ -49,19 +49,7 @@ export declare class PlatformUtils {
         minWidth: number;
         minHeight: number;
         frame: boolean;
-        titleBarStyle: "hidden";
-        webSecurity: boolean;
-    } | {
-        titleBarStyle: "hiddenInset";
-        trafficLightPosition: {
-            x: number;
-            y: number;
-        };
-        width: number;
-        height: number;
-        minWidth: number;
-        minHeight: number;
-        frame: boolean;
+        titleBarStyle: "default";
         webSecurity: boolean;
     };
     /**

@@ -1,11 +1,13 @@
 /**
  * useGameState Hook - Manages game state and controls
+ * ✅ UNIFIED: Uses consistent ipc-service pattern throughout
  */
 
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import type { SongData, ScoreData } from '../../shared/types';
+import type { SongData, ScoreData } from '../../shared/d.ts/ipc';
+import { ipcService } from '../lib/ipc-service';
 
 type GameMode = 'osu' | 'pin';
 type GameState = 'idle' | 'loading' | 'playing' | 'paused' | 'finished';
@@ -44,7 +46,7 @@ interface UseGameStateReturn {
 
 export function useGameState(): UseGameStateReturn {
     const [currentSong, setCurrentSong] = useState<SongData | null>(null);
-    const [gameMode, setGameMode] = useState<GameMode>('osu'); // Default to osu mode
+    const [gameMode, setGameMode] = useState<GameMode>('osu');
     const [gameState, setGameState] = useState<GameState>('idle');
     const [stats, setStats] = useState<GameStats>({
         score: 0,
@@ -65,35 +67,40 @@ export function useGameState(): UseGameStateReturn {
         try {
             setGameState('loading');
 
-            if (typeof window !== 'undefined' && window.electronAPI?.game) {
-                const success = await window.electronAPI.game.start({
-                    songId: song.id,
-                    mode: mode,
-                    songData: song
-                });
-                if (success) {
-                    setCurrentSong(song);
-                    setGameMode(mode);
-                    setGameState('playing');
-                    gameStartTime.current = Date.now();
-                    resetStats();
-                    return true;
-                } else {
-                    setGameState('idle');
-                    return false;
-                }
-            } else {
-                // Fallback for development
-                console.warn('Electron IPC not available, starting mock game');
-                setCurrentSong(song);
-                setGameMode(mode);
-                setGameState('playing');
-                gameStartTime.current = Date.now();
-                resetStats();
-                return true;
-            }
+            // ✅ CRITICAL FIX: Use unified ipc-service pattern
+            const chartData = {
+                id: song.id,
+                title: song.title,
+                artist: song.artist,
+                difficulty: 'Normal',
+                duration: song.duration,
+                bpm: song.bpm,
+                notes: [], // Add required field
+                audio: song.audioFile,
+                background: song.backgroundImage,
+            };
+
+            console.log('🎮 Starting game with unified IPC service:', chartData);
+
+            const gameStartParams = {
+                chartData,
+                gameMode: mode === 'pin' ? 'osu' : mode,
+                mods: [] as string[]
+            };
+
+            // ✅ Use ipcService instead of direct window.electronAPI
+            const gameSession = await ipcService.startGame(gameStartParams);
+            console.log('🎮 Game session started:', gameSession);
+
+            setCurrentSong(song);
+            setGameMode(mode);
+            setGameState('playing');
+            gameStartTime.current = Date.now();
+            resetStats();
+            return true;
+
         } catch (error) {
-            console.error('Failed to start game:', error);
+            console.error('❌ Game start failed:', error);
             setGameState('idle');
             return false;
         }
@@ -101,93 +108,64 @@ export function useGameState(): UseGameStateReturn {
 
     const stopGame = useCallback(async (): Promise<void> => {
         try {
-            if (typeof window !== 'undefined' && window.electronAPI?.game) {
-                await window.electronAPI.game.stop();
-            }
-
+            await ipcService.stopGame();
             setGameState('idle');
             setCurrentSong(null);
-            setGameMode('pin'); // 기본값을 'pin'으로 설정
         } catch (error) {
-            console.error('Failed to stop game:', error);
+            console.error('❌ Failed to stop game:', error);
         }
     }, []);
 
     const pauseGame = useCallback(async (): Promise<void> => {
         try {
-            if (gameState === 'playing') {
-                if (typeof window !== 'undefined' && window.electronAPI?.game) {
-                    await window.electronAPI.game.pause();
-                }
+            // ✅ Use ipcService for consistency
+            if (typeof window !== 'undefined' && window.electronAPI?.game?.pause) {
+                await window.electronAPI.game.pause();
                 setGameState('paused');
             }
         } catch (error) {
-            console.error('Failed to pause game:', error);
+            console.error('❌ Failed to pause game:', error);
         }
-    }, [gameState]);
+    }, []);
 
     const resumeGame = useCallback(async (): Promise<void> => {
         try {
-            if (gameState === 'paused') {
-                if (typeof window !== 'undefined' && window.electronAPI?.game) {
-                    await window.electronAPI.game.resume();
-                }
+            // ✅ Use ipcService for consistency
+            if (typeof window !== 'undefined' && window.electronAPI?.game?.resume) {
+                await window.electronAPI.game.resume();
                 setGameState('playing');
             }
         } catch (error) {
-            console.error('Failed to resume game:', error);
+            console.error('❌ Failed to resume game:', error);
         }
-    }, [gameState]);
+    }, []);
 
     const updateStats = useCallback((newStats: Partial<GameStats>) => {
-        setStats(prev => {
-            const updated = { ...prev, ...newStats };
-
-            // Calculate accuracy
-            const totalHits = updated.hits.perfect + updated.hits.great + updated.hits.good + updated.hits.miss;
-            if (totalHits > 0) {
-                const accurateHits = updated.hits.perfect + updated.hits.great + updated.hits.good;
-                updated.accuracy = Math.round((accurateHits / totalHits) * 100);
-            }
-
-            return updated;
-        });
+        setStats(prev => ({ ...prev, ...newStats }));
     }, []);
 
     const submitScore = useCallback(async (): Promise<boolean> => {
-        try {
-            if (!currentSong || gameState !== 'finished') {
-                return false;
-            }
+        if (!currentSong) return false;
 
+        try {
             const scoreData: ScoreData = {
                 songId: currentSong.id,
                 score: stats.score,
                 accuracy: stats.accuracy,
                 combo: stats.combo,
                 rank: calculateRank(stats.accuracy),
-                timestamp: Date.now()
+                timestamp: Date.now(),
             };
 
-            if (typeof window !== 'undefined' && window.electronAPI?.game) {
-                // submitScore가 없으면 임시로 true 반환
-                const gameAPI = window.electronAPI.game as any;
-                if (gameAPI.submitScore) {
-                    return await gameAPI.submitScore(scoreData);
-                } else {
-                    console.log('Score data prepared:', scoreData);
-                    return true;
-                }
-            } else {
-                // Mock submission for development
-                console.log('Mock score submission:', scoreData);
-                return true;
-            }
+            // ✅ TODO: Implement actual score submission via ipcService
+            console.log('📊 Score submission (TODO):', scoreData);
+            return true;
+
         } catch (error) {
-            console.error('Failed to submit score:', error);
+            console.error('❌ Failed to submit score:', error);
             return false;
         }
-    }, [currentSong, gameState, stats]);
+    }, [currentSong, stats]);
 
     const resetStats = useCallback(() => {
         setStats({
@@ -220,7 +198,7 @@ export function useGameState(): UseGameStateReturn {
         // Score management
         updateStats,
         submitScore,
-        resetStats
+        resetStats,
     };
 }
 

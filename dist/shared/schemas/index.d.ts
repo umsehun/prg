@@ -1625,10 +1625,10 @@ export declare const AllSchemas: {
                 enableDebugMode: import("zod").ZodDefault<import("zod").ZodBoolean>;
                 showDebugInfo: import("zod").ZodDefault<import("zod").ZodBoolean>;
                 logLevel: import("zod").ZodDefault<import("zod").ZodEnum<{
-                    debug: "debug";
-                    info: "info";
-                    warn: "warn";
                     error: "error";
+                    info: "info";
+                    debug: "debug";
+                    warn: "warn";
                 }>>;
                 enablePerformanceLogging: import("zod").ZodDefault<import("zod").ZodBoolean>;
                 verboseLogging: import("zod").ZodDefault<import("zod").ZodBoolean>;
@@ -1795,10 +1795,10 @@ export declare const AllSchemas: {
             enableDebugMode: import("zod").ZodDefault<import("zod").ZodBoolean>;
             showDebugInfo: import("zod").ZodDefault<import("zod").ZodBoolean>;
             logLevel: import("zod").ZodDefault<import("zod").ZodEnum<{
-                debug: "debug";
-                info: "info";
-                warn: "warn";
                 error: "error";
+                info: "info";
+                debug: "debug";
+                warn: "warn";
             }>>;
             enablePerformanceLogging: import("zod").ZodDefault<import("zod").ZodBoolean>;
             verboseLogging: import("zod").ZodDefault<import("zod").ZodBoolean>;
@@ -1851,9 +1851,9 @@ export declare const AllSchemas: {
             path: import("zod").ZodString;
             value: import("zod").ZodUnknown;
             operation: import("zod").ZodDefault<import("zod").ZodEnum<{
+                delete: "delete";
                 set: "set";
                 merge: "merge";
-                delete: "delete";
             }>>;
         }, import("zod/v4/core/schemas.cjs").$strict>;
         readonly ValidationResult: import("zod").ZodObject<{
@@ -1863,8 +1863,8 @@ export declare const AllSchemas: {
                 message: import("zod").ZodString;
                 code: import("zod").ZodString;
                 severity: import("zod").ZodEnum<{
-                    info: "info";
                     error: "error";
+                    info: "info";
                     warning: "warning";
                 }>;
             }, import("zod/v4/core/schemas.cjs").$strip>>>;

@@ -41,7 +41,14 @@ export async function setupSecurityPolicies(): Promise<void> {
                         "img-src 'self' data: blob: prg-media:; " +
                         "media-src 'self' blob: prg-media:; " +
                         "connect-src 'self';"
-                    ]
+                    ],
+                    // ✅ Additional security headers
+                    'X-Frame-Options': ['DENY'],
+                    'X-Content-Type-Options': ['nosniff'],
+                    'X-XSS-Protection': ['1; mode=block'],
+                    'Referrer-Policy': ['strict-origin-when-cross-origin'],
+                    'Permissions-Policy': ['camera=(), microphone=(), geolocation=()'],
+                    'Strict-Transport-Security': ['max-age=31536000; includeSubDomains']
                 }
             });
         });

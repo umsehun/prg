@@ -14,6 +14,8 @@ const lifecycle_1 = require("../managers/lifecycle");
 const settings_manager_1 = require("../managers/settings-manager");
 const platform_1 = require("../utils/platform");
 const security_1 = require("./security");
+const menu_1 = require("./menu");
+const menubar_debug_1 = require("./menubar-debug");
 /**
  * Main application class that orchestrates all core components
  */
@@ -73,6 +75,36 @@ class ApplicationCore {
         }
         try {
             logger_1.logger.info('app', 'Starting application initialization');
+            // Set application name VERY EARLY for menubar
+            electron_1.app.setName('Pin Rhythm');
+            // ✅ CRITICAL: For macOS menubar visibility  
+            if (platform_1.PlatformUtils.isMacOS) {
+                // ENSURE LSUIElement is NOT set (this would hide menubar)
+                delete process.env.LSUIElement;
+                process.env.LSUIElement = 'false';
+                // ✅ CRITICAL: Disable automatic menu creation
+                electron_1.app.setAboutPanelOptions({
+                    applicationName: 'Pin Rhythm',
+                    applicationVersion: electron_1.app.getVersion(),
+                    version: electron_1.app.getVersion(),
+                    authors: ['Pin Rhythm Team']
+                });
+                // Ensure dock is visible (critical for menubar)
+                try {
+                    electron_1.app.dock?.show();
+                }
+                catch (e) {
+                    logger_1.logger.warn('app', 'Could not show dock:', e);
+                }
+                // Set bundle info early
+                process.env.CFBundleName = 'Pin Rhythm';
+                process.env.CFBundleDisplayName = 'Pin Rhythm';
+                process.env.CFBundleIdentifier = 'com.pinrhythm.app';
+                // Additional bundle info to ensure normal app behavior
+                process.env.CFBundlePackageType = 'APPL';
+                process.env.CFBundleExecutable = 'Pin Rhythm';
+            }
+            logger_1.logger.info('app', `✅ App name set to: ${electron_1.app.getName()}`);
             // Log platform information
             logger_1.logger.info('app', `Platform: ${platform_1.PlatformUtils.info.name} (${platform_1.PlatformUtils.info.arch})`);
             logger_1.logger.info('app', `Electron: ${platform_1.PlatformUtils.info.version}`);
@@ -85,7 +117,15 @@ class ApplicationCore {
             this.registerCustomProtocols();
             // Setup lifecycle handlers
             this.lifecycleManager.setup();
-            // Create main window
+            // ✅ CRITICAL: Set menu BEFORE creating window (macOS requirement)
+            if (platform_1.PlatformUtils.isMacOS) {
+                (0, menubar_debug_1.debugMacOSMenuBar)();
+            }
+            (0, menu_1.setupApplicationMenu)();
+            if (platform_1.PlatformUtils.isMacOS) {
+                (0, menubar_debug_1.forceMacOSMenuBarVisible)();
+            }
+            // Create main window AFTER menu is set
             const mainWindow = await this.windowManager.createMainWindow();
             // Initialize IPC handlers
             await this.ipcManager.initialize(mainWindow);

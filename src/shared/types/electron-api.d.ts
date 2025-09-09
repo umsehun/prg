@@ -1,0 +1,84 @@
+/**
+ * Global type definitions for Electron API
+ * Available in renderer process through contextBridge
+ */
+
+// Type definitions for API interfaces
+interface ThrowData {
+    timestamp: number;
+    angle: number;
+    force: number;
+    position: { x: number; y: number };
+}
+
+interface ChartData {
+    id: string;
+    title: string;
+    artist: string;
+    difficulty: string;
+    audioPath: string;
+    backgroundPath?: string;
+    bpm: number;
+    duration: number;
+}
+
+interface KnifeResult {
+    success: boolean;
+    judgment?: 'KOOL' | 'COOL' | 'GOOD' | 'MISS';
+    score?: number;
+    combo?: number;
+}
+
+interface Settings {
+    [key: string]: any;
+}
+
+interface MessageBoxOptions {
+    type?: 'info' | 'warning' | 'error' | 'question';
+    title?: string;
+    message: string;
+    buttons?: string[];
+}
+
+// Main ElectronAPI interface
+export interface ElectronAPI {
+    game: {
+        start: (params: { chartData: ChartData; gameMode: string; mods?: string[] }) => Promise<{ success: boolean; message?: string; error?: string }>;
+        stop: () => Promise<void>;
+        throwKnife: (throwData: ThrowData) => void;
+        pause: () => Promise<void>;
+        resume: () => Promise<void>;
+        onKnifeResult: (callback: (result: KnifeResult) => void) => () => void;
+        onKnifeThrowProcessed: (callback: (data: any) => void) => () => void;
+    };
+    charts: {
+        getLibrary: () => Promise<ChartData[]>;
+        getChart: (chartId: string) => Promise<ChartData | null>;
+        import: (filePath: string) => Promise<boolean>;
+        remove: (chartId: string) => Promise<boolean>;
+        getAudio: (chartId: string) => Promise<ArrayBuffer | null>;
+        getBackground: (chartId: string) => Promise<ArrayBuffer | null>;
+    };
+    settings: {
+        getAll: () => Promise<Settings>;
+        set: (key: string, value: any) => Promise<void>;
+        reset: () => Promise<void>;
+        onChange: (callback: (settings: Settings) => void) => () => void;
+    };
+    system: {
+        getVersion: () => Promise<string>;
+        openExternal: (url: string) => Promise<void>;
+        showMessageBox: (options: MessageBoxOptions) => Promise<number>;
+        platform: NodeJS.Platform;
+        isDev: boolean;
+    };
+}
+
+// Global Window interface extension
+declare global {
+    interface Window {
+        electronAPI: ElectronAPI;
+    }
+}
+
+export { };

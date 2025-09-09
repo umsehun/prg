@@ -28,6 +28,7 @@ interface WindowConfig {
   };
   show: boolean;
   autoHideMenuBar: boolean;
+  menuBarVisible?: boolean; // ✅ Add optional menuBarVisible
   titleBarStyle: 'default' | 'hidden' | 'hiddenInset' | 'customButtonsOnHover';
   icon?: string;
   vibrancy?: 'under-window' | 'appearance-based';
@@ -77,6 +78,19 @@ export class WindowManager {
 
           // Restore window state if available
           this.restoreWindowState();
+
+          // ✅ FORCE menubar visibility on macOS after window is shown
+          if (PlatformUtils.isMacOS) {
+            setTimeout(() => {
+              try {
+                const { forceMacOSMenuBarVisible } = require('../core/menubar-debug');
+                forceMacOSMenuBarVisible();
+                logger.info('window', '🔄 Forced menubar visibility after window ready');
+              } catch (e) {
+                logger.warn('window', 'Could not force menubar after ready:', e);
+              }
+            }, 500);
+          }
 
           logger.info('window', 'Main window shown');
         }
@@ -139,17 +153,18 @@ export class WindowManager {
       ...platformConfig,
       width: windowWidth,
       height: windowHeight,
-      show: true,
-      autoHideMenuBar: true,
+      show: false, // ✅ Don't show immediately - wait for ready-to-show
+      autoHideMenuBar: false, // ✅ Show menu bar (Windows/Linux)
+      menuBarVisible: true, // ✅ Explicit menubar visibility
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        sandbox: true,
-        preload: join(__dirname, '../../preload/index.js'),
+        sandbox: false, // ✅ Disable sandbox temporarily for IPC debugging
+        preload: join(__dirname, '../../preload/index.js'), // ✅ Fix: dist/preload/index.js
         allowRunningInsecureContent: false,
         experimentalFeatures: false,
         devTools: process.env.NODE_ENV === 'development',
-        webSecurity: true,
+        webSecurity: process.env.NODE_ENV !== 'development', // ✅ Disable in dev for testing
       },
     };
 

@@ -10,7 +10,7 @@ declare global {
     interface Window {
         electronAPI?: {
             game: {
-                start: (chartData: any) => Promise<{ success: boolean; message?: string; error?: string }>;
+                start: (gameStartParams: { chartData: any; gameMode: string; mods?: string[] }) => Promise<{ success: boolean; message?: string; error?: string }>;
                 stop: () => Promise<{ success: boolean; message?: string; error?: string }>;
                 throwKnife: (throwData: { id: string; time: number }) => void;
                 pause: () => Promise<{ success: boolean; isPaused?: boolean; error?: string }>;

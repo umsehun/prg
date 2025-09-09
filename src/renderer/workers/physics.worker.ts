@@ -301,23 +301,43 @@ class PhysicsSimulation {
     }
 
     dispose(): void {
+        // Clear all physics bodies first
         World.clear(this.world, false);
         Engine.clear(this.engine);
+
+        // Clear collections and prevent memory leaks
         this.knives.clear();
         this.stuckKnives.clear();
+
+        // Reset state
+        this.target = null;
+        this.config = null;
+        this.lastTime = 0;
+        this.targetAngle = 0;
+
+        // Log disposal for debugging
+        console.log('🧹 Physics simulation disposed - memory cleaned');
     }
 }
 
 // Worker implementation
 const physics = new PhysicsSimulation();
 let animationId: number;
+let isDisposed = false;
 
 function gameLoop(currentTime: number): void {
+    if (isDisposed) return; // ✅ Prevent execution after disposal
+
     const deltaTime = currentTime - (physics as any).lastTime || 16.67; // ~60fps default
     (physics as any).lastTime = currentTime;
 
-    physics.update(deltaTime);
-    animationId = requestAnimationFrame(gameLoop);
+    // Limit delta time to prevent large jumps
+    const clampedDelta = Math.min(deltaTime, 33.33); // Max 30fps minimum
+    physics.update(clampedDelta);
+
+    if (!isDisposed) { // ✅ Check again before scheduling next frame
+        animationId = requestAnimationFrame(gameLoop);
+    }
 }
 
 // Message handler
@@ -335,10 +355,12 @@ self.onmessage = (event: MessageEvent<WorkerMessage>) => {
             break;
 
         case 'dispose':
+            isDisposed = true; // ✅ Mark as disposed first
             if (animationId) {
                 cancelAnimationFrame(animationId);
             }
             physics.dispose();
+            console.log('🧹 Physics worker disposed successfully');
             break;
     }
 };

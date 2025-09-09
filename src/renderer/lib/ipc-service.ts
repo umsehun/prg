@@ -70,20 +70,20 @@ class IPCService {
     }
 
     // Game methods
-    async startGame(chartId: string): Promise<GameSession> {
-        const result = await this.api.game.start(chartId)
+    async startGame(params: { chartData: ChartData; gameMode: string; mods?: string[] }): Promise<GameSession> {
+        const result = await this.api.game.start(params); // ✅ Fixed: Pass proper params object
         if (!result.success) {
-            throw new Error(result.error || 'Failed to start game')
+            throw new Error(result.error || 'Failed to start game');
         }
         // Mock GameSession for now - this should come from the backend
         return {
             sessionId: 'mock-session-' + Date.now(),
-            chartId,
+            chartId: params.chartData.id,
             startTime: Date.now(),
             score: 0,
             accuracy: 1.0,
             combo: 0
-        }
+        };
     }
 
     async stopGame(): Promise<void> {

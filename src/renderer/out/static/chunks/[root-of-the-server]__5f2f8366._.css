@@ -830,10 +830,6 @@ img, video {
   height: 1px;
 }
 
-.h-screen {
-  height: 100vh;
-}
-
 .max-h-96 {
   max-height: 24rem;
 }
@@ -924,10 +920,6 @@ img, video {
 
 .w-full {
   width: 100%;
-}
-
-.w-screen {
-  width: 100vw;
 }
 
 .min-w-0 {
@@ -1286,6 +1278,11 @@ img, video {
 
 .border-blue-400\/50 {
   border-color: rgba(96, 165, 250, .5);
+}
+
+.border-blue-500 {
+  --tw-border-opacity: 1;
+  border-color: rgba(59, 130, 246, var(--tw-border-opacity));
 }
 
 .border-border\/50 {
@@ -2008,6 +2005,11 @@ img, video {
   letter-spacing: .05em;
 }
 
+.text-blue-300 {
+  --tw-text-opacity: 1;
+  color: rgba(147, 197, 253, var(--tw-text-opacity));
+}
+
 .text-blue-400 {
   --tw-text-opacity: 1;
   color: rgba(96, 165, 250, var(--tw-text-opacity));
@@ -2317,8 +2319,6 @@ html {
 
 body {
   background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 50%, var(--bg-surface) 100%);
-  background-attachment: fixed;
-  min-height: 100vh;
   font-family: Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
   overflow-x: hidden;
 }
@@ -2556,6 +2556,11 @@ body {
 
 .hover\:bg-black\/40:hover {
   background-color: rgba(0, 0, 0, .4);
+}
+
+.hover\:bg-blue-600:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgba(37, 99, 235, var(--tw-bg-opacity));
 }
 
 .hover\:bg-blue-700:hover {

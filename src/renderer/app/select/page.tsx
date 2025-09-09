@@ -99,10 +99,26 @@ export default function SelectPage() {
                         </div>
                     </div>
 
-                    <Button onClick={refreshLibrary} variant="outline" className="border-purple-500 text-purple-300">
-                        <RefreshCw className="w-4 h-4 mr-2" />
-                        새로고침
-                    </Button>
+                    <div className="flex items-center gap-4">
+                        <Button
+                            onClick={() => {
+                                console.log('🧪 Testing IPC connection...');
+                                console.log('window.electronAPI:', (window as any).electronAPI);
+                            }}
+                            variant="outline"
+                            className="border-blue-500 text-blue-300 hover:bg-blue-600 hover:text-white"
+                        >
+                            Test IPC
+                        </Button>
+                        <Button
+                            onClick={refreshLibrary}
+                            variant="outline"
+                            className="border-purple-500 text-purple-300 hover:bg-purple-600 hover:text-white"
+                        >
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                            새로고침
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Search and Filters */}
@@ -191,9 +207,9 @@ export default function SelectPage() {
                                                 <div
                                                     key={diff}
                                                     className={`px-2 py-1 rounded text-xs font-medium ${diff === 'easy' ? 'bg-green-500/20 text-green-400' :
-                                                            diff === 'normal' ? 'bg-blue-500/20 text-blue-400' :
-                                                                diff === 'hard' ? 'bg-yellow-500/20 text-yellow-400' :
-                                                                    'bg-red-500/20 text-red-400'
+                                                        diff === 'normal' ? 'bg-blue-500/20 text-blue-400' :
+                                                            diff === 'hard' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                                'bg-red-500/20 text-red-400'
                                                         }`}
                                                 >
                                                     {diff === 'easy' ? '쉬움' :

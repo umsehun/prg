@@ -79,9 +79,15 @@ export function AppHeader({ currentPage = 'home', onNavigate }: AppHeaderProps) 
     ];
 
     return (
-        <header className="isolate fixed top-0 left-0 right-0 z-[9999] h-16 flex items-center justify-between px-4 select-none bg-gray-900 border-b border-gray-700 shadow-lg">
+        <header
+            className="isolate fixed top-0 left-0 right-0 z-[9999] h-16 flex items-center justify-between px-4 select-none bg-gray-900 border-b border-gray-700 shadow-lg"
+            style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
+        >
             {/* Left: App Title & Navigation */}
-            <div className="flex items-center gap-8">
+            <div
+                className="flex items-center gap-8"
+                style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+            >
                 <div className="flex items-center gap-4">
                     <div className="w-8 h-8 bg-purple-600 rounded flex items-center justify-center">
                         <Target className="w-5 h-5 text-white" />
@@ -121,7 +127,10 @@ export function AppHeader({ currentPage = 'home', onNavigate }: AppHeaderProps) 
 
             {/* Right: Window Controls */}
             {platform !== 'darwin' && (
-                <div className="flex items-center gap-1">
+                <div
+                    className="flex items-center gap-1"
+                    style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+                >
                     <Button
                         variant="ghost"
                         size="sm"

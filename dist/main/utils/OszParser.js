@@ -142,6 +142,15 @@ class OszParser {
                                 filePath: outputDir,
                                 notes: songData.notes || []
                             };
+                            // Save chart data as JSON
+                            try {
+                                const chartDataPath = (0, path_1.join)(outputDir, 'chart.json');
+                                await fs_1.promises.writeFile(chartDataPath, JSON.stringify(finalSongData, null, 2));
+                                logger_1.logger.debug('osz-parser', `Saved chart data: ${chartDataPath}`);
+                            }
+                            catch (saveError) {
+                                logger_1.logger.error('osz-parser', `Failed to save chart data: ${saveError}`);
+                            }
                             logger_1.logger.info('osz-parser', `Successfully parsed: ${finalSongData.title} by ${finalSongData.artist}`);
                             resolve(finalSongData);
                         }

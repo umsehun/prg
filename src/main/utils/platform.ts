@@ -108,8 +108,8 @@ export class PlatformUtils {
             height: 800,
             minWidth: 800,
             minHeight: 600,
-            frame: false, // Custom frame for all platforms
-            titleBarStyle: 'hidden' as const,
+            frame: true, // ✅ CRITICAL FIX: Show standard OS titlebar
+            titleBarStyle: 'default' as const, // ✅ CRITICAL FIX: Use default titlebar
             webSecurity: false,
         };
 
@@ -117,8 +117,9 @@ export class PlatformUtils {
             case 'macos':
                 return {
                     ...baseConfig,
-                    titleBarStyle: 'hiddenInset' as const,
-                    trafficLightPosition: { x: 15, y: 10 },
+                    // ✅ CRITICAL FIX: Use default macOS titlebar (removed hiddenInset)
+                    titleBarStyle: 'default' as const,
+                    // trafficLightPosition removed - not needed with default titlebar
                 };
 
             case 'windows':

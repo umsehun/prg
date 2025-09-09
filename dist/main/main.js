@@ -7,6 +7,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const logger_1 = require("../shared/globals/logger");
 const app_1 = require("./core/app");
+const menu_1 = require("./core/menu");
+const menubar_debug_1 = require("./core/menubar-debug");
 /**
  * Bootstrap the application
  */
@@ -15,6 +17,12 @@ async function bootstrap() {
         logger_1.logger.info('main', 'Starting PRG Application');
         // Wait for Electron to be ready
         await electron_1.app.whenReady();
+        // ✅ CRITICAL: Force menu setup IMMEDIATELY after ready
+        if (process.platform === 'darwin') {
+            logger_1.logger.info('main', '🍎 macOS detected - forcing menu setup after ready');
+            (0, menu_1.setupApplicationMenu)();
+            (0, menubar_debug_1.forceMacOSMenuBarVisible)();
+        }
         // Initialize the application core
         await app_1.appCore.initialize();
         logger_1.logger.info('main', '✅ PRG Application started successfully');

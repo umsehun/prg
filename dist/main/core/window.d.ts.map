@@ -1,1 +1,1 @@
-{"version":3,"file":"window.d.ts","sourceRoot":"","sources":["../../../src/main/core/window.ts"],"names":[],"mappings":"AAAA;;GAEG;AAEH,OAAO,EAAE,aAAa,EAAa,MAAM,UAAU,CAAC;AAGpD,wBAAsB,YAAY,IAAI,OAAO,CAAC,aAAa,CAAC,CAmF3D"}
+{"version":3,"file":"window.d.ts","sourceRoot":"","sources":["../../../src/main/core/window.ts"],"names":[],"mappings":"AAAA;;GAEG;AAEH,OAAO,EAAE,aAAa,EAAE,MAAM,UAAU,CAAC;AAGzC,wBAAsB,YAAY,IAAI,OAAO,CAAC,aAAa,CAAC,CA+E3D"}

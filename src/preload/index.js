@@ -92,4 +92,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     system: systemApi
 });
 
-console.log('Preload script loaded successfully');
+console.log('✅ Preload script loaded successfully');
+console.log('✅ ElectronAPI exposed:', {
+    game: Object.keys(gameApi),
+    charts: Object.keys(chartsApi),
+    settings: Object.keys(settingsApi),
+    system: Object.keys(systemApi)
+});

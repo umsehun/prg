@@ -2,7 +2,7 @@
  * Electron window creation with enhanced security
  */
 
-import { BrowserWindow, Menu, app } from 'electron';
+import { BrowserWindow } from 'electron';
 import { join } from 'path';
 
 export async function createWindow(): Promise<BrowserWindow> {
@@ -13,14 +13,15 @@ export async function createWindow(): Promise<BrowserWindow> {
         height: 800,
         minWidth: 800,
         minHeight: 600,
-        show: false, // Don't show until ready-to-show
-        autoHideMenuBar: !isDev, // Hide menu bar in production
+        title: 'Pin Rhythm - 혁신적인 리듬 게임', // 창 타이틀 설정
+        show: true, // 즉시 창 표시하여 타이틀바 확인
+        autoHideMenuBar: false, // 개발 중에는 메뉴바도 표시
 
         webPreferences: {
             // Security settings
             nodeIntegration: false,
             contextIsolation: true,
-            sandbox: true, // Enable sandbox for better security
+            sandbox: false, // IPC를 위해 sandbox 비활성화
 
             // Preload script
             preload: join(__dirname, '../../preload/index.js'),
@@ -34,12 +35,9 @@ export async function createWindow(): Promise<BrowserWindow> {
             webSecurity: true // Always keep web security enabled
         },
 
-        // Window styling
-        frame: true,
-        ...(process.platform === 'darwin' && {
-            vibrancy: 'under-window',
-            trafficLightPosition: { x: 15, y: 13 },
-        }),
+        // Window styling: 기본 OS 프레임 사용
+        frame: true, // 기본 프레임 명시적 사용
+        titleBarStyle: 'default', // 명시적으로 기본 타이틀바 스타일 지정
 
         // Icon (only set for Linux)
         ...(process.platform === 'linux' && { icon: join(__dirname, '../../../public/icon.png') })
@@ -57,10 +55,8 @@ export async function createWindow(): Promise<BrowserWindow> {
         await window.loadFile(join(__dirname, '../../renderer/out/index.html'));
     }
 
-    // Show window when ready
+    // Focus window when ready in development
     window.once('ready-to-show', () => {
-        window.show();
-
         if (isDev) {
             window.focus();
         }

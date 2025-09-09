@@ -6,6 +6,8 @@
 import { app } from 'electron';
 import { logger } from '../shared/globals/logger';
 import { appCore } from './core/app';
+import { setupApplicationMenu } from './core/menu';
+import { forceMacOSMenuBarVisible } from './core/menubar-debug';
 
 /**
  * Bootstrap the application
@@ -16,6 +18,13 @@ async function bootstrap(): Promise<void> {
 
         // Wait for Electron to be ready
         await app.whenReady();
+
+        // ✅ CRITICAL: Force menu setup IMMEDIATELY after ready
+        if (process.platform === 'darwin') {
+            logger.info('main', '🍎 macOS detected - forcing menu setup after ready');
+            setupApplicationMenu();
+            forceMacOSMenuBarVisible();
+        }
 
         // Initialize the application core
         await appCore.initialize();

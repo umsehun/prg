@@ -1,8 +1,10 @@
 {
   "/_not-found/page": "/_not-found",
+  "/home/page": "/home",
+  "/page": "/",
   "/settings/page": "/settings",
-  "/select/page": "/select",
-  "/settings_new/page": "/settings_new",
   "/game/page": "/game",
-  "/page": "/"
+  "/pin/page": "/pin",
+  "/play/page": "/play",
+  "/select/page": "/select"
 }

@@ -6,6 +6,7 @@
 import { ipcMain, dialog, BrowserWindow } from 'electron';
 import { z } from 'zod';
 import { SimplifiedOSZParser, type OSZContent } from '../services/osz-parser';
+import { ChartImportService } from '../services/ChartImportService';
 import { logger } from '../../shared/globals/logger';
 import { ResultHandler } from '../../shared/utils/error-handling';
 import type { Result } from '../../shared/globals/types.d';
@@ -85,6 +86,7 @@ class ChartLibrary {
 }
 
 const chartLibrary = new ChartLibrary();
+const chartImportService = new ChartImportService();
 
 /**
  * Validation schemas for IPC parameters
@@ -249,23 +251,47 @@ export function setupOszHandlers(mainWindow: BrowserWindow): void {
     });
 
     /**
-     * Get chart library handler
+     * Get chart library handler - Auto-scan and parse OSZ files
      */
     ipcMain.handle('osz:get-library', async (_event): Promise<OSZLibraryResponse> => {
         const operationId = `osz-library-${Date.now()}`;
         logger.ipc('info', 'Chart library requested', { operationId });
 
         try {
-            const charts = chartLibrary.getChartMetadata();
+            // First, auto-scan and parse OSZ files from public/assets
+            logger.ipc('info', 'Auto-scanning OSZ files...', { operationId });
+            await chartImportService.autoScanAndParseOszFiles();
+
+            // Then get the parsed charts
+            const charts = await chartImportService.getChartList();
+
+            // Convert to expected format  
+            const chartMetadata = charts.map(chart => {
+                const metadata: any = {
+                    id: chart.id,
+                    title: chart.title,
+                    artist: chart.artist,
+                    creator: chart.artist,
+                    difficulties: ['Easy', 'Normal', 'Hard'] as const,
+                    duration: chart.duration,
+                    bpm: chart.bpm
+                };
+
+                if (chart.backgroundImage) {
+                    metadata.backgroundImage = chart.backgroundImage;
+                }
+
+                return metadata;
+            });
 
             logger.ipc('info', 'Chart library retrieved', {
                 operationId,
-                chartCount: charts.length
+                chartCount: chartMetadata.length
             });
 
             return {
                 success: true,
-                charts,
+                charts: chartMetadata,
             };
 
         } catch (error) {

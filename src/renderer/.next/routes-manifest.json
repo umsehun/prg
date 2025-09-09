@@ -39,6 +39,24 @@
       "namedRegex": "^/game(?:/)?$"
     },
     {
+      "page": "/home",
+      "regex": "^/home(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/home(?:/)?$"
+    },
+    {
+      "page": "/pin",
+      "regex": "^/pin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pin(?:/)?$"
+    },
+    {
+      "page": "/play",
+      "regex": "^/play(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/play(?:/)?$"
+    },
+    {
       "page": "/select",
       "regex": "^/select(?:/)?$",
       "routeKeys": {},
@@ -49,12 +67,6 @@
       "regex": "^/settings(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/settings(?:/)?$"
-    },
-    {
-      "page": "/settings_new",
-      "regex": "^/settings_new(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/settings_new(?:/)?$"
     }
   ],
   "dataRoutes": [],
