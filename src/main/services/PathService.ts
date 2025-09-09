@@ -32,7 +32,8 @@ export class PathService {
      * Get the app data directory path (Application Support)
      */
     public getAppDataPath(): string {
-        return join(this.getUserDataPath(), 'prg');
+        // Use direct path to Application Support/prg instead of Electron's userData
+        return join(require('os').homedir(), 'Library', 'Application Support', 'prg');
     }
 
     /**
@@ -47,6 +48,13 @@ export class PathService {
      */
     public getSettingsPath(): string {
         return join(this.getAppDataPath(), 'settings.json');
+    }
+
+    /**
+     * Get the library.json file path
+     */
+    public getLibraryPath(): string {
+        return join(this.getAppDataPath(), 'library.json');
     }
 
     /**

@@ -24,6 +24,10 @@ export declare class PathService {
      */
     getSettingsPath(): string;
     /**
+     * Get the library.json file path
+     */
+    getLibraryPath(): string;
+    /**
      * Ensure a directory exists, create if it doesn't
      */
     ensureDirectory(dirPath: string): Promise<void>;

@@ -8,7 +8,7 @@ exports.ChartImportService = void 0;
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 const PathService_1 = require("./PathService");
-const OszParser_1 = require("../utils/OszParser");
+const AdvancedOszParser_1 = require("../utils/AdvancedOszParser");
 const MediaConverter_1 = require("./MediaConverter");
 const logger_1 = require("../../shared/globals/logger");
 class ChartImportService {
@@ -32,8 +32,72 @@ class ChartImportService {
             value: void 0
         });
         this.pathService = new PathService_1.PathService();
-        this.parser = new OszParser_1.OszParser();
+        this.parser = new AdvancedOszParser_1.AdvancedOszParser();
         this.mediaConverter = MediaConverter_1.MediaConverter.getInstance();
+    }
+    /**
+     * Load charts from library.json file (real OSZ data)
+     */
+    async loadLibraryJson() {
+        try {
+            const libraryPath = this.pathService.getLibraryPath();
+            logger_1.logger.info('chart-import', `Loading library from: ${libraryPath}`);
+            // Check if library.json exists
+            try {
+                await fs_1.promises.access(libraryPath);
+            }
+            catch {
+                logger_1.logger.warn('chart-import', 'library.json not found');
+                return [];
+            }
+            // Read and parse library.json
+            const data = await fs_1.promises.readFile(libraryPath, 'utf-8');
+            const libraryData = JSON.parse(data);
+            if (!Array.isArray(libraryData)) {
+                logger_1.logger.error('chart-import', 'Invalid library.json format');
+                return [];
+            }
+            // Convert library.json format to SongData format
+            const songs = libraryData.map((chart) => {
+                // Extract real difficulty data
+                let difficultyData = {
+                    easy: 1,
+                    normal: 3,
+                    hard: 5,
+                    expert: 7
+                };
+                if (chart.difficulties && Array.isArray(chart.difficulties) && chart.difficulties.length > 0) {
+                    const diffs = chart.difficulties;
+                    // Use the first difficulty's overallDifficulty as base
+                    const baseDiff = diffs[0].overallDifficulty || 5;
+                    const scaledDiff = Math.round(baseDiff);
+                    difficultyData = {
+                        easy: Math.max(1, scaledDiff - 2),
+                        normal: scaledDiff,
+                        hard: Math.min(10, scaledDiff + 2),
+                        expert: Math.min(10, scaledDiff + 4)
+                    };
+                }
+                return {
+                    id: chart.id || `unknown-${Date.now()}`,
+                    title: chart.title || 'Unknown Title',
+                    artist: chart.artist || 'Unknown Artist',
+                    audioFile: chart.audioFilename || '',
+                    backgroundImage: chart.backgroundFilename || '',
+                    difficulty: difficultyData,
+                    bpm: chart.bpm || 120,
+                    duration: chart.duration || 180000,
+                    filePath: chart.filePath || '',
+                    notes: []
+                };
+            });
+            logger_1.logger.info('chart-import', `Loaded ${songs.length} charts from library.json`);
+            return songs;
+        }
+        catch (error) {
+            logger_1.logger.error('chart-import', `Failed to load library.json: ${error}`);
+            return [];
+        }
     }
     /**
      * Get the public/assets directory path
@@ -51,9 +115,18 @@ class ChartImportService {
     }
     /**
      * Scan public/assets for .osz files and auto-parse them
+     * First tries to load from library.json, then falls back to OSZ parsing
      */
     async autoScanAndParseOszFiles() {
         try {
+            // First, try to load from library.json (pre-parsed data)
+            const libraryCharts = await this.loadLibraryJson();
+            if (libraryCharts.length > 0) {
+                logger_1.logger.info('chart-import', `Using ${libraryCharts.length} charts from library.json`);
+                return libraryCharts;
+            }
+            // Fallback to OSZ parsing
+            logger_1.logger.info('chart-import', 'No library.json found, falling back to OSZ parsing');
             const publicAssetsPath = this.getPublicAssetsPath();
             const chartsPath = this.pathService.getChartsPath();
             logger_1.logger.info('chart-import', `Scanning for OSZ files in: ${publicAssetsPath}`);

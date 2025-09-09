@@ -81,38 +81,61 @@ export function useSongs(): UseSongsReturn {
 
                 if (charts && Array.isArray(charts)) {
                     console.log(`✅ Found ${charts.length} real charts`);
-                    // Convert chart data to SongData format
-                    realSongs = charts.map((chart: any) => ({
-                        id: chart.id,
-                        title: chart.title,
-                        artist: chart.artist,
-                        audioFile: chart.audioPath || chart.audioFile || '',
-                        backgroundImage: chart.backgroundImage || '',
-                        difficulty: {
-                            easy: 2,
-                            normal: 4,
-                            hard: 6,
-                            expert: 8
-                        },
-                        bpm: chart.bpm,
-                        duration: chart.duration,
-                        filePath: chart.filePath || '',
-                        notes: chart.notes || []
-                    }));
+                    // Convert chart data to SongData format with real difficulty data
+                    realSongs = charts.map((chart: any) => {
+                        // Extract real difficulty data from OSZ chart
+                        let difficultyData = {
+                            easy: 1,
+                            normal: 3,
+                            hard: 5,
+                            expert: 7
+                        };
+
+                        // If chart has difficulties array (from library.json)
+                        if (chart.difficulties && Array.isArray(chart.difficulties)) {
+                            const diffs = chart.difficulties;
+                            // Map OSZ difficulties to our format
+                            if (diffs.length > 0) {
+                                const avgDiff = diffs.reduce((sum: number, d: any) =>
+                                    sum + (d.overallDifficulty || 5), 0) / diffs.length;
+
+                                // Convert to our scale (1-10)
+                                const scaledDiff = Math.round(avgDiff);
+                                difficultyData = {
+                                    easy: Math.max(1, scaledDiff - 2),
+                                    normal: scaledDiff,
+                                    hard: Math.min(10, scaledDiff + 2),
+                                    expert: Math.min(10, scaledDiff + 4)
+                                };
+                            }
+                        }
+
+                        return {
+                            id: chart.id,
+                            title: chart.title,
+                            artist: chart.artist,
+                            audioFile: chart.audioFilename || chart.audioPath || chart.audioFile || '',
+                            backgroundImage: chart.backgroundFilename || chart.backgroundImage || '',
+                            difficulty: difficultyData,
+                            bpm: chart.bpm || 120,
+                            duration: chart.duration || 180000,
+                            filePath: chart.filePath || '',
+                            notes: chart.notes || []
+                        };
+                    });
                 }
             }
 
-            // Use mixed songs (real + dummy if needed)
-            const finalSongs = getMixedSongs(realSongs);
-            const hasDummy = finalSongs.some(song => isDummySong(song.id));
+            // Use only real songs (no dummy data fallback)
+            setSongs(realSongs);
+            setHasDummyData(false);
 
-            setSongs(finalSongs);
-            setHasDummyData(hasDummy);
-
-            if (hasDummy) {
-                console.log(`🎵 Using ${realSongs.length} real songs + ${finalSongs.length - realSongs.length} dummy songs`);
+            if (realSongs.length > 0) {
+                console.log(`✅ Using ${realSongs.length} real songs with actual OSZ data`);
+                console.log('📊 Sample song:', realSongs[0]);
             } else {
-                console.log(`✅ Using ${finalSongs.length} real songs only`);
+                console.warn('⚠️ No real songs found');
+                setError('곡 라이브러리가 비어있습니다. OSZ 파일을 확인해주세요.');
             }
         } catch (err) {
             console.error('💥 Failed to load song library:', err);

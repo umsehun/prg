@@ -38,7 +38,8 @@ class PathService {
      * Get the app data directory path (Application Support)
      */
     getAppDataPath() {
-        return (0, path_1.join)(this.getUserDataPath(), 'prg');
+        // Use direct path to Application Support/prg instead of Electron's userData
+        return (0, path_1.join)(require('os').homedir(), 'Library', 'Application Support', 'prg');
     }
     /**
      * Get the charts directory path
@@ -51,6 +52,12 @@ class PathService {
      */
     getSettingsPath() {
         return (0, path_1.join)(this.getAppDataPath(), 'settings.json');
+    }
+    /**
+     * Get the library.json file path
+     */
+    getLibraryPath() {
+        return (0, path_1.join)(this.getAppDataPath(), 'library.json');
     }
     /**
      * Ensure a directory exists, create if it doesn't

@@ -246,19 +246,35 @@ function setupOszHandlers(mainWindow) {
         const operationId = `osz-library-${Date.now()}`;
         logger_1.logger.ipc('info', 'Chart library requested', { operationId });
         try {
-            // First, auto-scan and parse OSZ files from public/assets
+            // Auto-scan and parse OSZ files from public/assets or load from library.json
             logger_1.logger.ipc('info', 'Auto-scanning OSZ files...', { operationId });
-            await chartImportService.autoScanAndParseOszFiles();
-            // Then get the parsed charts
-            const charts = await chartImportService.getChartList();
-            // Convert to expected format  
+            const charts = await chartImportService.autoScanAndParseOszFiles();
+            // Convert to expected format using real difficulty data 
             const chartMetadata = charts.map(chart => {
+                // Extract real difficulty names from chart.difficulty object
+                const realDifficulties = [];
+                if (chart.difficulty) {
+                    if (chart.difficulty.easy && chart.difficulty.easy > 0) {
+                        realDifficulties.push(`Easy (${chart.difficulty.easy}⭐)`);
+                    }
+                    if (chart.difficulty.normal && chart.difficulty.normal > 0) {
+                        realDifficulties.push(`Normal (${chart.difficulty.normal}⭐)`);
+                    }
+                    if (chart.difficulty.hard && chart.difficulty.hard > 0) {
+                        realDifficulties.push(`Hard (${chart.difficulty.hard}⭐)`);
+                    }
+                    if (chart.difficulty.expert && chart.difficulty.expert > 0) {
+                        realDifficulties.push(`Expert (${chart.difficulty.expert}⭐)`);
+                    }
+                }
+                // Fallback to generic names if no real difficulties found
+                const difficulties = realDifficulties.length > 0 ? realDifficulties : ['Easy', 'Normal', 'Hard'];
                 const metadata = {
                     id: chart.id,
                     title: chart.title,
                     artist: chart.artist,
                     creator: chart.artist,
-                    difficulties: ['Easy', 'Normal', 'Hard'],
+                    difficulties: difficulties,
                     duration: chart.duration,
                     bpm: chart.bpm
                 };
