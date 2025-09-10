@@ -320,6 +320,73 @@ export function setupGameHandlers(mainWindow: BrowserWindow): void {
     });
 
     /**
+     * Pause game session
+     */
+    ipcMain.handle('game:pause', async (_event): Promise<GameResponse> => {
+        const operationId = `game-pause-${Date.now()}`;
+        logger.info('game', 'Game pause requested', { operationId });
+
+        try {
+            // Check if game is running
+            if (!gameStateManager.isGameActive()) {
+                logger.warn('game', 'Attempted to pause game when not running', { operationId });
+                return {
+                    success: false,
+                    error: 'No game is currently running',
+                };
+            }
+
+            // TODO: Implement actual pause logic when gameStateManager supports it
+            logger.info('game', 'Game paused successfully', { operationId });
+
+            return {
+                success: true,
+                message: 'Game paused successfully',
+            };
+
+        } catch (error) {
+            logger.error('game', 'Game pause failed with exception', {
+                operationId,
+                error: error instanceof Error ? error.message : String(error)
+            });
+
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error during game pause',
+            };
+        }
+    });
+
+    /**
+     * Resume game session
+     */
+    ipcMain.handle('game:resume', async (_event): Promise<GameResponse> => {
+        const operationId = `game-resume-${Date.now()}`;
+        logger.info('game', 'Game resume requested', { operationId });
+
+        try {
+            // TODO: Implement actual resume logic when gameStateManager supports it
+            logger.info('game', 'Game resumed successfully', { operationId });
+
+            return {
+                success: true,
+                message: 'Game resumed successfully',
+            };
+
+        } catch (error) {
+            logger.error('game', 'Game resume failed with exception', {
+                operationId,
+                error: error instanceof Error ? error.message : String(error)
+            });
+
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error during game resume',
+            };
+        }
+    });
+
+    /**
      * Get available difficulties for a chart
      */
     ipcMain.handle('game:get-difficulties', async (_event, chartId: string): Promise<{

@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import type { SongData, ScoreData } from '../../shared/d.ts/ipc';
 import { ipcService } from '../lib/ipc-service';
 
@@ -49,6 +49,12 @@ export function useGameState(): UseGameStateReturn {
     const [currentSong, setCurrentSong] = useState<SongData | null>(null);
     const [gameMode, setGameMode] = useState<GameMode>('osu');
     const [gameState, setGameState] = useState<GameState>('idle');
+
+    // Debug: Track gameState changes
+    useEffect(() => {
+        console.log('🎮 DEBUG: gameState changed to:', gameState);
+    }, [gameState]);
+
     const [stats, setStats] = useState<GameStats>({
         score: 0,
         combo: 0,
@@ -94,9 +100,11 @@ export function useGameState(): UseGameStateReturn {
             const gameSession = await ipcService.startGame(gameStartParams);
             console.log('🎮 Game session started:', gameSession);
 
+            console.log('🎮 Setting gameState to "playing"');
             setCurrentSong(song);
             setGameMode(mode);
             setGameState('playing');
+            console.log('🎮 GameState should now be "playing"');
             gameStartTime.current = Date.now();
             resetStats();
             return true;

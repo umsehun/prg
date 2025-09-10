@@ -24,9 +24,9 @@ export function setup(): void {
             const chartService = new ChartImportService();
             const charts = await chartService.autoScanOszFiles();
 
-            logger.info('osz', 'OSZ library retrieved', { 
-                operationId, 
-                chartCount: charts.length 
+            logger.info('osz', 'OSZ library retrieved', {
+                operationId,
+                chartCount: charts.length
             });
 
             return {
@@ -69,7 +69,7 @@ export function setup(): void {
 
             const chartService = new ChartImportService();
             const charts = await chartService.autoScanOszFiles();
-            
+
             if (charts.length === 0) {
                 return { success: false, error: 'No charts found' };
             }

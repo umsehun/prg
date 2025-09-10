@@ -13,7 +13,7 @@ export async function createWindow(): Promise<BrowserWindow> {
         height: 800,
         minWidth: 800,
         minHeight: 600,
-        title: 'Pin Rhythm - 혁신적인 리듬 게임', // 창 타이틀 설정
+        title: 'Prg', // 창 타이틀 설정
         show: true, // 즉시 창 표시하여 타이틀바 확인
         autoHideMenuBar: false, // 개발 중에는 메뉴바도 표시
 

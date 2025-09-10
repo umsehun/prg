@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import type { SongData, ScoreData } from '../../shared/d.ts/ipc';
 import { ipcService } from '../lib/ipc-service';
 
@@ -45,10 +45,44 @@ interface UseGameStateReturn {
 }
 
 export function useGameState(): UseGameStateReturn {
-    const [currentSong, setCurrentSong] = useState<SongData | null>(null);
+    // Initialize currentSong from localStorage
+    const [currentSong, setCurrentSong] = useState<SongData | null>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('prg-currentSong');
+            return saved ? JSON.parse(saved) : null;
+        }
+        return null;
+    });
+
     const [gameMode, setGameMode] = useState<GameMode>('osu');
-    const [gameState, setGameState] = useState<GameState>('idle');
-    const [stats, setStats] = useState<GameStats>({
+
+    // Initialize gameState from localStorage to survive hot reloads
+    const [gameState, setGameState] = useState<GameState>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('prg-gameState');
+            return (saved as GameState) || 'idle';
+        }
+        return 'idle';
+    });
+
+    // Debug: Track gameState changes and save to localStorage
+    useEffect(() => {
+        console.log('🎮 DEBUG: gameState changed to:', gameState);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('prg-gameState', gameState);
+        }
+    }, [gameState]);
+
+    // Save currentSong to localStorage
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            if (currentSong) {
+                localStorage.setItem('prg-currentSong', JSON.stringify(currentSong));
+            } else {
+                localStorage.removeItem('prg-currentSong');
+            }
+        }
+    }, [currentSong]); const [stats, setStats] = useState<GameStats>({
         score: 0,
         combo: 0,
         accuracy: 100,
@@ -91,9 +125,17 @@ export function useGameState(): UseGameStateReturn {
             const gameSession = await ipcService.startGame(gameStartParams);
             console.log('🎮 Pin game session started:', gameSession);
 
+            console.log('🎮 Setting currentSong and gameState to playing');
             setCurrentSong(song);
             setGameMode('pin'); // Always set to pin mode
             setGameState('playing');
+            console.log('🎮 GameState should now be "playing"');
+
+            // Double check after state set
+            setTimeout(() => {
+                console.log('🎮 TIMEOUT CHECK: gameState after 100ms should be "playing"');
+            }, 100);
+
             gameStartTime.current = Date.now();
             resetStats();
             return true;
@@ -116,11 +158,23 @@ export function useGameState(): UseGameStateReturn {
 
             setGameState('idle');
             setCurrentSong(null);
+
+            // Clear localStorage
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('prg-gameState');
+                localStorage.removeItem('prg-currentSong');
+            }
         } catch (error) {
             console.log('ℹ️ Stop game error (may be expected):', error);
             // Always reset state even if stop fails
             setGameState('idle');
             setCurrentSong(null);
+
+            // Clear localStorage
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('prg-gameState');
+                localStorage.removeItem('prg-currentSong');
+            }
         }
     }, [gameState]);
 

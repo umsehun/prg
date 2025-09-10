@@ -154,10 +154,14 @@ class IPCService {
         return await this.api.game.getDifficulties(chartId);
     }
     async startGame(params) {
+        console.log('🔌 IPC: Calling game.start with params:', params);
         const result = await this.api.game.start(params); // ✅ Updated: Use new API params
+        console.log('🔌 IPC: game.start result:', result);
         if (!result.success) {
+            console.error('🔌 IPC: Game start failed:', result.error);
             throw new Error(result.error || 'Failed to start game');
         }
+        console.log('🔌 IPC: Game start successful, returning mock session');
         // Mock GameSession for now - this should come from the backend
         return {
             sessionId: 'mock-session-' + Date.now(),
@@ -329,9 +333,54 @@ var _s = __turbopack_context__.k.signature();
 ;
 function useGameState() {
     _s();
-    const [currentSong, setCurrentSong] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    // Initialize currentSong from localStorage
+    const [currentSong, setCurrentSong] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
+        "useGameState.useState": ()=>{
+            if ("TURBOPACK compile-time truthy", 1) {
+                const saved = localStorage.getItem('prg-currentSong');
+                return saved ? JSON.parse(saved) : null;
+            }
+            //TURBOPACK unreachable
+            ;
+        }
+    }["useGameState.useState"]);
     const [gameMode, setGameMode] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('osu');
-    const [gameState, setGameState] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('idle');
+    // Initialize gameState from localStorage to survive hot reloads
+    const [gameState, setGameState] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
+        "useGameState.useState": ()=>{
+            if ("TURBOPACK compile-time truthy", 1) {
+                const saved = localStorage.getItem('prg-gameState');
+                return saved || 'idle';
+            }
+            //TURBOPACK unreachable
+            ;
+        }
+    }["useGameState.useState"]);
+    // Debug: Track gameState changes and save to localStorage
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "useGameState.useEffect": ()=>{
+            console.log('🎮 DEBUG: gameState changed to:', gameState);
+            if ("TURBOPACK compile-time truthy", 1) {
+                localStorage.setItem('prg-gameState', gameState);
+            }
+        }
+    }["useGameState.useEffect"], [
+        gameState
+    ]);
+    // Save currentSong to localStorage
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "useGameState.useEffect": ()=>{
+            if ("TURBOPACK compile-time truthy", 1) {
+                if (currentSong) {
+                    localStorage.setItem('prg-currentSong', JSON.stringify(currentSong));
+                } else {
+                    localStorage.removeItem('prg-currentSong');
+                }
+            }
+        }
+    }["useGameState.useEffect"], [
+        currentSong
+    ]);
     const [stats, setStats] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
         score: 0,
         combo: 0,
@@ -369,9 +418,17 @@ function useGameState() {
                 // ✅ Start new game session
                 const gameSession = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$ipc$2d$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ipcService"].startGame(gameStartParams);
                 console.log('🎮 Pin game session started:', gameSession);
+                console.log('🎮 Setting currentSong and gameState to playing');
                 setCurrentSong(song);
                 setGameMode('pin'); // Always set to pin mode
                 setGameState('playing');
+                console.log('🎮 GameState should now be "playing"');
+                // Double check after state set
+                setTimeout({
+                    "useGameState.useCallback[startGame]": ()=>{
+                        console.log('🎮 TIMEOUT CHECK: gameState after 100ms should be "playing"');
+                    }
+                }["useGameState.useCallback[startGame]"], 100);
                 gameStartTime.current = Date.now();
                 resetStats();
                 return true;
@@ -393,11 +450,21 @@ function useGameState() {
                 }
                 setGameState('idle');
                 setCurrentSong(null);
+                // Clear localStorage
+                if ("TURBOPACK compile-time truthy", 1) {
+                    localStorage.removeItem('prg-gameState');
+                    localStorage.removeItem('prg-currentSong');
+                }
             } catch (error) {
                 console.log('ℹ️ Stop game error (may be expected):', error);
                 // Always reset state even if stop fails
                 setGameState('idle');
                 setCurrentSong(null);
+                // Clear localStorage
+                if ("TURBOPACK compile-time truthy", 1) {
+                    localStorage.removeItem('prg-gameState');
+                    localStorage.removeItem('prg-currentSong');
+                }
             }
         }
     }["useGameState.useCallback[stopGame]"], [
@@ -498,7 +565,7 @@ function useGameState() {
         resetStats
     };
 }
-_s(useGameState, "96ugYecMzcqvdWrPjmLETpGIID0=");
+_s(useGameState, "m4azkUCqMzRlRbvieKCdPXrg5Kg=");
 // Helper function to calculate rank based on accuracy
 function calculateRank(accuracy) {
     if (accuracy >= 97) return 'SS';
@@ -2025,6 +2092,40 @@ function PinGamePage() {
     _s();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
     const { currentSong, gameState, stats, pauseGame, resumeGame, stopGame, updateStats } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useGameState$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useGameState"])();
+    // Debug: Log gameState changes
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PinGamePage.useEffect": ()=>{
+            console.log('📍 PIN PAGE: gameState =', gameState, 'currentSong =', (currentSong === null || currentSong === void 0 ? void 0 : currentSong.title) || 'none');
+        }
+    }["PinGamePage.useEffect"], [
+        gameState,
+        currentSong
+    ]);
+    // ESC key for pause/resume
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PinGamePage.useEffect": ()=>{
+            const handleKeyPress = {
+                "PinGamePage.useEffect.handleKeyPress": (e)=>{
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        if (gameState === 'playing') {
+                            pauseGame();
+                        } else if (gameState === 'paused') {
+                            resumeGame();
+                        }
+                    }
+                }
+            }["PinGamePage.useEffect.handleKeyPress"];
+            window.addEventListener('keydown', handleKeyPress);
+            return ({
+                "PinGamePage.useEffect": ()=>window.removeEventListener('keydown', handleKeyPress)
+            })["PinGamePage.useEffect"];
+        }
+    }["PinGamePage.useEffect"], [
+        gameState,
+        pauseGame,
+        resumeGame
+    ]);
     // Audio system
     const audioEngine = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     // Game State
@@ -2052,6 +2153,7 @@ function PinGamePage() {
             async function loadAudio() {
                 if (currentSong && gameState === 'playing' && audioEngine.current) {
                     try {
+                        console.log('🎵 Current song data:', currentSong);
                         console.log('🎵 Loading audio:', currentSong.audioFile);
                         // Load audio file
                         if (currentSong.audioFile) {
@@ -2061,11 +2163,21 @@ function PinGamePage() {
                             if (loaded) {
                                 console.log('🎵 Starting audio playback');
                                 audioEngine.current.play();
+                            } else {
+                                console.error('❌ Failed to load audio buffer');
                             }
+                        } else {
+                            console.warn('⚠️ No audio file in currentSong');
                         }
                     } catch (error) {
                         console.error('❌ Failed to load audio:', error);
                     }
+                } else {
+                    console.log('🔇 Audio not loading:', {
+                        hasCurrentSong: !!currentSong,
+                        gameState,
+                        hasAudioEngine: !!audioEngine.current
+                    });
                 }
             }
             if (gameState === 'playing') {
@@ -2231,7 +2343,7 @@ function PinGamePage() {
                                 children: "곡을 선택해주세요"
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                lineNumber: 177,
+                                lineNumber: 210,
                                 columnNumber: 29
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2239,7 +2351,7 @@ function PinGamePage() {
                                 children: "핀 게임을 시작하려면 먼저 곡을 선택해야 합니다."
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                lineNumber: 180,
+                                lineNumber: 213,
                                 columnNumber: 29
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$GameControls$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["GameControls"], {
@@ -2252,28 +2364,28 @@ function PinGamePage() {
                                 showThrowButton: false
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                lineNumber: 183,
+                                lineNumber: 216,
                                 columnNumber: 29
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/app/pin/page.tsx",
-                        lineNumber: 176,
+                        lineNumber: 209,
                         columnNumber: 25
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/renderer/app/pin/page.tsx",
-                    lineNumber: 175,
+                    lineNumber: 208,
                     columnNumber: 21
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/renderer/app/pin/page.tsx",
-                lineNumber: 174,
+                lineNumber: 207,
                 columnNumber: 17
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/renderer/app/pin/page.tsx",
-            lineNumber: 173,
+            lineNumber: 206,
             columnNumber: 13
         }, this);
     }
@@ -2290,7 +2402,7 @@ function PinGamePage() {
                             children: "핀 게임"
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/pin/page.tsx",
-                            lineNumber: 204,
+                            lineNumber: 237,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2302,13 +2414,13 @@ function PinGamePage() {
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/pin/page.tsx",
-                            lineNumber: 205,
+                            lineNumber: 238,
                             columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/pin/page.tsx",
-                    lineNumber: 203,
+                    lineNumber: 236,
                     columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2333,7 +2445,7 @@ function PinGamePage() {
                                                 height: 600
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                                lineNumber: 215,
+                                                lineNumber: 248,
                                                 columnNumber: 37
                                             }, this),
                                             gameState !== 'playing' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2346,7 +2458,19 @@ function PinGamePage() {
                                                             children: gameState === 'idle' ? '게임 시작 대기' : gameState === 'paused' ? '일시정지' : gameState === 'loading' ? '로딩 중...' : '게임 종료'
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                                            lineNumber: 229,
+                                                            lineNumber: 262,
+                                                            columnNumber: 49
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                            className: "text-sm text-gray-400 mb-2",
+                                                            children: [
+                                                                'Debug: gameState = "',
+                                                                gameState,
+                                                                '"'
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/renderer/app/pin/page.tsx",
+                                                            lineNumber: 267,
                                                             columnNumber: 49
                                                         }, this),
                                                         gameState === 'paused' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2354,39 +2478,39 @@ function PinGamePage() {
                                                             children: "재개하려면 플레이 버튼을 클릭하거나 ESC를 누르세요"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                                            lineNumber: 235,
+                                                            lineNumber: 271,
                                                             columnNumber: 53
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                                    lineNumber: 228,
+                                                    lineNumber: 261,
                                                     columnNumber: 45
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                                lineNumber: 227,
+                                                lineNumber: 260,
                                                 columnNumber: 41
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                        lineNumber: 214,
+                                        lineNumber: 247,
                                         columnNumber: 33
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                    lineNumber: 213,
+                                    lineNumber: 246,
                                     columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                lineNumber: 212,
+                                lineNumber: 245,
                                 columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/pin/page.tsx",
-                            lineNumber: 211,
+                            lineNumber: 244,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2405,17 +2529,17 @@ function PinGamePage() {
                                             onBack: handleBack
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                            lineNumber: 252,
+                                            lineNumber: 288,
                                             columnNumber: 33
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                        lineNumber: 251,
+                                        lineNumber: 287,
                                         columnNumber: 29
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                    lineNumber: 250,
+                                    lineNumber: 286,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$game$2f$ScoreBoard$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ScoreBoard"], {
@@ -2428,34 +2552,34 @@ function PinGamePage() {
                                     }
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/pin/page.tsx",
-                                    lineNumber: 264,
+                                    lineNumber: 300,
                                     columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/pin/page.tsx",
-                            lineNumber: 248,
+                            lineNumber: 284,
                             columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/pin/page.tsx",
-                    lineNumber: 209,
+                    lineNumber: 242,
                     columnNumber: 17
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/renderer/app/pin/page.tsx",
-            lineNumber: 201,
+            lineNumber: 234,
             columnNumber: 13
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/renderer/app/pin/page.tsx",
-        lineNumber: 200,
+        lineNumber: 233,
         columnNumber: 9
     }, this);
 }
-_s(PinGamePage, "0aynyn0jyEDgzkQ04AW1EeuwEq4=", false, function() {
+_s(PinGamePage, "5J3Sk0G4ORm+N5dLCUaaESWlTDo=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useGameState$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useGameState"]

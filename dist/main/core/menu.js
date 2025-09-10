@@ -15,13 +15,13 @@ function setupApplicationMenu() {
             // Ensure we're NOT a LSUIElement (which would hide menubar)
             electron_1.app.dock?.show();
             // Multiple attempts to set app name for macOS
-            electron_1.app.setName('Pin Rhythm');
+            electron_1.app.setName('prg');
             // Force macOS bundle info
-            process.env.CFBundleName = 'Pin Rhythm';
-            process.env.CFBundleDisplayName = 'Pin Rhythm';
+            process.env.CFBundleName = 'prg';
+            process.env.CFBundleDisplayName = 'prg';
             // Try multiple macOS-specific methods
             try {
-                electron_1.app.setApplicationName?.('Pin Rhythm');
+                electron_1.app.setApplicationName?.('prg');
             }
             catch (e) {
                 // Ignore if method doesn't exist
@@ -37,13 +37,13 @@ function setupApplicationMenu() {
             }
         }
         else {
-            electron_1.app.setName('Pin Rhythm');
+            electron_1.app.setName('prg');
         }
         // Get and log the app name
         const appName = electron_1.app.getName();
         logger_1.logger.info('menu', `🔍 Current app.getName(): "${appName}"`);
         logger_1.logger.info('menu', `🔍 Platform: ${process.platform}`);
-        logger_1.logger.info('menu', `🔍 Setting menu label as: "Pin Rhythm"`);
+        logger_1.logger.info('menu', `🔍 Setting menu label as: "prg"`);
         if (isMac) {
             logger_1.logger.info('menu', '🍎 Applied macOS-specific bundle settings');
         }
@@ -52,15 +52,15 @@ function setupApplicationMenu() {
         // Create the MOST EXPLICIT menu possible
         const template = [
             ...(isMac ? [{
-                    label: 'Pin Rhythm', // 절대적으로 하드코딩
+                    label: 'prg', // 절대적으로 하드코딩
                     submenu: [
                         {
-                            label: 'Pin Rhythm에 관하여',
+                            label: 'prg에 관하여',
                             role: 'about'
                         },
                         { type: 'separator' },
                         {
-                            label: 'Pin Rhythm 종료',
+                            label: 'prg 종료',
                             role: 'quit'
                         }
                     ]
@@ -193,8 +193,8 @@ function setupApplicationMenu() {
             const firstItem = verifyMenu.items[0];
             if (firstItem) {
                 logger_1.logger.info('menu', `✅ Menu verification - First item: "${firstItem.label}"`);
-                if (firstItem.label !== 'Pin Rhythm' && firstItem.label !== 'Electron') {
-                    logger_1.logger.warn('menu', `⚠️ Expected 'Pin Rhythm' but got: "${firstItem.label}"`);
+                if (firstItem.label !== 'prg' && firstItem.label !== 'Electron') {
+                    logger_1.logger.warn('menu', `⚠️ Expected 'prg' but got: "${firstItem.label}"`);
                 }
             }
         }
@@ -259,8 +259,8 @@ function setupApplicationMenu() {
                 logger_1.logger.info('menu', '🔄 Method 3: Menu reset completed');
             }, 1000);
         }
-        logger_1.logger.info('menu', `✅ Application menu set with label: "Pin Rhythm"`);
-        logger_1.logger.info('menu', `✅ Menubar should now show "Pin Rhythm" in ALL modes (not just fullscreen)`);
+        logger_1.logger.info('menu', `✅ Application menu set with label: "prg"`);
+        logger_1.logger.info('menu', `✅ Menubar should now show "prg" in ALL modes (not just fullscreen)`);
     }
     catch (error) {
         logger_1.logger.error('menu', 'Failed to setup application menu:', error);

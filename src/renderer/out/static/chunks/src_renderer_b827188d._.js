@@ -498,10 +498,14 @@ class IPCService {
         return await this.api.game.getDifficulties(chartId);
     }
     async startGame(params) {
+        console.log('🔌 IPC: Calling game.start with params:', params);
         const result = await this.api.game.start(params); // ✅ Updated: Use new API params
+        console.log('🔌 IPC: game.start result:', result);
         if (!result.success) {
+            console.error('🔌 IPC: Game start failed:', result.error);
             throw new Error(result.error || 'Failed to start game');
         }
+        console.log('🔌 IPC: Game start successful, returning mock session');
         // Mock GameSession for now - this should come from the backend
         return {
             sessionId: 'mock-session-' + Date.now(),
@@ -673,9 +677,54 @@ var _s = __turbopack_context__.k.signature();
 ;
 function useGameState() {
     _s();
-    const [currentSong, setCurrentSong] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    // Initialize currentSong from localStorage
+    const [currentSong, setCurrentSong] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
+        "useGameState.useState": ()=>{
+            if ("TURBOPACK compile-time truthy", 1) {
+                const saved = localStorage.getItem('prg-currentSong');
+                return saved ? JSON.parse(saved) : null;
+            }
+            //TURBOPACK unreachable
+            ;
+        }
+    }["useGameState.useState"]);
     const [gameMode, setGameMode] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('osu');
-    const [gameState, setGameState] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('idle');
+    // Initialize gameState from localStorage to survive hot reloads
+    const [gameState, setGameState] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
+        "useGameState.useState": ()=>{
+            if ("TURBOPACK compile-time truthy", 1) {
+                const saved = localStorage.getItem('prg-gameState');
+                return saved || 'idle';
+            }
+            //TURBOPACK unreachable
+            ;
+        }
+    }["useGameState.useState"]);
+    // Debug: Track gameState changes and save to localStorage
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "useGameState.useEffect": ()=>{
+            console.log('🎮 DEBUG: gameState changed to:', gameState);
+            if ("TURBOPACK compile-time truthy", 1) {
+                localStorage.setItem('prg-gameState', gameState);
+            }
+        }
+    }["useGameState.useEffect"], [
+        gameState
+    ]);
+    // Save currentSong to localStorage
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "useGameState.useEffect": ()=>{
+            if ("TURBOPACK compile-time truthy", 1) {
+                if (currentSong) {
+                    localStorage.setItem('prg-currentSong', JSON.stringify(currentSong));
+                } else {
+                    localStorage.removeItem('prg-currentSong');
+                }
+            }
+        }
+    }["useGameState.useEffect"], [
+        currentSong
+    ]);
     const [stats, setStats] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
         score: 0,
         combo: 0,
@@ -713,9 +762,17 @@ function useGameState() {
                 // ✅ Start new game session
                 const gameSession = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$ipc$2d$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ipcService"].startGame(gameStartParams);
                 console.log('🎮 Pin game session started:', gameSession);
+                console.log('🎮 Setting currentSong and gameState to playing');
                 setCurrentSong(song);
                 setGameMode('pin'); // Always set to pin mode
                 setGameState('playing');
+                console.log('🎮 GameState should now be "playing"');
+                // Double check after state set
+                setTimeout({
+                    "useGameState.useCallback[startGame]": ()=>{
+                        console.log('🎮 TIMEOUT CHECK: gameState after 100ms should be "playing"');
+                    }
+                }["useGameState.useCallback[startGame]"], 100);
                 gameStartTime.current = Date.now();
                 resetStats();
                 return true;
@@ -737,11 +794,21 @@ function useGameState() {
                 }
                 setGameState('idle');
                 setCurrentSong(null);
+                // Clear localStorage
+                if ("TURBOPACK compile-time truthy", 1) {
+                    localStorage.removeItem('prg-gameState');
+                    localStorage.removeItem('prg-currentSong');
+                }
             } catch (error) {
                 console.log('ℹ️ Stop game error (may be expected):', error);
                 // Always reset state even if stop fails
                 setGameState('idle');
                 setCurrentSong(null);
+                // Clear localStorage
+                if ("TURBOPACK compile-time truthy", 1) {
+                    localStorage.removeItem('prg-gameState');
+                    localStorage.removeItem('prg-currentSong');
+                }
             }
         }
     }["useGameState.useCallback[stopGame]"], [
@@ -842,7 +909,7 @@ function useGameState() {
         resetStats
     };
 }
-_s(useGameState, "96ugYecMzcqvdWrPjmLETpGIID0=");
+_s(useGameState, "m4azkUCqMzRlRbvieKCdPXrg5Kg=");
 // Helper function to calculate rank based on accuracy
 function calculateRank(accuracy) {
     if (accuracy >= 97) return 'SS';
@@ -1062,28 +1129,28 @@ function DifficultySelectionModal(param) {
         }, void 0, false, {
             fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
             lineNumber: 43,
-            columnNumber: 33
+            columnNumber: 37
         }, this);
         if (starRating >= 5) return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$target$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Target$3e$__["Target"], {
             className: "h-4 w-4 text-red-500"
         }, void 0, false, {
             fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
             lineNumber: 44,
-            columnNumber: 33
+            columnNumber: 37
         }, this);
         if (starRating >= 3) return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$zap$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Zap$3e$__["Zap"], {
             className: "h-4 w-4 text-orange-500"
         }, void 0, false, {
             fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
             lineNumber: 45,
-            columnNumber: 33
+            columnNumber: 37
         }, this);
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$star$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Star$3e$__["Star"], {
             className: "h-4 w-4 text-blue-500"
         }, void 0, false, {
             fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
             lineNumber: 46,
-            columnNumber: 12
+            columnNumber: 16
         }, this);
     };
     const getDifficultyColor = (starRating)=>{
@@ -1106,7 +1173,7 @@ function DifficultySelectionModal(param) {
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                             lineNumber: 60,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
                             className: "text-center text-gray-300",
@@ -1117,20 +1184,20 @@ function DifficultySelectionModal(param) {
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                                     lineNumber: 64,
-                                    columnNumber: 13
+                                    columnNumber: 25
                                 }, this),
                                 "의 난이도를 선택하세요"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                             lineNumber: 63,
-                            columnNumber: 11
+                            columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                     lineNumber: 59,
-                    columnNumber: 9
+                    columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "space-y-3 mt-6",
@@ -1142,7 +1209,7 @@ function DifficultySelectionModal(param) {
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                                 lineNumber: 71,
-                                columnNumber: 15
+                                columnNumber: 29
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 className: "text-gray-400 mt-2",
@@ -1150,13 +1217,13 @@ function DifficultySelectionModal(param) {
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                                 lineNumber: 72,
-                                columnNumber: 15
+                                columnNumber: 29
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                         lineNumber: 70,
-                        columnNumber: 13
+                        columnNumber: 25
                     }, this) : difficulties.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "text-center py-8",
                         children: [
@@ -1166,7 +1233,7 @@ function DifficultySelectionModal(param) {
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                                 lineNumber: 76,
-                                columnNumber: 15
+                                columnNumber: 29
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                 variant: "outline",
@@ -1176,13 +1243,13 @@ function DifficultySelectionModal(param) {
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                                 lineNumber: 77,
-                                columnNumber: 15
+                                columnNumber: 29
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                         lineNumber: 75,
-                        columnNumber: 13
+                        columnNumber: 25
                     }, this) : difficulties.map((difficulty)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "p-4 border border-gray-700 rounded-lg hover:border-blue-500/50 hover:bg-gray-800/50 transition-all cursor-pointer",
                             onClick: ()=>onSelectDifficulty(difficulty.difficultyName),
@@ -1201,7 +1268,7 @@ function DifficultySelectionModal(param) {
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                                                         lineNumber: 96,
-                                                        columnNumber: 23
+                                                        columnNumber: 45
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                         className: "text-sm text-gray-400",
@@ -1209,19 +1276,19 @@ function DifficultySelectionModal(param) {
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                                                         lineNumber: 99,
-                                                        columnNumber: 23
+                                                        columnNumber: 45
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                                                 lineNumber: 95,
-                                                columnNumber: 21
+                                                columnNumber: 41
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                                         lineNumber: 93,
-                                        columnNumber: 19
+                                        columnNumber: 37
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         className: "px-2 py-1 text-xs rounded-md border ".concat(getDifficultyColor(difficulty.starRating)),
@@ -1232,23 +1299,23 @@ function DifficultySelectionModal(param) {
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                                         lineNumber: 105,
-                                        columnNumber: 19
+                                        columnNumber: 37
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                                 lineNumber: 92,
-                                columnNumber: 17
+                                columnNumber: 33
                             }, this)
                         }, difficulty.filename, false, {
                             fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                             lineNumber: 87,
-                            columnNumber: 15
+                            columnNumber: 29
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                     lineNumber: 68,
-                    columnNumber: 9
+                    columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "flex gap-2 mt-6",
@@ -1260,23 +1327,23 @@ function DifficultySelectionModal(param) {
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                         lineNumber: 117,
-                        columnNumber: 11
+                        columnNumber: 21
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
                     lineNumber: 116,
-                    columnNumber: 9
+                    columnNumber: 17
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
             lineNumber: 58,
-            columnNumber: 7
+            columnNumber: 13
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/renderer/components/ui/DifficultySelectionModal.tsx",
         lineNumber: 57,
-        columnNumber: 5
+        columnNumber: 9
     }, this);
 }
 _c = DifficultySelectionModal;
@@ -1309,6 +1376,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/refresh-cw.js [app-client] (ecmascript) <export default as RefreshCw>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/client/app-dir/link.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useSongs$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/hooks/useSongs.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useGameState$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/hooks/useGameState.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$DifficultySelectionModal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/renderer/components/ui/DifficultySelectionModal.tsx [app-client] (ecmascript)");
@@ -1326,8 +1394,10 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+;
 function SelectPage() {
     _s();
+    const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
     const { songs, loading, error, refreshLibrary, hasDummyData } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useSongs$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSongs"])();
     const { startGame } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useGameState$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useGameState"])();
     const [searchQuery, setSearchQuery] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
@@ -1381,15 +1451,22 @@ function SelectPage() {
     };
     const handleDifficultySelected = async (difficulty)=>{
         if (selectedSong) {
-            console.log('🎯 Starting game with difficulty:', difficulty);
-            const success = await startGame(selectedSong, 'pin');
-            if (success) {
-                console.log('✅ Game started, navigating to /pin');
-                setShowDifficultyModal(false);
-                window.location.href = '/pin';
-            } else {
-                console.error('❌ Failed to start game');
+            console.log('🎯 Starting game with difficulty:', difficulty, 'for song:', selectedSong.title);
+            try {
+                const success = await startGame(selectedSong, 'pin');
+                console.log('🎮 startGame result:', success);
+                if (success) {
+                    console.log('✅ Game started successfully, navigating to /pin');
+                    setShowDifficultyModal(false);
+                    router.push('/pin');
+                } else {
+                    console.error('❌ Game start returned false');
+                }
+            } catch (error) {
+                console.error('❌ Game start threw error:', error);
             }
+        } else {
+            console.error('❌ No selected song');
         }
     };
     const handleCloseDifficultyModal = ()=>{
@@ -1412,7 +1489,7 @@ function SelectPage() {
                         className: "w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/app/select/page.tsx",
-                        lineNumber: 103,
+                        lineNumber: 111,
                         columnNumber: 21
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1420,18 +1497,18 @@ function SelectPage() {
                         children: "Loading Song Library..."
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/app/select/page.tsx",
-                        lineNumber: 104,
+                        lineNumber: 112,
                         columnNumber: 21
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/app/select/page.tsx",
-                lineNumber: 102,
+                lineNumber: 110,
                 columnNumber: 17
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/renderer/app/select/page.tsx",
-            lineNumber: 101,
+            lineNumber: 109,
             columnNumber: 13
         }, this);
     }
@@ -1449,12 +1526,12 @@ function SelectPage() {
                                 children: "Error Loading Songs"
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/select/page.tsx",
-                                lineNumber: 116,
+                                lineNumber: 124,
                                 columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                            lineNumber: 115,
+                            lineNumber: 123,
                             columnNumber: 25
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1464,7 +1541,7 @@ function SelectPage() {
                                     children: error
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                    lineNumber: 119,
+                                    lineNumber: 127,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1476,36 +1553,36 @@ function SelectPage() {
                                             className: "w-4 h-4 mr-2"
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                            lineNumber: 121,
+                                            lineNumber: 129,
                                             columnNumber: 33
                                         }, this),
                                         "Retry"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                    lineNumber: 120,
+                                    lineNumber: 128,
                                     columnNumber: 29
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                            lineNumber: 118,
+                            lineNumber: 126,
                             columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                    lineNumber: 114,
+                    lineNumber: 122,
                     columnNumber: 21
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/renderer/app/select/page.tsx",
-                lineNumber: 113,
+                lineNumber: 121,
                 columnNumber: 17
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/renderer/app/select/page.tsx",
-            lineNumber: 112,
+            lineNumber: 120,
             columnNumber: 13
         }, this);
     }
@@ -1531,13 +1608,13 @@ function SelectPage() {
                                                     className: "w-4 h-4 text-yellow-900"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                    lineNumber: 142,
-                                                    columnNumber: 41
+                                                    lineNumber: 150,
+                                                    columnNumber: 45
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                lineNumber: 141,
-                                                columnNumber: 37
+                                                lineNumber: 149,
+                                                columnNumber: 41
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 children: [
@@ -1546,43 +1623,43 @@ function SelectPage() {
                                                         children: "테스트 모드: 더미 데이터를 사용 중입니다"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                        lineNumber: 145,
-                                                        columnNumber: 41
+                                                        lineNumber: 153,
+                                                        columnNumber: 45
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                         className: "text-yellow-300 text-sm",
                                                         children: "OSZ 파일이 파싱되지 않았거나 곡이 부족합니다. 실제 음악을 들을 수 없습니다."
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                        lineNumber: 148,
-                                                        columnNumber: 41
+                                                        lineNumber: 156,
+                                                        columnNumber: 45
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                lineNumber: 144,
-                                                columnNumber: 37
+                                                lineNumber: 152,
+                                                columnNumber: 41
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/app/select/page.tsx",
-                                        lineNumber: 140,
-                                        columnNumber: 33
+                                        lineNumber: 148,
+                                        columnNumber: 37
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                    lineNumber: 139,
-                                    columnNumber: 29
+                                    lineNumber: 147,
+                                    columnNumber: 33
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/app/select/page.tsx",
-                                lineNumber: 138,
-                                columnNumber: 25
+                                lineNumber: 146,
+                                columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                            lineNumber: 137,
-                            columnNumber: 21
+                            lineNumber: 145,
+                            columnNumber: 25
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "flex items-center justify-between mb-8",
@@ -1601,20 +1678,20 @@ function SelectPage() {
                                                         className: "w-4 h-4 mr-2"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                        lineNumber: 163,
-                                                        columnNumber: 33
+                                                        lineNumber: 171,
+                                                        columnNumber: 37
                                                     }, this),
                                                     "Back"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                lineNumber: 162,
-                                                columnNumber: 29
+                                                lineNumber: 170,
+                                                columnNumber: 33
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                            lineNumber: 161,
-                                            columnNumber: 25
+                                            lineNumber: 169,
+                                            columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             children: [
@@ -1623,8 +1700,8 @@ function SelectPage() {
                                                     children: "곡 라이브러리"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                    lineNumber: 168,
-                                                    columnNumber: 29
+                                                    lineNumber: 176,
+                                                    columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                     className: "text-slate-400 text-lg",
@@ -1634,20 +1711,20 @@ function SelectPage() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                    lineNumber: 169,
-                                                    columnNumber: 29
+                                                    lineNumber: 177,
+                                                    columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                            lineNumber: 167,
-                                            columnNumber: 25
+                                            lineNumber: 175,
+                                            columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                    lineNumber: 160,
-                                    columnNumber: 21
+                                    lineNumber: 168,
+                                    columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "flex items-center gap-4",
@@ -1696,8 +1773,8 @@ function SelectPage() {
                                             children: "Test IPC & Copy"
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                            lineNumber: 174,
-                                            columnNumber: 25
+                                            lineNumber: 182,
+                                            columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                             onClick: refreshLibrary,
@@ -1708,27 +1785,27 @@ function SelectPage() {
                                                     className: "w-4 h-4 mr-2"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                    lineNumber: 231,
-                                                    columnNumber: 29
+                                                    lineNumber: 239,
+                                                    columnNumber: 33
                                                 }, this),
                                                 "새로고침"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                            lineNumber: 226,
-                                            columnNumber: 25
+                                            lineNumber: 234,
+                                            columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                    lineNumber: 173,
-                                    columnNumber: 21
+                                    lineNumber: 181,
+                                    columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                            lineNumber: 159,
-                            columnNumber: 17
+                            lineNumber: 167,
+                            columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "flex flex-col md:flex-row gap-4 mb-8",
@@ -1740,8 +1817,8 @@ function SelectPage() {
                                             className: "absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                            lineNumber: 240,
-                                            columnNumber: 25
+                                            lineNumber: 248,
+                                            columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
                                             placeholder: "곡이나 아티스트 검색...",
@@ -1750,14 +1827,14 @@ function SelectPage() {
                                             className: "pl-10 bg-slate-800 border-slate-700 text-white placeholder-slate-400"
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                            lineNumber: 241,
-                                            columnNumber: 25
+                                            lineNumber: 249,
+                                            columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                    lineNumber: 239,
-                                    columnNumber: 21
+                                    lineNumber: 247,
+                                    columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "flex gap-2",
@@ -1775,19 +1852,19 @@ function SelectPage() {
                                             children: difficulty === 'all' ? '전체' : difficulty === 'easy' ? '쉬움' : difficulty === 'normal' ? '보통' : difficulty === 'hard' ? '어려움' : '익스퍼트'
                                         }, difficulty, false, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                            lineNumber: 251,
-                                            columnNumber: 29
+                                            lineNumber: 259,
+                                            columnNumber: 33
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                    lineNumber: 249,
-                                    columnNumber: 21
+                                    lineNumber: 257,
+                                    columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                            lineNumber: 238,
-                            columnNumber: 17
+                            lineNumber: 246,
+                            columnNumber: 21
                         }, this),
                         filteredSongs.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
                             className: "bg-slate-800/50 border-slate-700",
@@ -1798,24 +1875,24 @@ function SelectPage() {
                                         className: "w-16 h-16 text-slate-400 mx-auto mb-4"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/select/page.tsx",
-                                        lineNumber: 274,
-                                        columnNumber: 29
+                                        lineNumber: 282,
+                                        columnNumber: 33
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
                                         className: "text-xl font-semibold text-white mb-2",
                                         children: "곡을 찾을 수 없습니다"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/select/page.tsx",
-                                        lineNumber: 275,
-                                        columnNumber: 29
+                                        lineNumber: 283,
+                                        columnNumber: 33
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                         className: "text-slate-400 mb-4",
                                         children: searchQuery ? '검색 조건에 맞는 곡이 없습니다.' : '라이브러리가 비어 있습니다.'
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/select/page.tsx",
-                                        lineNumber: 276,
-                                        columnNumber: 29
+                                        lineNumber: 284,
+                                        columnNumber: 33
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                         variant: "outline",
@@ -1823,19 +1900,19 @@ function SelectPage() {
                                         children: ".osz 파일 가져오기"
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/select/page.tsx",
-                                        lineNumber: 279,
-                                        columnNumber: 29
+                                        lineNumber: 287,
+                                        columnNumber: 33
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/app/select/page.tsx",
-                                lineNumber: 273,
-                                columnNumber: 25
+                                lineNumber: 281,
+                                columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                            lineNumber: 272,
-                            columnNumber: 21
+                            lineNumber: 280,
+                            columnNumber: 25
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
                             children: filteredSongs.map((song)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1853,22 +1930,22 @@ function SelectPage() {
                                                                 children: song.title
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                                lineNumber: 294,
-                                                                columnNumber: 45
+                                                                lineNumber: 302,
+                                                                columnNumber: 49
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                                 className: "text-slate-400 truncate",
                                                                 children: song.artist
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                                lineNumber: 295,
-                                                                columnNumber: 45
+                                                                lineNumber: 303,
+                                                                columnNumber: 49
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                        lineNumber: 293,
-                                                        columnNumber: 41
+                                                        lineNumber: 301,
+                                                        columnNumber: 45
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                                         variant: "ghost",
@@ -1878,24 +1955,24 @@ function SelectPage() {
                                                             className: "w-4 h-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                            lineNumber: 298,
-                                                            columnNumber: 45
+                                                            lineNumber: 306,
+                                                            columnNumber: 49
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                        lineNumber: 297,
-                                                        columnNumber: 41
+                                                        lineNumber: 305,
+                                                        columnNumber: 45
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                lineNumber: 292,
-                                                columnNumber: 37
+                                                lineNumber: 300,
+                                                columnNumber: 41
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                            lineNumber: 291,
-                                            columnNumber: 33
+                                            lineNumber: 299,
+                                            columnNumber: 37
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
                                             className: "space-y-4",
@@ -1910,15 +1987,15 @@ function SelectPage() {
                                                                     className: "w-4 h-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                                    lineNumber: 307,
-                                                                    columnNumber: 45
+                                                                    lineNumber: 315,
+                                                                    columnNumber: 49
                                                                 }, this),
                                                                 formatDuration(song.duration)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                            lineNumber: 306,
-                                                            columnNumber: 41
+                                                            lineNumber: 314,
+                                                            columnNumber: 45
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                             className: "flex items-center gap-2",
@@ -1927,22 +2004,22 @@ function SelectPage() {
                                                                     className: "w-4 h-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                                    lineNumber: 311,
-                                                                    columnNumber: 45
+                                                                    lineNumber: 319,
+                                                                    columnNumber: 49
                                                                 }, this),
                                                                 song.bpm,
                                                                 " BPM"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                            lineNumber: 310,
-                                                            columnNumber: 41
+                                                            lineNumber: 318,
+                                                            columnNumber: 45
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                    lineNumber: 305,
-                                                    columnNumber: 37
+                                                    lineNumber: 313,
+                                                    columnNumber: 41
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "flex gap-1",
@@ -1958,14 +2035,14 @@ function SelectPage() {
                                                             ]
                                                         }, diff, true, {
                                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                            lineNumber: 320,
-                                                            columnNumber: 49
+                                                            lineNumber: 328,
+                                                            columnNumber: 53
                                                         }, this) : null;
                                                     })
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                    lineNumber: 317,
-                                                    columnNumber: 37
+                                                    lineNumber: 325,
+                                                    columnNumber: 41
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "flex gap-2 pt-2",
@@ -1978,47 +2055,47 @@ function SelectPage() {
                                                                 className: "w-4 h-4 mr-2"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                                lineNumber: 344,
-                                                                columnNumber: 45
+                                                                lineNumber: 352,
+                                                                columnNumber: 49
                                                             }, this),
                                                             "핀 모드로 플레이"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                        lineNumber: 339,
-                                                        columnNumber: 41
+                                                        lineNumber: 347,
+                                                        columnNumber: 45
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                                    lineNumber: 338,
-                                                    columnNumber: 37
+                                                    lineNumber: 346,
+                                                    columnNumber: 41
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                                            lineNumber: 303,
-                                            columnNumber: 33
+                                            lineNumber: 311,
+                                            columnNumber: 37
                                         }, this)
                                     ]
                                 }, song.id, true, {
                                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                                    lineNumber: 287,
-                                    columnNumber: 29
+                                    lineNumber: 295,
+                                    columnNumber: 33
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/app/select/page.tsx",
-                            lineNumber: 285,
-                            columnNumber: 21
+                            lineNumber: 293,
+                            columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/app/select/page.tsx",
-                    lineNumber: 134,
-                    columnNumber: 13
+                    lineNumber: 142,
+                    columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/renderer/app/select/page.tsx",
-                lineNumber: 133,
+                lineNumber: 141,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$DifficultySelectionModal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DifficultySelectionModal"], {
@@ -2030,14 +2107,15 @@ function SelectPage() {
                 loading: loadingDifficulties
             }, void 0, false, {
                 fileName: "[project]/src/renderer/app/select/page.tsx",
-                lineNumber: 357,
-                columnNumber: 9
+                lineNumber: 365,
+                columnNumber: 13
             }, this)
         ]
     }, void 0, true);
 }
-_s(SelectPage, "boQAMwzJ0F+YP8A08NkQ1BcTYRI=", false, function() {
+_s(SelectPage, "sl1S+BlpsxhG30FQKUevAO24HwM=", false, function() {
     return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useSongs$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSongs"],
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$hooks$2f$useGameState$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useGameState"]
     ];

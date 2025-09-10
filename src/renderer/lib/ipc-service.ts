@@ -83,10 +83,16 @@ class IPCService {
     }
 
     async startGame(params: { chartId: string; difficulty?: string; gameMode: string; mods?: string[] }): Promise<GameSession> {
+        console.log('🔌 IPC: Calling game.start with params:', params);
         const result = await this.api.game.start(params); // ✅ Updated: Use new API params
+        console.log('🔌 IPC: game.start result:', result);
+
         if (!result.success) {
+            console.error('🔌 IPC: Game start failed:', result.error);
             throw new Error(result.error || 'Failed to start game');
         }
+
+        console.log('🔌 IPC: Game start successful, returning mock session');
         // Mock GameSession for now - this should come from the backend
         return {
             sessionId: 'mock-session-' + Date.now(),
