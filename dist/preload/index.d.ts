@@ -37,8 +37,14 @@ interface MessageBoxOptions {
     buttons?: string[];
 }
 declare const gameApi: {
+    getDifficulties: (chartId: string) => Promise<{
+        success: boolean;
+        difficulties?: any[];
+        error?: string;
+    }>;
     start: (params: {
-        chartData: ChartData;
+        chartId: string;
+        difficulty?: string;
         gameMode: string;
         mods?: string[];
     }) => Promise<{

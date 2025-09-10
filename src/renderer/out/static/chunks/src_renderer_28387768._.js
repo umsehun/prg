@@ -150,6 +150,9 @@ class IPCService {
         return window.electronAPI;
     }
     // Game methods - Updated for new runtime .osu loading API
+    async getDifficulties(chartId) {
+        return await this.api.game.getDifficulties(chartId);
+    }
     async startGame(params) {
         const result = await this.api.game.start(params); // ✅ Updated: Use new API params
         if (!result.success) {

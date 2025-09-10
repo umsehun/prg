@@ -12,12 +12,20 @@ import Link from 'next/link';
 import { useState, useMemo } from 'react';
 import { useSongs } from '@/hooks/useSongs';
 import { useGameState } from '@/hooks/useGameState';
+import { DifficultySelectionModal } from '@/components/ui/DifficultySelectionModal';
+import { ipcService } from '@/lib/ipc-service';
 
 export default function SelectPage() {
     const { songs, loading, error, refreshLibrary, hasDummyData } = useSongs();
     const { startGame } = useGameState();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
+    
+    // Difficulty selection modal state
+    const [showDifficultyModal, setShowDifficultyModal] = useState(false);
+    const [selectedSong, setSelectedSong] = useState<any>(null);
+    const [difficulties, setDifficulties] = useState<any[]>([]);
+    const [loadingDifficulties, setLoadingDifficulties] = useState(false);
 
     // Filter songs based on search and difficulty
     const filteredSongs = useMemo(() => {
@@ -37,17 +45,49 @@ export default function SelectPage() {
     const handlePlaySong = async (songId: string) => {
         const song = songs.find(s => s.id === songId);
         if (song) {
-            console.log('🎯 Starting pin game for:', song.title);
-
-            // ✅ SIMPLIFIED: Always use pin mode, start game and navigate
-            const success = await startGame(song, 'pin');
-            if (success) {
-                console.log('✅ Pin game started, navigating to /pin');
-                window.location.href = '/pin';
-            } else {
-                console.error('❌ Failed to start pin game');
+            console.log('🎯 Opening difficulty selection for:', song.title);
+            
+            setSelectedSong(song);
+            setShowDifficultyModal(true);
+            setLoadingDifficulties(true);
+            
+            try {
+                // Get available difficulties for this chart
+                const response = await ipcService.getDifficulties(songId);
+                if (response.success && response.difficulties) {
+                    setDifficulties(response.difficulties);
+                } else {
+                    console.error('Failed to get difficulties:', response.error);
+                    setDifficulties([]);
+                }
+            } catch (error) {
+                console.error('Error getting difficulties:', error);
+                setDifficulties([]);
+            } finally {
+                setLoadingDifficulties(false);
             }
         }
+    };
+
+    const handleDifficultySelected = async (difficulty: string) => {
+        if (selectedSong) {
+            console.log('🎯 Starting game with difficulty:', difficulty);
+            
+            const success = await startGame(selectedSong, 'pin');
+            if (success) {
+                console.log('✅ Game started, navigating to /pin');
+                setShowDifficultyModal(false);
+                window.location.href = '/pin';
+            } else {
+                console.error('❌ Failed to start game');
+            }
+        }
+    };
+
+    const handleCloseDifficultyModal = () => {
+        setShowDifficultyModal(false);
+        setSelectedSong(null);
+        setDifficulties([]);
     };
 
     const formatDuration = (ms: number) => {
@@ -89,7 +129,8 @@ export default function SelectPage() {
     }
 
     return (
-        <div className="min-h-full bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 p-6 pt-20">
+        <>
+            <div className="min-h-full bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 p-6 pt-20">
             <div className="max-w-7xl mx-auto">
                 {/* Dummy Data Warning */}
                 {hasDummyData && (
@@ -310,6 +351,17 @@ export default function SelectPage() {
                     </div>
                 )}
             </div>
-        </div>
+            </div>
+
+            {/* Difficulty Selection Modal */}
+        <DifficultySelectionModal
+            isOpen={showDifficultyModal}
+            onClose={handleCloseDifficultyModal}
+            onSelectDifficulty={handleDifficultySelected}
+            songTitle={selectedSong?.title || ''}
+            difficulties={difficulties}
+            loading={loadingDifficulties}
+        />
+        </>
     );
 }

@@ -69,6 +69,19 @@ class IPCService {
     }
 
     // Game methods - Updated for new runtime .osu loading API
+    async getDifficulties(chartId: string): Promise<{
+        success: boolean;
+        difficulties?: Array<{
+            name: string;
+            filename: string;
+            starRating: number;
+            difficultyName: string;
+        }>;
+        error?: string;
+    }> {
+        return await this.api.game.getDifficulties(chartId);
+    }
+
     async startGame(params: { chartId: string; difficulty?: string; gameMode: string; mods?: string[] }): Promise<GameSession> {
         const result = await this.api.game.start(params); // ✅ Updated: Use new API params
         if (!result.success) {

@@ -7,7 +7,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 // Game API with proper typing
 const gameApi = {
-    // Start game with chart data
+    // Get available difficulties for a chart
+    getDifficulties: (chartId) => electron_1.ipcRenderer.invoke('game:get-difficulties', chartId),
+    // Start game with chart ID and difficulty (new API)
     start: (params) => electron_1.ipcRenderer.invoke('game:start', params),
     // Stop current game
     stop: () => electron_1.ipcRenderer.invoke('game:stop'),

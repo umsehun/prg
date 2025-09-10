@@ -44,8 +44,12 @@ interface MessageBoxOptions {
 
 // Game API with proper typing
 const gameApi = {
-    // Start game with chart data
-    start: (params: { chartData: ChartData; gameMode: string; mods?: string[] }): Promise<{ success: boolean; message?: string; error?: string }> =>
+    // Get available difficulties for a chart
+    getDifficulties: (chartId: string): Promise<{ success: boolean; difficulties?: any[]; error?: string }> =>
+        ipcRenderer.invoke('game:get-difficulties', chartId),
+
+    // Start game with chart ID and difficulty (new API)
+    start: (params: { chartId: string; difficulty?: string; gameMode: string; mods?: string[] }): Promise<{ success: boolean; message?: string; error?: string }> =>
         ipcRenderer.invoke('game:start', params),
 
     // Stop current game
