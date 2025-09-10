@@ -87,7 +87,7 @@ class IPCManager {
             },
             {
                 name: 'osz',
-                setup: osz_handler_1.setupOszHandlers,
+                setup: osz_handler_1.setup,
                 description: 'OSZ file processing handlers (import, library, audio)'
             },
             {

@@ -6,6 +6,7 @@
 import { ipcMain, BrowserWindow } from 'electron';
 import { z } from 'zod';
 import { DatabaseService } from '../services/database.service';
+import { ChartImportService } from '../services/ChartImportService';
 import { logger } from '../../shared/globals/logger';
 
 /**
@@ -17,7 +18,7 @@ interface GameChartData {
     readonly artist: string;
     readonly difficulty: string;
     readonly audioPath: string;
-    readonly backgroundPath?: string;
+    readonly backgroundPath?: string | undefined;
     readonly bpm: number;
     readonly duration: number;
     readonly notes: Array<{
@@ -41,28 +42,9 @@ interface GameState {
 /**
  * Validation schemas
  */
-const GameChartDataSchema = z.object({
-    id: z.string().min(1),
-    title: z.string().min(1),
-    artist: z.string().min(1),
-    difficulty: z.string().min(1),
-    audioPath: z.string().min(1),
-    backgroundPath: z.string().optional().or(z.undefined()),
-    bpm: z.number().positive(),
-    duration: z.number().positive(),
-    notes: z.array(z.object({
-        time: z.number(),
-        type: z.enum(['tap', 'hold', 'slider']),
-        position: z.object({
-            x: z.number(),
-            y: z.number()
-        }).optional(),
-        duration: z.number().optional()
-    }))
-});
-
 const GameStartParamsSchema = z.object({
-    chartData: GameChartDataSchema,
+    chartId: z.string().min(1),
+    difficulty: z.string().optional(),
     gameMode: z.enum(['osu', 'taiko', 'fruits', 'mania']),
     mods: z.array(z.string()).optional(),
 });
@@ -192,9 +174,10 @@ function validateParams<T>(
 
 export function setupGameHandlers(mainWindow: BrowserWindow): void {
     logger.info('game', 'Setting up game handlers');
+    const chartImportService = new ChartImportService();
 
     /**
-     * Start game session
+     * Start game session - NEW APPROACH with runtime .osu loading
      */
     ipcMain.handle('game:start', async (_event, ...args): Promise<GameStartResponse> => {
         const operationId = `game-start-${Date.now()}`;
@@ -210,7 +193,7 @@ export function setupGameHandlers(mainWindow: BrowserWindow): void {
                 };
             }
 
-            const { chartData, gameMode, mods } = validation.data;
+            const { chartId, difficulty, gameMode, mods } = validation.data;
 
             // Check if game is already running
             if (gameStateManager.isGameActive()) {
@@ -221,27 +204,54 @@ export function setupGameHandlers(mainWindow: BrowserWindow): void {
                 };
             }
 
+            // Load chart data with notes from .osu files
+            logger.info('game', 'Loading chart data with notes', { operationId, chartId, difficulty });
+            const chartPlayData = await chartImportService.loadChartForPlay(chartId, difficulty);
+
+            if (!chartPlayData) {
+                logger.error('game', 'Failed to load chart data', { operationId, chartId });
+                return {
+                    success: false,
+                    error: 'Failed to load chart data'
+                };
+            }
+
+            // Create game chart data with proper media file paths
+            const gameChartData: GameChartData = {
+                id: chartPlayData.chartData.id,
+                title: chartPlayData.chartData.title,
+                artist: chartPlayData.chartData.artist,
+                difficulty: chartPlayData.difficulties.find(d => d.name === difficulty)?.difficultyName || 'Normal',
+                audioPath: chartPlayData.audioVideoFiles.audioFile || chartPlayData.chartData.audioFile,
+                backgroundPath: chartPlayData.audioVideoFiles.backgroundFile || chartPlayData.chartData.backgroundImage,
+                bpm: chartPlayData.chartData.bpm,
+                duration: chartPlayData.chartData.duration,
+                notes: chartPlayData.notes
+            };
+
             logger.info('game', 'Starting game session', {
                 operationId,
-                chartTitle: chartData.title,
+                chartTitle: gameChartData.title,
                 gameMode,
                 mods: mods || [],
-                notesCount: chartData.notes?.length || 0,
-                firstNote: chartData.notes?.[0] || null,
+                notesCount: gameChartData.notes?.length || 0,
+                firstNote: gameChartData.notes?.[0] || null,
+                audioPath: gameChartData.audioPath,
+                videoFile: chartPlayData.audioVideoFiles.videoFile,
             });
 
             // Log detailed chart data for debugging
             logger.debug('game', 'Chart data details', {
                 operationId,
-                chartId: chartData.id,
-                hasNotes: Array.isArray(chartData.notes),
-                notesLength: chartData.notes?.length || 0,
-                audioPath: chartData.audioPath,
-                difficulty: chartData.difficulty,
+                chartId: gameChartData.id,
+                hasNotes: Array.isArray(gameChartData.notes),
+                notesLength: gameChartData.notes?.length || 0,
+                audioPath: gameChartData.audioPath,
+                difficulty: gameChartData.difficulty,
             });
 
             // Start game state
-            gameStateManager.startGame(chartData as GameChartData);
+            gameStateManager.startGame(gameChartData);
 
             // Get current state
             const gameState = gameStateManager.getState();
@@ -305,6 +315,66 @@ export function setupGameHandlers(mainWindow: BrowserWindow): void {
             return {
                 success: false,
                 error: error instanceof Error ? error.message : 'Unknown error during game stop',
+            };
+        }
+    });
+
+    /**
+     * Get available difficulties for a chart
+     */
+    ipcMain.handle('game:get-difficulties', async (_event, chartId: string): Promise<{
+        success: boolean;
+        difficulties?: Array<{
+            name: string;
+            filename: string;
+            starRating: number;
+            difficultyName: string;
+        }>;
+        error?: string;
+    }> => {
+        const operationId = `get-difficulties-${Date.now()}`;
+        logger.info('game', 'Get difficulties requested', { operationId, chartId });
+
+        try {
+            if (!chartId || typeof chartId !== 'string') {
+                return {
+                    success: false,
+                    error: 'Chart ID is required'
+                };
+            }
+
+            const chartImportService = new ChartImportService();
+            const chartPlayData = await chartImportService.loadChartForPlay(chartId);
+
+            if (!chartPlayData) {
+                logger.error('game', 'Failed to load chart difficulties', { operationId, chartId });
+                return {
+                    success: false,
+                    error: 'Chart not found'
+                };
+            }
+
+            logger.info('game', 'Difficulties retrieved', {
+                operationId,
+                chartId,
+                count: chartPlayData.difficulties.length
+            });
+
+            return {
+                success: true,
+                difficulties: chartPlayData.difficulties
+            };
+
+        } catch (error) {
+            logger.error('game', 'Get difficulties failed', {
+                operationId,
+                chartId,
+                error: error instanceof Error ? error.message : String(error)
+            });
+
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Failed to get difficulties'
             };
         }
     });

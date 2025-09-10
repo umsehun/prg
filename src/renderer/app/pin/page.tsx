@@ -5,10 +5,11 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useGameState } from '@/hooks/useGameState';
 import { useRouter } from 'next/navigation';
+import { AudioEngine } from '@/lib/audio/audio-engine';
 
 // Single Responsibility Components
 import { GameCanvas, type Pin, type HitEffect } from '@/components/game/GameCanvas';
@@ -28,12 +29,55 @@ export default function PinGamePage() {
         updateStats
     } = useGameState();
 
+    // Audio system
+    const audioEngine = useRef<AudioEngine | null>(null);
+
     // Game State
     const [targetRotation, setTargetRotation] = useState(0);
     const [pins, setPins] = useState<Pin[]>([]);
     const [rotationSpeed, setRotationSpeed] = useState(2);
     const [hitEffects, setHitEffects] = useState<HitEffect[]>([]);
     const [currentPinAngle, setCurrentPinAngle] = useState(0);
+
+    // Initialize audio engine
+    useEffect(() => {
+        audioEngine.current = new AudioEngine();
+        
+        return () => {
+            if (audioEngine.current) {
+                audioEngine.current.stop();
+            }
+        };
+    }, []);
+
+    // Load and play audio when game starts
+    useEffect(() => {
+        async function loadAudio() {
+            if (currentSong && gameState === 'playing' && audioEngine.current) {
+                try {
+                    console.log('🎵 Loading audio:', currentSong.audioFile);
+                    
+                    // Load audio file
+                    if (currentSong.audioFile) {
+                        const response = await fetch(`file://${currentSong.audioFile}`);
+                        const arrayBuffer = await response.arrayBuffer();
+                        
+                        const loaded = await audioEngine.current.loadAudio(arrayBuffer);
+                        if (loaded) {
+                            console.log('🎵 Starting audio playback');
+                            audioEngine.current.play();
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Failed to load audio:', error);
+                }
+            }
+        }
+
+        if (gameState === 'playing') {
+            loadAudio();
+        }
+    }, [currentSong, gameState]);
 
     // Hit Judgment System
     const handleHitResult = useCallback((result: 'PERFECT' | 'GOOD' | 'MISS', effect: HitEffect) => {

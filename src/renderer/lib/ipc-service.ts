@@ -68,16 +68,16 @@ class IPCService {
         return (window as any).electronAPI
     }
 
-    // Game methods
-    async startGame(params: { chartData: ChartData; gameMode: string; mods?: string[] }): Promise<GameSession> {
-        const result = await this.api.game.start(params); // ✅ Fixed: Pass proper params object
+    // Game methods - Updated for new runtime .osu loading API
+    async startGame(params: { chartId: string; difficulty?: string; gameMode: string; mods?: string[] }): Promise<GameSession> {
+        const result = await this.api.game.start(params); // ✅ Updated: Use new API params
         if (!result.success) {
             throw new Error(result.error || 'Failed to start game');
         }
         // Mock GameSession for now - this should come from the backend
         return {
             sessionId: 'mock-session-' + Date.now(),
-            chartId: params.chartData.id,
+            chartId: params.chartId,
             startTime: Date.now(),
             score: 0,
             accuracy: 1.0,

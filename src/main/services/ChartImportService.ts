@@ -3,16 +3,19 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { PathService } from './PathService';
 import { DirectoryOszExtractor, ChartMetadata } from '../utils/DirectoryOszExtractor';
+import { RuntimeOsuParser } from './RuntimeOsuParser';
 import type { SongData } from '../../shared/d.ts/ipc';
 import { logger } from '../../shared/globals/logger';
 
 export class ChartImportService {
     private pathService: PathService;
     private extractor: DirectoryOszExtractor;
+    private osuParser: RuntimeOsuParser;
 
     constructor() {
         this.pathService = new PathService();
         this.extractor = new DirectoryOszExtractor();
+        this.osuParser = new RuntimeOsuParser();
     }
 
     /**
@@ -67,7 +70,7 @@ export class ChartImportService {
             if (parsedCharts.length > 0) {
                 await this.saveLibraryJson(parsedCharts);
             }
-            
+
             return parsedCharts;
 
         } catch (error) {
@@ -102,7 +105,7 @@ export class ChartImportService {
     private async parseOszToCharts(oszPath: string, chartsPath: string): Promise<SongData | null> {
         try {
             const fileName = path.basename(oszPath, '.osz');
-            
+
             // Check if already exists
             const outputDir = path.join(chartsPath, fileName);
             try {
@@ -141,7 +144,7 @@ export class ChartImportService {
     private async saveLibraryJson(charts: SongData[]): Promise<void> {
         try {
             const libraryPath = path.join(this.pathService.getAppDataPath(), 'library.json');
-            
+
             const libraryData = charts.map(chart => ({
                 id: chart.id,
                 title: chart.title,
@@ -152,10 +155,10 @@ export class ChartImportService {
                 duration: chart.duration,
                 filePath: chart.filePath
             }));
-            
+
             await fs.writeFile(libraryPath, JSON.stringify(libraryData, null, 2), 'utf-8');
             logger.info('chart-import', `Library saved: ${libraryPath}`);
-            
+
         } catch (error) {
             logger.error('chart-import', `Failed to save library: ${error}`);
         }
@@ -165,13 +168,13 @@ export class ChartImportService {
         try {
             const files = await fs.readdir(chartDir);
             const osuFiles = files.filter(f => f.endsWith('.osu'));
-            
+
             if (osuFiles.length === 0) return null;
 
             const chartName = path.basename(chartDir);
             const audioFile = files.find(f => f.endsWith('.mp3')) || '';
             const backgroundFile = files.find(f => f.match(/\.(jpg|jpeg|png)$/i)) || '';
-            
+
             return {
                 id: chartName,
                 title: chartName,
@@ -203,5 +206,61 @@ export class ChartImportService {
      */
     public async getChartList(): Promise<SongData[]> {
         return this.autoScanOszFiles();
+    }
+
+    /**
+     * Load chart data with notes for game play
+     */
+    public async loadChartForPlay(chartId: string, difficulty?: string): Promise<{
+        chartData: SongData;
+        notes: Array<{
+            time: number;
+            type: 'tap' | 'hold' | 'slider';
+            position?: { x: number; y: number };
+            duration?: number;
+        }>;
+        difficulties: Array<{
+            name: string;
+            filename: string;
+            starRating: number;
+            difficultyName: string;
+        }>;
+        audioVideoFiles: {
+            audioFile: string | null;
+            videoFile: string | null;
+            backgroundFile: string | null;
+        };
+    } | null> {
+        try {
+            // Find chart in library
+            const charts = await this.loadLibraryJson();
+            const chart = charts.find(c => c.id === chartId);
+
+            if (!chart || !chart.filePath) {
+                logger.error('chart-import', `Chart not found: ${chartId}`);
+                return null;
+            }
+
+            // Get chart info with difficulties and notes
+            const chartInfo = await this.osuParser.getChartInfo(chart.filePath, difficulty);
+
+            if (!chartInfo.selectedDifficulty) {
+                logger.error('chart-import', `No difficulty found for chart: ${chartId}`);
+                return null;
+            }
+
+            logger.info('chart-import', `Loaded chart for play: ${chartId} - ${chartInfo.selectedDifficulty.difficultyName} (${chartInfo.notes.length} notes)`);
+
+            return {
+                chartData: chart,
+                notes: chartInfo.notes,
+                difficulties: chartInfo.difficulties,
+                audioVideoFiles: chartInfo.audioVideoFiles
+            };
+
+        } catch (error) {
+            logger.error('chart-import', `Failed to load chart for play: ${chartId} - ${error}`);
+            return null;
+        }
     }
 }

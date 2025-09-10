@@ -1,7 +1,9 @@
 /**
- * OSZ file processing IPC handlers
- * Type-safe handlers with Zod validation and comprehensive error handling
+ * Simplified OSZ Handler - Only essential functionality
+ * Uses ChartImportService for all OSZ operations
  */
-import { BrowserWindow } from 'electron';
-export declare function setupOszHandlers(mainWindow: BrowserWindow): void;
+/**
+ * Setup simplified OSZ handlers
+ */
+export declare function setup(): void;
 //# sourceMappingURL=osz.handler.d.ts.map

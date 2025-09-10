@@ -119,6 +119,7 @@ export function useSettings(): UseSettingsReturn {
                 }
             }
         } catch (err) {
+
             console.error('Failed to load settings:', err);
             setError('설정을 불러오는 데 실패했습니다');
             setSettings(defaultSettings);

@@ -75,26 +75,17 @@ export function useGameState(): UseGameStateReturn {
                 console.log('ℹ️ No existing game to stop:', stopError);
             }
 
-            // ✅ SIMPLIFIED: Always use pin mode (osu mapping for backend compatibility)
-            const chartData = {
-                id: song.id,
-                title: song.title,
-                artist: song.artist,
-                difficulty: 'Normal',
-                audioPath: song.audioFile || `/audio/${song.id}.mp3`,
-                backgroundPath: song.backgroundImage || undefined,
-                duration: song.duration,
-                bpm: song.bpm,
-                notes: song.notes || [], // ✅ CRITICAL: Include notes array for validation
-            };
-
-            console.log('🎮 Starting pin game with chart:', chartData);
+            // ✅ NEW API: Use chartId and difficulty instead of full chartData
+            console.log('🎮 Starting pin game with song:', song.title, '(ID:', song.id, ')');
 
             const gameStartParams = {
-                chartData,
-                gameMode: 'osu', // Always use osu for backend compatibility
+                chartId: song.id,
+                difficulty: 'Normal', // Default difficulty - could be made configurable
+                gameMode: 'osu' as const,
                 mods: [] as string[]
             };
+
+            console.log('🎮 Starting game with new API params:', gameStartParams);
 
             // ✅ Start new game session
             const gameSession = await ipcService.startGame(gameStartParams);

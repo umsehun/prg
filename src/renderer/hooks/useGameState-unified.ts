@@ -9,6 +9,7 @@ import { useState, useCallback, useRef } from 'react';
 import type { SongData, ScoreData } from '../../shared/d.ts/ipc';
 import { ipcService } from '../lib/ipc-service';
 
+
 type GameMode = 'osu' | 'pin';
 type GameState = 'idle' | 'loading' | 'playing' | 'paused' | 'finished';
 
@@ -79,10 +80,12 @@ export function useGameState(): UseGameStateReturn {
                 bpm: song.bpm,
             };
 
-            console.log('🎮 Starting game with unified IPC service:', chartData);
+            console.log('🎮 Starting game with unified IPC service (chartData for debug):', chartData);
 
+            // Use the new API shape expected by ipcService.startGame
             const gameStartParams = {
-                chartData,
+                chartId: song.id,
+                difficulty: 'Normal',
                 gameMode: mode === 'pin' ? 'osu' : mode,
                 mods: [] as string[]
             };

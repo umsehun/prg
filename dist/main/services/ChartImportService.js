@@ -9,6 +9,7 @@ const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 const PathService_1 = require("./PathService");
 const DirectoryOszExtractor_1 = require("../utils/DirectoryOszExtractor");
+const RuntimeOsuParser_1 = require("./RuntimeOsuParser");
 const logger_1 = require("../../shared/globals/logger");
 class ChartImportService {
     constructor() {
@@ -24,8 +25,15 @@ class ChartImportService {
             writable: true,
             value: void 0
         });
+        Object.defineProperty(this, "osuParser", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
         this.pathService = new PathService_1.PathService();
         this.extractor = new DirectoryOszExtractor_1.DirectoryOszExtractor();
+        this.osuParser = new RuntimeOsuParser_1.RuntimeOsuParser();
     }
     /**
      * Auto-scan OSZ files and return loaded charts
@@ -200,6 +208,37 @@ class ChartImportService {
      */
     async getChartList() {
         return this.autoScanOszFiles();
+    }
+    /**
+     * Load chart data with notes for game play
+     */
+    async loadChartForPlay(chartId, difficulty) {
+        try {
+            // Find chart in library
+            const charts = await this.loadLibraryJson();
+            const chart = charts.find(c => c.id === chartId);
+            if (!chart || !chart.filePath) {
+                logger_1.logger.error('chart-import', `Chart not found: ${chartId}`);
+                return null;
+            }
+            // Get chart info with difficulties and notes
+            const chartInfo = await this.osuParser.getChartInfo(chart.filePath, difficulty);
+            if (!chartInfo.selectedDifficulty) {
+                logger_1.logger.error('chart-import', `No difficulty found for chart: ${chartId}`);
+                return null;
+            }
+            logger_1.logger.info('chart-import', `Loaded chart for play: ${chartId} - ${chartInfo.selectedDifficulty.difficultyName} (${chartInfo.notes.length} notes)`);
+            return {
+                chartData: chart,
+                notes: chartInfo.notes,
+                difficulties: chartInfo.difficulties,
+                audioVideoFiles: chartInfo.audioVideoFiles
+            };
+        }
+        catch (error) {
+            logger_1.logger.error('chart-import', `Failed to load chart for play: ${chartId} - ${error}`);
+            return null;
+        }
     }
 }
 exports.ChartImportService = ChartImportService;

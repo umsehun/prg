@@ -6,7 +6,7 @@
 import { BrowserWindow } from 'electron';
 import { logger } from '../../shared/globals/logger';
 import { setupGameHandlers } from '../handlers/game.handler';
-import { setupOszHandlers } from '../handlers/osz.handler';
+import { setup as setupOszHandlers } from '../handlers/osz.handler';
 import { setupSettingsHandlers } from '../handlers/settings.handler';
 import { setupSystemHandlers } from '../handlers/system.handler';
 

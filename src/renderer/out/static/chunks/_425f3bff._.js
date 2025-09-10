@@ -493,16 +493,16 @@ class IPCService {
         }
         return window.electronAPI;
     }
-    // Game methods
+    // Game methods - Updated for new runtime .osu loading API
     async startGame(params) {
-        const result = await this.api.game.start(params); // ✅ Fixed: Pass proper params object
+        const result = await this.api.game.start(params); // ✅ Updated: Use new API params
         if (!result.success) {
             throw new Error(result.error || 'Failed to start game');
         }
         // Mock GameSession for now - this should come from the backend
         return {
             sessionId: 'mock-session-' + Date.now(),
-            chartId: params.chartData.id,
+            chartId: params.chartId,
             startTime: Date.now(),
             score: 0,
             accuracy: 1.0,
@@ -698,24 +698,15 @@ function useGameState() {
                 } catch (stopError) {
                     console.log('ℹ️ No existing game to stop:', stopError);
                 }
-                // ✅ SIMPLIFIED: Always use pin mode (osu mapping for backend compatibility)
-                const chartData = {
-                    id: song.id,
-                    title: song.title,
-                    artist: song.artist,
-                    difficulty: 'Normal',
-                    audioPath: song.audioFile || "/audio/".concat(song.id, ".mp3"),
-                    backgroundPath: song.backgroundImage || undefined,
-                    duration: song.duration,
-                    bpm: song.bpm,
-                    notes: song.notes || []
-                };
-                console.log('🎮 Starting pin game with chart:', chartData);
+                // ✅ NEW API: Use chartId and difficulty instead of full chartData
+                console.log('🎮 Starting pin game with song:', song.title, '(ID:', song.id, ')');
                 const gameStartParams = {
-                    chartData,
+                    chartId: song.id,
+                    difficulty: 'Normal',
                     gameMode: 'osu',
                     mods: []
                 };
+                console.log('🎮 Starting game with new API params:', gameStartParams);
                 // ✅ Start new game session
                 const gameSession = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$ipc$2d$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ipcService"].startGame(gameStartParams);
                 console.log('🎮 Pin game session started:', gameSession);
