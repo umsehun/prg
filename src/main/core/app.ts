@@ -57,7 +57,7 @@ export class ApplicationCore {
             logger.info('app', 'Starting application initialization');
 
             // Set application name VERY EARLY for menubar
-            app.setName('Pin Rhythm');
+            app.setName('Prg');
 
             // ✅ CRITICAL: For macOS menubar visibility  
             if (PlatformUtils.isMacOS) {
@@ -67,7 +67,7 @@ export class ApplicationCore {
 
                 // ✅ CRITICAL: Disable automatic menu creation
                 app.setAboutPanelOptions({
-                    applicationName: 'Pin Rhythm',
+                    applicationName: 'Prg',
                     applicationVersion: app.getVersion(),
                     version: app.getVersion(),
                     authors: ['Pin Rhythm Team']

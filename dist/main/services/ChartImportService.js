@@ -8,8 +8,7 @@ exports.ChartImportService = void 0;
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 const PathService_1 = require("./PathService");
-const AdvancedOszParser_1 = require("../utils/AdvancedOszParser");
-const MediaConverter_1 = require("./MediaConverter");
+const DirectoryOszExtractor_1 = require("../utils/DirectoryOszExtractor");
 const logger_1 = require("../../shared/globals/logger");
 class ChartImportService {
     constructor() {
@@ -19,103 +18,23 @@ class ChartImportService {
             writable: true,
             value: void 0
         });
-        Object.defineProperty(this, "parser", {
-            enumerable: true,
-            configurable: true,
-            writable: true,
-            value: void 0
-        });
-        Object.defineProperty(this, "mediaConverter", {
+        Object.defineProperty(this, "extractor", {
             enumerable: true,
             configurable: true,
             writable: true,
             value: void 0
         });
         this.pathService = new PathService_1.PathService();
-        this.parser = new AdvancedOszParser_1.AdvancedOszParser();
-        this.mediaConverter = MediaConverter_1.MediaConverter.getInstance();
+        this.extractor = new DirectoryOszExtractor_1.DirectoryOszExtractor();
     }
     /**
-     * Load charts from library.json file (real OSZ data)
+     * Auto-scan OSZ files and return loaded charts
      */
-    async loadLibraryJson() {
-        try {
-            const libraryPath = this.pathService.getLibraryPath();
-            logger_1.logger.info('chart-import', `Loading library from: ${libraryPath}`);
-            // Check if library.json exists
-            try {
-                await fs_1.promises.access(libraryPath);
-            }
-            catch {
-                logger_1.logger.warn('chart-import', 'library.json not found');
-                return [];
-            }
-            // Read and parse library.json
-            const data = await fs_1.promises.readFile(libraryPath, 'utf-8');
-            const libraryData = JSON.parse(data);
-            if (!Array.isArray(libraryData)) {
-                logger_1.logger.error('chart-import', 'Invalid library.json format');
-                return [];
-            }
-            // Convert library.json format to SongData format
-            const songs = libraryData.map((chart) => {
-                // Extract real difficulty data
-                let difficultyData = {
-                    easy: 1,
-                    normal: 3,
-                    hard: 5,
-                    expert: 7
-                };
-                if (chart.difficulties && Array.isArray(chart.difficulties) && chart.difficulties.length > 0) {
-                    const diffs = chart.difficulties;
-                    // Use the first difficulty's overallDifficulty as base
-                    const baseDiff = diffs[0].overallDifficulty || 5;
-                    const scaledDiff = Math.round(baseDiff);
-                    difficultyData = {
-                        easy: Math.max(1, scaledDiff - 2),
-                        normal: scaledDiff,
-                        hard: Math.min(10, scaledDiff + 2),
-                        expert: Math.min(10, scaledDiff + 4)
-                    };
-                }
-                return {
-                    id: chart.id || `unknown-${Date.now()}`,
-                    title: chart.title || 'Unknown Title',
-                    artist: chart.artist || 'Unknown Artist',
-                    audioFile: chart.audioFilename || '',
-                    backgroundImage: chart.backgroundFilename || '',
-                    difficulty: difficultyData,
-                    bpm: chart.bpm || 120,
-                    duration: chart.duration || 180000,
-                    filePath: chart.filePath || '',
-                    notes: []
-                };
-            });
-            logger_1.logger.info('chart-import', `Loaded ${songs.length} charts from library.json`);
-            return songs;
-        }
-        catch (error) {
-            logger_1.logger.error('chart-import', `Failed to load library.json: ${error}`);
-            return [];
-        }
+    async autoScanOszFiles() {
+        return this.autoScanAndParseOszFiles();
     }
     /**
-     * Get the public/assets directory path
-     */
-    getPublicAssetsPath() {
-        const isDev = process.env.NODE_ENV === 'development';
-        if (isDev) {
-            // Development: use project root public/assets
-            return path_1.default.join(process.cwd(), 'public', 'assets');
-        }
-        else {
-            // Production: use resources/app/public/assets
-            return path_1.default.join(process.resourcesPath, 'app', 'public', 'assets');
-        }
-    }
-    /**
-     * Scan public/assets for .osz files and auto-parse them
-     * First tries to load from library.json, then falls back to OSZ parsing
+     * Auto-scan OSZ files and parse them (main method)
      */
     async autoScanAndParseOszFiles() {
         try {
@@ -126,169 +45,161 @@ class ChartImportService {
                 return libraryCharts;
             }
             // Fallback to OSZ parsing
-            logger_1.logger.info('chart-import', 'No library.json found, falling back to OSZ parsing');
+            logger_1.logger.info('chart-import', 'No library.json found, parsing OSZ files');
             const publicAssetsPath = this.getPublicAssetsPath();
             const chartsPath = this.pathService.getChartsPath();
-            logger_1.logger.info('chart-import', `Scanning for OSZ files in: ${publicAssetsPath}`);
             // Ensure charts directory exists
             await fs_1.promises.mkdir(chartsPath, { recursive: true });
-            // Check if public/assets exists
-            try {
-                await fs_1.promises.access(publicAssetsPath);
-            }
-            catch (error) {
-                logger_1.logger.warn('chart-import', `Public assets path not found: ${publicAssetsPath}`);
-                return [];
-            }
-            // Read all items in public/assets
+            // Scan for OSZ files
             const items = await fs_1.promises.readdir(publicAssetsPath, { withFileTypes: true });
             const parsedCharts = [];
             for (const item of items) {
-                const itemPath = path_1.default.join(publicAssetsPath, item.name);
                 if (item.isFile() && item.name.endsWith('.osz')) {
-                    // Direct .osz file
-                    logger_1.logger.info('chart-import', `Found OSZ file: ${item.name}`);
-                    const chart = await this.parseOszToCharts(itemPath, chartsPath);
+                    const oszPath = path_1.default.join(publicAssetsPath, item.name);
+                    const chart = await this.parseOszToCharts(oszPath, chartsPath);
                     if (chart)
                         parsedCharts.push(chart);
                 }
                 else if (item.isDirectory()) {
-                    // Check if directory contains .osz file
-                    const dirPath = itemPath;
-                    const dirItems = await fs_1.promises.readdir(dirPath);
+                    const dirItems = await fs_1.promises.readdir(path_1.default.join(publicAssetsPath, item.name));
                     const oszFile = dirItems.find(file => file.endsWith('.osz'));
                     if (oszFile) {
-                        logger_1.logger.info('chart-import', `Found OSZ file in directory: ${item.name}/${oszFile}`);
-                        const oszPath = path_1.default.join(dirPath, oszFile);
+                        const oszPath = path_1.default.join(publicAssetsPath, item.name, oszFile);
                         const chart = await this.parseOszToCharts(oszPath, chartsPath);
                         if (chart)
                             parsedCharts.push(chart);
                     }
                 }
             }
-            logger_1.logger.info('chart-import', `Successfully parsed ${parsedCharts.length} OSZ files`);
+            // Save library.json after successful parsing
+            if (parsedCharts.length > 0) {
+                await this.saveLibraryJson(parsedCharts);
+            }
             return parsedCharts;
         }
         catch (error) {
-            logger_1.logger.error('chart-import', `Failed to auto-scan OSZ files: ${error}`);
+            logger_1.logger.error('chart-import', `Failed to scan OSZ files: ${error}`);
             return [];
         }
     }
-    /**
-     * Parse a single OSZ file to the charts directory
-     */
+    async loadLibraryJson() {
+        try {
+            const libraryPath = this.pathService.getLibraryPath();
+            const data = await fs_1.promises.readFile(libraryPath, 'utf-8');
+            const libraryData = JSON.parse(data);
+            return libraryData.map((chart) => ({
+                id: chart.id || `unknown-${Date.now()}`,
+                title: chart.title || 'Unknown Title',
+                artist: chart.artist || 'Unknown Artist',
+                audioFile: chart.audioFile || '',
+                backgroundImage: chart.backgroundFile || '',
+                difficulty: { easy: 1, normal: 3, hard: 5, expert: 7 },
+                bpm: chart.bpm || 120,
+                duration: chart.duration || 180000,
+                filePath: chart.filePath || '',
+                notes: [] // Notes will be loaded from .osu files at runtime
+            }));
+        }
+        catch {
+            return [];
+        }
+    }
     async parseOszToCharts(oszPath, chartsPath) {
         try {
             const fileName = path_1.default.basename(oszPath, '.osz');
+            // Check if already exists
             const outputDir = path_1.default.join(chartsPath, fileName);
-            // Check if already parsed
             try {
                 await fs_1.promises.access(outputDir);
-                logger_1.logger.debug('chart-import', `Chart already exists, skipping: ${fileName}`);
-                // Try to load existing chart data
+                logger_1.logger.debug('chart-import', `Chart already exists: ${fileName}`);
                 return await this.loadExistingChart(outputDir);
             }
             catch {
-                // Chart doesn't exist, parse it
+                // Chart doesn't exist, extract it
             }
-            logger_1.logger.info('chart-import', `Parsing OSZ file: ${fileName}`);
-            const songData = await this.parser.parseOszFile(oszPath, outputDir);
-            if (songData) {
-                // Convert media files if needed
-                await this.convertMediaFiles(outputDir, songData);
-                logger_1.logger.info('chart-import', `Successfully parsed: ${songData.title} by ${songData.artist}`);
-            }
-            return songData;
+            // Extract OSZ using DirectoryOszExtractor
+            const metadata = await this.extractor.extractOsz(oszPath, chartsPath);
+            return this.convertMetadataToSongData(metadata);
         }
         catch (error) {
-            logger_1.logger.error('chart-import', `Failed to parse OSZ file ${oszPath}: ${error}`);
+            logger_1.logger.error('chart-import', `Failed to parse OSZ: ${error}`);
             return null;
         }
     }
-    /**
-     * Convert audio and video files to supported formats
-     */
-    async convertMediaFiles(chartDir, songData) {
+    convertMetadataToSongData(metadata) {
+        return {
+            id: metadata.id,
+            title: metadata.title,
+            artist: metadata.artist,
+            audioFile: metadata.audioFile || '',
+            backgroundImage: metadata.backgroundFile || '',
+            difficulty: { easy: 3, normal: 5, hard: 7, expert: 9 },
+            bpm: metadata.bpm,
+            duration: metadata.duration,
+            filePath: metadata.filePath,
+            notes: [] // Notes will be loaded from .osu files at runtime
+        };
+    }
+    async saveLibraryJson(charts) {
         try {
-            // Convert audio file to MP3 if needed
-            if (songData.audioFile) {
-                const audioPath = path_1.default.resolve(chartDir, songData.audioFile);
-                if (await this.fileExists(audioPath) && !audioPath.endsWith('.mp3')) {
-                    logger_1.logger.info('chart-import', `Converting audio file: ${audioPath}`);
-                    await this.mediaConverter.ensureMp3(audioPath, chartDir);
-                }
-            }
-            // Convert background video to MP4 if needed (if exists)
-            const possibleVideoFiles = [
-                'background.avi', 'background.mov', 'background.wmv',
-                'bg.avi', 'bg.mov', 'bg.wmv', 'video.avi', 'video.mov', 'video.wmv'
-            ];
-            for (const videoFile of possibleVideoFiles) {
-                const videoPath = path_1.default.join(chartDir, videoFile);
-                if (await this.fileExists(videoPath)) {
-                    logger_1.logger.info('chart-import', `Converting video file: ${videoPath}`);
-                    await this.mediaConverter.ensureMp4(videoPath, chartDir);
-                    break;
-                }
-            }
+            const libraryPath = path_1.default.join(this.pathService.getAppDataPath(), 'library.json');
+            const libraryData = charts.map(chart => ({
+                id: chart.id,
+                title: chart.title,
+                artist: chart.artist,
+                audioFile: chart.audioFile,
+                backgroundFile: chart.backgroundImage,
+                bpm: chart.bpm,
+                duration: chart.duration,
+                filePath: chart.filePath
+            }));
+            await fs_1.promises.writeFile(libraryPath, JSON.stringify(libraryData, null, 2), 'utf-8');
+            logger_1.logger.info('chart-import', `Library saved: ${libraryPath}`);
         }
         catch (error) {
-            logger_1.logger.error('chart-import', `Failed to convert media files: ${error}`);
+            logger_1.logger.error('chart-import', `Failed to save library: ${error}`);
         }
     }
-    /**
-     * Load existing chart data from parsed directory
-     */
     async loadExistingChart(chartDir) {
         try {
-            const chartDataPath = path_1.default.join(chartDir, 'chart.json');
-            if (await this.fileExists(chartDataPath)) {
-                const data = await fs_1.promises.readFile(chartDataPath, 'utf-8');
-                return JSON.parse(data);
-            }
-        }
-        catch (error) {
-            logger_1.logger.debug('chart-import', `Could not load existing chart data: ${error}`);
-        }
-        return null;
-    }
-    /**
-     * Check if file exists
-     */
-    async fileExists(filePath) {
-        try {
-            await fs_1.promises.access(filePath);
-            return true;
+            const files = await fs_1.promises.readdir(chartDir);
+            const osuFiles = files.filter(f => f.endsWith('.osu'));
+            if (osuFiles.length === 0)
+                return null;
+            const chartName = path_1.default.basename(chartDir);
+            const audioFile = files.find(f => f.endsWith('.mp3')) || '';
+            const backgroundFile = files.find(f => f.match(/\.(jpg|jpeg|png)$/i)) || '';
+            return {
+                id: chartName,
+                title: chartName,
+                artist: 'Unknown Artist',
+                audioFile,
+                backgroundImage: backgroundFile,
+                difficulty: { easy: 3, normal: 5, hard: 7, expert: 9 },
+                bpm: 120,
+                duration: 180000,
+                filePath: chartDir,
+                notes: []
+            };
         }
         catch {
-            return false;
+            return null;
+        }
+    }
+    getPublicAssetsPath() {
+        const isDev = process.env.NODE_ENV === 'development';
+        if (isDev) {
+            return path_1.default.join(process.cwd(), 'public', 'assets');
+        }
+        else {
+            return path_1.default.join(process.resourcesPath, 'public', 'assets');
         }
     }
     /**
-     * Get all parsed charts from the charts directory
+     * Get list of parsed charts (compatibility method)
      */
     async getChartList() {
-        try {
-            const chartsPath = this.pathService.getChartsPath();
-            // Ensure charts directory exists
-            await fs_1.promises.mkdir(chartsPath, { recursive: true });
-            const chartDirs = await fs_1.promises.readdir(chartsPath, { withFileTypes: true });
-            const charts = [];
-            for (const dir of chartDirs) {
-                if (dir.isDirectory()) {
-                    const chartPath = path_1.default.join(chartsPath, dir.name);
-                    const chart = await this.loadExistingChart(chartPath);
-                    if (chart) {
-                        charts.push(chart);
-                    }
-                }
-            }
-            return charts;
-        }
-        catch (error) {
-            logger_1.logger.error('chart-import', `Failed to get chart list: ${error}`);
-            return [];
-        }
+        return this.autoScanOszFiles();
     }
 }
 exports.ChartImportService = ChartImportService;

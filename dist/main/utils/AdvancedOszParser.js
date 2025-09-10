@@ -400,7 +400,7 @@ class AdvancedOszParser {
     /**
      * Calculate difficulty levels based on actual difficulty data
      */
-    calculateDifficultyLevels(difficulty, noteCount) {
+    calculateDifficultyLevels(difficulty, _noteCount) {
         const od = difficulty.overallDifficulty || 5;
         const ar = difficulty.approachRate || od;
         const cs = difficulty.circleSize || 5;

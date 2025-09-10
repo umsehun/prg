@@ -85,6 +85,7 @@ export function useGameState(): UseGameStateReturn {
                 backgroundPath: song.backgroundImage || undefined,
                 duration: song.duration,
                 bpm: song.bpm,
+                notes: song.notes || [], // ✅ CRITICAL: Include notes array for validation
             };
 
             console.log('🎮 Starting pin game with chart:', chartData);

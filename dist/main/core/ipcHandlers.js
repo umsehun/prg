@@ -8,7 +8,7 @@ function setupIpcHandlers() {
     const chartImportService = new ChartImportService_1.ChartImportService();
     electron_1.ipcMain.handle('songs:get-all', async () => {
         try {
-            return await chartImportService.getChartList();
+            return await chartImportService.autoScanOszFiles();
         }
         catch (error) {
             console.error('Failed to get chart list:', error);

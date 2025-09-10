@@ -1464,8 +1464,8 @@ export declare const AllSchemas: {
             oldValue: import("zod").ZodUnknown;
             newValue: import("zod").ZodUnknown;
             source: import("zod").ZodEnum<{
-                reset: "reset";
                 user: "user";
+                reset: "reset";
                 import: "import";
             }>;
         }, import("zod/v4/core/schemas.cjs").$strict>;
@@ -1625,10 +1625,10 @@ export declare const AllSchemas: {
                 enableDebugMode: import("zod").ZodDefault<import("zod").ZodBoolean>;
                 showDebugInfo: import("zod").ZodDefault<import("zod").ZodBoolean>;
                 logLevel: import("zod").ZodDefault<import("zod").ZodEnum<{
-                    error: "error";
-                    info: "info";
                     debug: "debug";
+                    info: "info";
                     warn: "warn";
+                    error: "error";
                 }>>;
                 enablePerformanceLogging: import("zod").ZodDefault<import("zod").ZodBoolean>;
                 verboseLogging: import("zod").ZodDefault<import("zod").ZodBoolean>;
@@ -1795,10 +1795,10 @@ export declare const AllSchemas: {
             enableDebugMode: import("zod").ZodDefault<import("zod").ZodBoolean>;
             showDebugInfo: import("zod").ZodDefault<import("zod").ZodBoolean>;
             logLevel: import("zod").ZodDefault<import("zod").ZodEnum<{
-                error: "error";
-                info: "info";
                 debug: "debug";
+                info: "info";
                 warn: "warn";
+                error: "error";
             }>>;
             enablePerformanceLogging: import("zod").ZodDefault<import("zod").ZodBoolean>;
             verboseLogging: import("zod").ZodDefault<import("zod").ZodBoolean>;
@@ -1851,8 +1851,8 @@ export declare const AllSchemas: {
             path: import("zod").ZodString;
             value: import("zod").ZodUnknown;
             operation: import("zod").ZodDefault<import("zod").ZodEnum<{
-                delete: "delete";
                 set: "set";
+                delete: "delete";
                 merge: "merge";
             }>>;
         }, import("zod/v4/core/schemas.cjs").$strict>;
@@ -1863,8 +1863,8 @@ export declare const AllSchemas: {
                 message: import("zod").ZodString;
                 code: import("zod").ZodString;
                 severity: import("zod").ZodEnum<{
-                    error: "error";
                     info: "info";
+                    error: "error";
                     warning: "warning";
                 }>;
             }, import("zod/v4/core/schemas.cjs").$strip>>>;

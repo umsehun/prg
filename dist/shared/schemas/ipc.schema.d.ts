@@ -859,8 +859,8 @@ export declare const SettingsChangeEventSchema: z.ZodObject<{
     oldValue: z.ZodUnknown;
     newValue: z.ZodUnknown;
     source: z.ZodEnum<{
-        reset: "reset";
         user: "user";
+        reset: "reset";
         import: "import";
     }>;
 }, z.core.$strict>;
@@ -1698,8 +1698,8 @@ export declare const IpcSchemas: {
         oldValue: z.ZodUnknown;
         newValue: z.ZodUnknown;
         source: z.ZodEnum<{
-            reset: "reset";
             user: "user";
+            reset: "reset";
             import: "import";
         }>;
     }, z.core.$strict>;

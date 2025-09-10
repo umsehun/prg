@@ -21,6 +21,15 @@ const GameChartDataSchema = zod_1.z.object({
     backgroundPath: zod_1.z.string().optional().or(zod_1.z.undefined()),
     bpm: zod_1.z.number().positive(),
     duration: zod_1.z.number().positive(),
+    notes: zod_1.z.array(zod_1.z.object({
+        time: zod_1.z.number(),
+        type: zod_1.z.enum(['tap', 'hold', 'slider']),
+        position: zod_1.z.object({
+            x: zod_1.z.number(),
+            y: zod_1.z.number()
+        }).optional(),
+        duration: zod_1.z.number().optional()
+    }))
 });
 const GameStartParamsSchema = zod_1.z.object({
     chartData: GameChartDataSchema,
@@ -152,6 +161,17 @@ function setupGameHandlers(mainWindow) {
                 chartTitle: chartData.title,
                 gameMode,
                 mods: mods || [],
+                notesCount: chartData.notes?.length || 0,
+                firstNote: chartData.notes?.[0] || null,
+            });
+            // Log detailed chart data for debugging
+            logger_1.logger.debug('game', 'Chart data details', {
+                operationId,
+                chartId: chartData.id,
+                hasNotes: Array.isArray(chartData.notes),
+                notesLength: chartData.notes?.length || 0,
+                audioPath: chartData.audioPath,
+                difficulty: chartData.difficulty,
             });
             // Start game state
             gameStateManager.startGame(chartData);

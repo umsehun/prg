@@ -113,7 +113,7 @@ export class AdvancedOszParser {
                         // Process .osu files
                         if (fileName.toLowerCase().endsWith('.osu')) {
                             logger.debug('advanced-osz', `Found .osu file: ${fileName}`);
-                            
+
                             zipfile.openReadStream(entry, (streamErr, readStream) => {
                                 if (streamErr || !readStream) {
                                     logger.error('advanced-osz', `Failed to read .osu file: ${streamErr}`);
@@ -148,12 +148,12 @@ export class AdvancedOszParser {
 
                             const outputPath = join(outputDir, fileName);
                             const writeStream = require('fs').createWriteStream(outputPath);
-                            
+
                             readStream.pipe(writeStream);
-                            
+
                             writeStream.on('finish', () => {
                                 extractedFiles.push(fileName);
-                                
+
                                 // Track important files
                                 const ext = extname(fileName).toLowerCase();
                                 if (['.mp3', '.wav', '.ogg', '.m4a'].includes(ext)) {
@@ -163,7 +163,7 @@ export class AdvancedOszParser {
                                         songData.backgroundImage = fileName;
                                     }
                                 }
-                                
+
                                 zipfile.readEntry();
                             });
 
@@ -211,7 +211,7 @@ export class AdvancedOszParser {
                             }
 
                             logger.info('advanced-osz', `✅ Successfully parsed: "${finalSongData.title}" by ${finalSongData.artist}`);
-                            logger.info('advanced-osz', `📊 BPM: ${finalSongData.bpm}, Duration: ${Math.round(finalSongData.duration/1000)}s, Notes: ${finalSongData.notes?.length || 0}`);
+                            logger.info('advanced-osz', `📊 BPM: ${finalSongData.bpm}, Duration: ${Math.round(finalSongData.duration / 1000)}s, Notes: ${finalSongData.notes?.length || 0}`);
                             resolve(finalSongData);
                         } catch (parseError) {
                             logger.error('advanced-osz', `Error finalizing song data: ${parseError}`);
@@ -237,7 +237,7 @@ export class AdvancedOszParser {
      */
     private parseOsuContent(content: string): Partial<SongData> {
         const lines = content.split('\n').map(line => line.trim());
-        
+
         let currentSection = '';
         let metadata: Partial<MetadataSection> = {};
         let general: Partial<GeneralSection> = {};
@@ -279,7 +279,7 @@ export class AdvancedOszParser {
 
         // Calculate BPM from timing points
         const calculatedBpm = this.calculateBPM(timingPoints);
-        
+
         // Calculate duration from hit objects
         const calculatedDuration = this.calculateDuration(hitObjects);
 
@@ -296,7 +296,7 @@ export class AdvancedOszParser {
             notes: this.convertHitObjectsToNotes(hitObjects)
         };
 
-        logger.info('advanced-osz', `🎯 Parsed results: BPM=${result.bpm}, Duration=${Math.round(result.duration/1000)}s, TimingPoints=${timingPoints.length}, HitObjects=${hitObjects.length}`);
+        logger.info('advanced-osz', `🎯 Parsed results: BPM=${result.bpm}, Duration=${Math.round(result.duration / 1000)}s, TimingPoints=${timingPoints.length}, HitObjects=${hitObjects.length}`);
 
         return result;
     }
@@ -413,7 +413,7 @@ export class AdvancedOszParser {
         };
 
         timingPoints.push(timingPoint);
-        
+
         if (timingPoint.uninherited) {
             logger.debug('advanced-osz', `⏱️  Uninherited timing point: ${time}ms, beatLength: ${beatLength}ms`);
         }
@@ -444,7 +444,7 @@ export class AdvancedOszParser {
      */
     private calculateBPM(timingPoints: TimingPoint[]): number {
         const uninheritedPoints = timingPoints.filter(tp => tp.uninherited && tp.beatLength > 0);
-        
+
         if (uninheritedPoints.length === 0) {
             logger.warn('advanced-osz', '⚠️ No valid uninherited timing points found, using default BPM 120');
             return 120;
@@ -455,7 +455,7 @@ export class AdvancedOszParser {
         const averageBpm = bpmValues.reduce((sum, bpm) => sum + bpm, 0) / bpmValues.length;
 
         logger.info('advanced-osz', `🎵 Calculated BPM: ${Math.round(averageBpm)} (from ${uninheritedPoints.length} timing points)`);
-        
+
         return Math.round(averageBpm);
     }
 
@@ -471,8 +471,8 @@ export class AdvancedOszParser {
         const lastObjectTime = Math.max(...hitObjects.map(obj => obj.time));
         const duration = lastObjectTime + 5000; // Add 5 seconds buffer
 
-        logger.info('advanced-osz', `⏳ Calculated duration: ${Math.round(duration/1000)}s (from ${hitObjects.length} hit objects)`);
-        
+        logger.info('advanced-osz', `⏳ Calculated duration: ${Math.round(duration / 1000)}s (from ${hitObjects.length} hit objects)`);
+
         return duration;
     }
 
@@ -487,7 +487,7 @@ export class AdvancedOszParser {
 
         // Create difficulty levels based on actual difficulty values
         const avgDifficulty = (od + ar + cs + hp) / 4;
-        
+
         return {
             easy: Math.max(1, Math.round(avgDifficulty - 2)),
             normal: Math.round(avgDifficulty),

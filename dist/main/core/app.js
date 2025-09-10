@@ -76,7 +76,7 @@ class ApplicationCore {
         try {
             logger_1.logger.info('app', 'Starting application initialization');
             // Set application name VERY EARLY for menubar
-            electron_1.app.setName('Pin Rhythm');
+            electron_1.app.setName('Prg');
             // ✅ CRITICAL: For macOS menubar visibility  
             if (platform_1.PlatformUtils.isMacOS) {
                 // ENSURE LSUIElement is NOT set (this would hide menubar)
@@ -84,7 +84,7 @@ class ApplicationCore {
                 process.env.LSUIElement = 'false';
                 // ✅ CRITICAL: Disable automatic menu creation
                 electron_1.app.setAboutPanelOptions({
-                    applicationName: 'Pin Rhythm',
+                    applicationName: 'Prg',
                     applicationVersion: electron_1.app.getVersion(),
                     version: electron_1.app.getVersion(),
                     authors: ['Pin Rhythm Team']

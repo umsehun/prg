@@ -363,7 +363,8 @@ function useGameState() {
                     audioPath: song.audioFile || "/audio/".concat(song.id, ".mp3"),
                     backgroundPath: song.backgroundImage || undefined,
                     duration: song.duration,
-                    bpm: song.bpm
+                    bpm: song.bpm,
+                    notes: song.notes || []
                 };
                 console.log('🎮 Starting pin game with chart:', chartData);
                 const gameStartParams = {

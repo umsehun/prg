@@ -1,40 +1,24 @@
 import type { SongData } from '../../shared/d.ts/ipc';
 export declare class ChartImportService {
     private pathService;
-    private parser;
-    private mediaConverter;
+    private extractor;
     constructor();
     /**
-     * Load charts from library.json file (real OSZ data)
+     * Auto-scan OSZ files and return loaded charts
      */
-    loadLibraryJson(): Promise<SongData[]>;
+    autoScanOszFiles(): Promise<SongData[]>;
     /**
-     * Get the public/assets directory path
-     */
-    private getPublicAssetsPath;
-    /**
-     * Scan public/assets for .osz files and auto-parse them
-     * First tries to load from library.json, then falls back to OSZ parsing
+     * Auto-scan OSZ files and parse them (main method)
      */
     autoScanAndParseOszFiles(): Promise<SongData[]>;
-    /**
-     * Parse a single OSZ file to the charts directory
-     */
+    private loadLibraryJson;
     private parseOszToCharts;
-    /**
-     * Convert audio and video files to supported formats
-     */
-    private convertMediaFiles;
-    /**
-     * Load existing chart data from parsed directory
-     */
+    private convertMetadataToSongData;
+    private saveLibraryJson;
     private loadExistingChart;
+    private getPublicAssetsPath;
     /**
-     * Check if file exists
-     */
-    private fileExists;
-    /**
-     * Get all parsed charts from the charts directory
+     * Get list of parsed charts (compatibility method)
      */
     getChartList(): Promise<SongData[]>;
 }

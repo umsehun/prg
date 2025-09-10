@@ -325,7 +325,7 @@ export function setupOszHandlers(mainWindow: BrowserWindow): void {
             const charts = await chartImportService.autoScanAndParseOszFiles();
 
             // Convert to expected format using real difficulty data 
-            const chartMetadata = charts.map(chart => {
+            const chartMetadata = charts.map((chart: any) => {
                 // Extract real difficulty names from chart.difficulty object
                 const realDifficulties: string[] = [];
                 if (chart.difficulty) {

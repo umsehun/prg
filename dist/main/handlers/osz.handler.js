@@ -250,7 +250,7 @@ function setupOszHandlers(mainWindow) {
             logger_1.logger.ipc('info', 'Auto-scanning OSZ files...', { operationId });
             const charts = await chartImportService.autoScanAndParseOszFiles();
             // Convert to expected format using real difficulty data 
-            const chartMetadata = charts.map(chart => {
+            const chartMetadata = charts.map((chart) => {
                 // Extract real difficulty names from chart.difficulty object
                 const realDifficulties = [];
                 if (chart.difficulty) {

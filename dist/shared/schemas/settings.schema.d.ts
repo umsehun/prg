@@ -170,10 +170,10 @@ export declare const DebugSettingsSchema: z.ZodObject<{
     enableDebugMode: z.ZodDefault<z.ZodBoolean>;
     showDebugInfo: z.ZodDefault<z.ZodBoolean>;
     logLevel: z.ZodDefault<z.ZodEnum<{
-        error: "error";
-        info: "info";
         debug: "debug";
+        info: "info";
         warn: "warn";
+        error: "error";
     }>>;
     enablePerformanceLogging: z.ZodDefault<z.ZodBoolean>;
     verboseLogging: z.ZodDefault<z.ZodBoolean>;
@@ -343,10 +343,10 @@ export declare const UserSettingsSchema: z.ZodObject<{
         enableDebugMode: z.ZodDefault<z.ZodBoolean>;
         showDebugInfo: z.ZodDefault<z.ZodBoolean>;
         logLevel: z.ZodDefault<z.ZodEnum<{
-            error: "error";
-            info: "info";
             debug: "debug";
+            info: "info";
             warn: "warn";
+            error: "error";
         }>>;
         enablePerformanceLogging: z.ZodDefault<z.ZodBoolean>;
         verboseLogging: z.ZodDefault<z.ZodBoolean>;
@@ -409,8 +409,8 @@ export declare const SettingsPatchSchema: z.ZodObject<{
     path: z.ZodString;
     value: z.ZodUnknown;
     operation: z.ZodDefault<z.ZodEnum<{
-        delete: "delete";
         set: "set";
+        delete: "delete";
         merge: "merge";
     }>>;
 }, z.core.$strict>;
@@ -424,8 +424,8 @@ export declare const SettingsValidationResultSchema: z.ZodObject<{
         message: z.ZodString;
         code: z.ZodString;
         severity: z.ZodEnum<{
-            error: "error";
             info: "info";
+            error: "error";
             warning: "warning";
         }>;
     }, z.core.$strip>>>;
@@ -579,10 +579,10 @@ export declare const SettingsSchemas: {
             enableDebugMode: z.ZodDefault<z.ZodBoolean>;
             showDebugInfo: z.ZodDefault<z.ZodBoolean>;
             logLevel: z.ZodDefault<z.ZodEnum<{
-                error: "error";
-                info: "info";
                 debug: "debug";
+                info: "info";
                 warn: "warn";
+                error: "error";
             }>>;
             enablePerformanceLogging: z.ZodDefault<z.ZodBoolean>;
             verboseLogging: z.ZodDefault<z.ZodBoolean>;
@@ -749,10 +749,10 @@ export declare const SettingsSchemas: {
         enableDebugMode: z.ZodDefault<z.ZodBoolean>;
         showDebugInfo: z.ZodDefault<z.ZodBoolean>;
         logLevel: z.ZodDefault<z.ZodEnum<{
-            error: "error";
-            info: "info";
             debug: "debug";
+            info: "info";
             warn: "warn";
+            error: "error";
         }>>;
         enablePerformanceLogging: z.ZodDefault<z.ZodBoolean>;
         verboseLogging: z.ZodDefault<z.ZodBoolean>;
@@ -805,8 +805,8 @@ export declare const SettingsSchemas: {
         path: z.ZodString;
         value: z.ZodUnknown;
         operation: z.ZodDefault<z.ZodEnum<{
-            delete: "delete";
             set: "set";
+            delete: "delete";
             merge: "merge";
         }>>;
     }, z.core.$strict>;
@@ -817,8 +817,8 @@ export declare const SettingsSchemas: {
             message: z.ZodString;
             code: z.ZodString;
             severity: z.ZodEnum<{
-                error: "error";
                 info: "info";
+                error: "error";
                 warning: "warning";
             }>;
         }, z.core.$strip>>>;

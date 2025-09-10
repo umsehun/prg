@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///Users/user/prg/src/renderer/components/providers/theme-provider.tsx"],"sourcesContent":["\"use client\"\n\nimport * as React from \"react\"\nimport { ThemeProvider as NextThemesProvider } from \"next-themes\"\n\ninterface ThemeProviderProps {\n    children: React.ReactNode\n    attribute?: \"class\" | \"data-theme\"\n    defaultTheme?: string\n    enableSystem?: boolean\n    disableTransitionOnChange?: boolean\n}\n\nexport function ThemeProvider({ children, ...props }: ThemeProviderProps) {\n    return <NextThemesProvider {...props}>{children}</NextThemesProvider>\n}"],"names":[],"mappings":";;;;;AAGA;AAHA;;;AAaO,SAAS,cAAc,KAA0C;QAA1C,EAAE,QAAQ,EAAE,GAAG,OAA2B,GAA1C;IAC1B,qBAAO,6LAAC,oKAAkB;QAAE,GAAG,KAAK;kBAAG;;;;;;AAC3C;KAFgB","debugId":null}}]
-}

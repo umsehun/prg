@@ -7,7 +7,7 @@ export function setupIpcHandlers() {
 
     ipcMain.handle('songs:get-all', async () => {
         try {
-            return await chartImportService.getChartList();
+            return await chartImportService.autoScanOszFiles();
         } catch (error) {
             console.error('Failed to get chart list:', error);
             throw new Error('Failed to retrieve chart list from the backend.');

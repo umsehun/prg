@@ -20,6 +20,12 @@ interface GameChartData {
     readonly backgroundPath?: string;
     readonly bpm: number;
     readonly duration: number;
+    readonly notes: Array<{
+        time: number;
+        type: 'tap' | 'hold' | 'slider';
+        position?: { x: number; y: number };
+        duration?: number;
+    }>;
 }
 
 interface GameState {
@@ -44,6 +50,15 @@ const GameChartDataSchema = z.object({
     backgroundPath: z.string().optional().or(z.undefined()),
     bpm: z.number().positive(),
     duration: z.number().positive(),
+    notes: z.array(z.object({
+        time: z.number(),
+        type: z.enum(['tap', 'hold', 'slider']),
+        position: z.object({
+            x: z.number(),
+            y: z.number()
+        }).optional(),
+        duration: z.number().optional()
+    }))
 });
 
 const GameStartParamsSchema = z.object({
@@ -211,6 +226,18 @@ export function setupGameHandlers(mainWindow: BrowserWindow): void {
                 chartTitle: chartData.title,
                 gameMode,
                 mods: mods || [],
+                notesCount: chartData.notes?.length || 0,
+                firstNote: chartData.notes?.[0] || null,
+            });
+
+            // Log detailed chart data for debugging
+            logger.debug('game', 'Chart data details', {
+                operationId,
+                chartId: chartData.id,
+                hasNotes: Array.isArray(chartData.notes),
+                notesLength: chartData.notes?.length || 0,
+                audioPath: chartData.audioPath,
+                difficulty: chartData.difficulty,
             });
 
             // Start game state

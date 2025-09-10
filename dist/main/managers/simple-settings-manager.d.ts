@@ -1,1 +1,0 @@
-//# sourceMappingURL=simple-settings-manager.d.ts.map
