@@ -184,4 +184,23 @@ pub fn create_menu_container(
     commands.entity(menu_container).add_child(play_button);
     commands.entity(menu_container).add_child(settings_button);
     commands.entity(menu_container).add_child(quit_button);
+
+    // Add keyboard shortcuts info
+    let shortcuts_info = commands
+        .spawn((
+            Text::new("Keyboard Shortcuts: [P] Play • [S] Settings • [E] Exit"),
+            TextLayout::new_with_justify(JustifyText::Center),
+            TextFont {
+                font_size: 16.0,
+                ..default()
+            },
+            TextColor(theme.accent.with_alpha(0.8)),
+            Node {
+                margin: UiRect::top(Val::Px(30.0)),
+                ..default()
+            },
+        ))
+        .id();
+    
+    commands.entity(menu_container).add_child(shortcuts_info);
 }

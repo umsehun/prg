@@ -4,6 +4,21 @@ use std::path::Path;
 use std::process::Command;
 use crate::resources::SongInfo;
 
+#[derive(Default, Debug)]
+struct DifficultyInfo {
+    overall_difficulty: Option<f32>,
+    circle_size: Option<f32>,
+    approach_rate: Option<f32>,
+    hp_drain_rate: Option<f32>,
+    stars: Option<f32>,
+}
+
+#[derive(Default, Debug)]
+struct SongMetadata {
+    title: Option<String>,
+    artist: Option<String>,
+}
+
 pub fn parse_osu_hit_times(path: &str) -> Result<Vec<u32>, Box<dyn std::error::Error>> {
     let s = std::fs::read_to_string(path)?;
     let mut in_hit = false;
@@ -37,21 +52,30 @@ pub fn extract_osz(path: &str, out_dir: &str) -> Result<(), Box<dyn std::error::
 }
 
 pub fn get_charts_dir() -> String {
-    #[cfg(target_os = "macos")]
-    {
-        let home = std::env::var("HOME").unwrap_or_default();
-        format!("{}/Library/Application Support/pgr/charts", home)
-    }
-    #[cfg(target_os = "windows")]
-    {
-        let appdata = std::env::var("APPDATA").unwrap_or_default();
-        format!("{}/pgr/charts", appdata)
-    }
-    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-    {
-        // Linux or other
-        let home = std::env::var("HOME").unwrap_or_default();
-        format!("{}/.local/share/pgr/charts", home)
+    // Get the project root directory (where Cargo.toml is located)
+    if let Ok(manifest_dir) = std::env::var("CARGO_MANIFEST_DIR") {
+        format!("{}/public/assets", manifest_dir)
+    } else {
+        // Fallback: try to find project root from current executable
+        if let Ok(exe_path) = std::env::current_exe() {
+            if let Some(exe_dir) = exe_path.parent() {
+                // Go up directories to find the project root
+                let mut current = exe_dir;
+                for _ in 0..5 { // Search up to 5 levels up
+                    let assets_path = current.join("public").join("assets");
+                    if assets_path.exists() {
+                        return assets_path.to_string_lossy().to_string();
+                    }
+                    if let Some(parent) = current.parent() {
+                        current = parent;
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+        // Final fallback: relative path from current working directory
+        "./public/assets".to_string()
     }
 }
 
@@ -180,10 +204,16 @@ pub fn parse_all_osz(assets_dir: &str) -> Result<Vec<SongInfo>, Box<dyn std::err
 
         songs.push(SongInfo {
             name: file_stem.to_string(),
+            artist: None,
             audio_path,
             video_path,
             banner_path,
             note_times,
+            overall_difficulty: None,
+            circle_size: None,
+            approach_rate: None,
+            hp_drain_rate: None,
+            stars: None,
         });
     }
 
@@ -225,9 +255,9 @@ pub fn parse_chart_folder(folder_name: &str) -> Result<Option<SongInfo>, Box<dyn
     
     println!("Parsing chart folder: {}", folder_path);
     
-    // Find .osu file for metadata
+    // Find .osu file for metadata first
     let mut osu_file_path = None;
-    let mut audio_file = None;
+    let mut available_audio_files = Vec::new();
     let mut video_file = None;
     let mut banner_file = None;
     
@@ -244,9 +274,7 @@ pub fn parse_chart_folder(folder_name: &str) -> Result<Option<SongInfo>, Box<dyn
                         }
                     },
                     "mp3" | "wav" | "ogg" => {
-                        if audio_file.is_none() {
-                            audio_file = Some(format!("charts/{}/{}", folder_name, file_name));
-                        }
+                        available_audio_files.push((file_name.to_string(), path.metadata().ok().map(|m| m.len()).unwrap_or(0)));
                     },
                     "webm" | "mp4" | "avi" | "mov" => {
                         if video_file.is_none() {
@@ -264,24 +292,66 @@ pub fn parse_chart_folder(folder_name: &str) -> Result<Option<SongInfo>, Box<dyn
         }
     }
     
-    // Parse .osu file for metadata and note times
-    let (song_name, note_times) = if let Some(ref osu_path) = osu_file_path {
-        let name = extract_song_title_from_osu(osu_path).unwrap_or_else(|_| folder_name.to_string());
-        let times = parse_osu_hit_times(osu_path.to_str().unwrap()).unwrap_or_default();
-        (name, times)
+    // Smart audio file selection
+    let audio_file = if let Some(ref osu_path) = osu_file_path {
+        // Priority 1: AudioFilename specified in .osu file
+        if let Ok(Some(specified_filename)) = extract_audio_filename_from_osu(osu_path) {
+            if available_audio_files.iter().any(|(name, _)| name == &specified_filename) {
+                Some(format!("charts/{}/{}", folder_name, specified_filename))
+            } else {
+                println!("AudioFilename '{}' specified in .osu but file not found", specified_filename);
+                None
+            }
+        } else {
+            None
+        }
     } else {
-        (folder_name.to_string(), vec![1000, 2000, 3000, 4000])
-    };
+        None
+    }.or_else(|| {
+        // Priority 2: Look for common main audio filenames
+        let preferred_names = ["audio.mp3", "song.mp3", "music.mp3"];
+        for preferred in &preferred_names {
+            if available_audio_files.iter().any(|(name, _)| name == preferred) {
+                return Some(format!("charts/{}/{}", folder_name, preferred));
+            }
+        }
+        
+        // Priority 3: Largest audio file (likely main song, not effect sound)
+        if let Some((largest_file, _)) = available_audio_files.iter()
+            .filter(|(_, size)| *size > 100_000) // Filter out small effect sounds (< 100KB)
+            .max_by_key(|(_, size)| *size) {
+            Some(format!("charts/{}/{}", folder_name, largest_file))
+        } else {
+            // Fallback: any audio file
+            available_audio_files.first().map(|(name, _)| format!("charts/{}/{}", folder_name, name))
+        }
+    });
     
+    // Parse .osu file for metadata, note times, and difficulty
+    let (song_name, artist_name, note_times, difficulty_info) = if let Some(ref osu_path) = osu_file_path {
+        let metadata = parse_metadata_from_osu(osu_path).unwrap_or_default();
+        let name = metadata.title.unwrap_or_else(|| extract_song_title_from_osu(osu_path).unwrap_or_else(|_| folder_name.to_string()));
+        let artist = metadata.artist;
+        let times = parse_osu_hit_times(osu_path.to_str().unwrap()).unwrap_or_default();
+        let diff = parse_difficulty_from_osu(osu_path).unwrap_or_default();
+        (name, artist, times, diff)
+    } else {
+        (folder_name.to_string(), None, vec![1000, 2000, 3000, 4000], DifficultyInfo::default())
+    };
+
     let song_info = SongInfo {
         name: song_name,
+        artist: artist_name,
         audio_path: audio_file,
         video_path: video_file,
         banner_path: banner_file,
         note_times,
-    };
-    
-    println!("Parsed song: {} (audio: {:?}, video: {:?}, banner: {:?})", 
+        overall_difficulty: difficulty_info.overall_difficulty,
+        circle_size: difficulty_info.circle_size,
+        approach_rate: difficulty_info.approach_rate,
+        hp_drain_rate: difficulty_info.hp_drain_rate,
+        stars: difficulty_info.stars,
+    };    println!("Parsed song: {} (audio: {:?}, video: {:?}, banner: {:?})", 
              song_info.name, song_info.audio_path, song_info.video_path, song_info.banner_path);
     
     Ok(Some(song_info))
@@ -308,6 +378,129 @@ fn extract_song_title_from_osu(osu_path: &Path) -> Result<String, Box<dyn std::e
     }
 }
 
+/// Extract AudioFilename from .osu file
+fn extract_audio_filename_from_osu(osu_path: &Path) -> Result<Option<String>, Box<dyn std::error::Error>> {
+    let content = std::fs::read_to_string(osu_path)?;
+    
+    for line in content.lines() {
+        if line.starts_with("AudioFilename:") {
+            let filename = line.trim_start_matches("AudioFilename:").trim();
+            if !filename.is_empty() && filename != "None" {
+                return Ok(Some(filename.to_string()));
+            }
+        }
+    }
+    
+    Ok(None)
+}
+
+/// Parse song metadata from .osu file
+fn parse_metadata_from_osu(osu_path: &Path) -> Result<SongMetadata, Box<dyn std::error::Error>> {
+    let content = std::fs::read_to_string(osu_path)?;
+    let mut metadata = SongMetadata::default();
+    let mut in_general_section = false;
+    
+    for line in content.lines() {
+        let line = line.trim();
+        
+        if line == "[General]" {
+            in_general_section = true;
+            continue;
+        }
+        
+        // Stop when we hit another section
+        if line.starts_with('[') && line != "[General]" {
+            in_general_section = false;
+        }
+        
+        if in_general_section && line.contains(':') {
+            let parts: Vec<&str> = line.splitn(2, ':').collect();
+            if parts.len() == 2 {
+                let key = parts[0].trim();
+                let value = parts[1].trim();
+                
+                match key {
+                    "Title" => {
+                        metadata.title = Some(value.to_string());
+                    },
+                    "Artist" => {
+                        metadata.artist = Some(value.to_string());
+                    },
+                    _ => {}
+                }
+            }
+        }
+    }
+    
+    Ok(metadata)
+}
+
+/// Parse difficulty information from .osu file
+fn parse_difficulty_from_osu(osu_path: &Path) -> Result<DifficultyInfo, Box<dyn std::error::Error>> {
+    let content = std::fs::read_to_string(osu_path)?;
+    let mut difficulty_info = DifficultyInfo::default();
+    let mut in_difficulty_section = false;
+    
+    for line in content.lines() {
+        let line = line.trim();
+        
+        if line == "[Difficulty]" {
+            in_difficulty_section = true;
+            continue;
+        }
+        
+        // Stop when we hit another section
+        if line.starts_with('[') && line != "[Difficulty]" {
+            in_difficulty_section = false;
+        }
+        
+        if in_difficulty_section && line.contains(':') {
+            let parts: Vec<&str> = line.splitn(2, ':').collect();
+            if parts.len() == 2 {
+                let key = parts[0].trim();
+                let value = parts[1].trim();
+                
+                match key {
+                    "OverallDifficulty" => {
+                        if let Ok(val) = value.parse::<f32>() {
+                            difficulty_info.overall_difficulty = Some(val);
+                        }
+                    },
+                    "CircleSize" => {
+                        if let Ok(val) = value.parse::<f32>() {
+                            difficulty_info.circle_size = Some(val);
+                        }
+                    },
+                    "ApproachRate" => {
+                        if let Ok(val) = value.parse::<f32>() {
+                            difficulty_info.approach_rate = Some(val);
+                        }
+                    },
+                    "HPDrainRate" => {
+                        if let Ok(val) = value.parse::<f32>() {
+                            difficulty_info.hp_drain_rate = Some(val);
+                        }
+                    },
+                    _ => {}
+                }
+            }
+        }
+    }
+    
+    // Calculate approximate star rating based on difficulty values
+    if difficulty_info.overall_difficulty.is_some() && difficulty_info.approach_rate.is_some() {
+        let od = difficulty_info.overall_difficulty.unwrap_or(5.0);
+        let ar = difficulty_info.approach_rate.unwrap_or(5.0);
+        let cs = difficulty_info.circle_size.unwrap_or(4.0);
+        
+        // Simplified star calculation (real osu! star calculation is much more complex)
+        let star_estimate = ((od + ar + (10.0 - cs)) / 3.0) * 0.8;
+        difficulty_info.stars = Some(star_estimate.clamp(0.0, 10.0));
+    }
+    
+    Ok(difficulty_info)
+}
+
 /// Load all songs from charts directory  
 pub fn load_songs_from_charts() -> Result<Vec<SongInfo>, Box<dyn std::error::Error>> {
     let chart_folders = scan_charts_directories()?;
@@ -323,4 +516,82 @@ pub fn load_songs_from_charts() -> Result<Vec<SongInfo>, Box<dyn std::error::Err
     
     println!("Successfully loaded {} songs from charts", songs.len());
     Ok(songs)
+}
+
+/// NEW: Load songs with automatic .osz file extraction
+pub fn load_songs_with_osz_extraction() -> Result<Vec<SongInfo>, Box<dyn std::error::Error>> {
+    let charts_dir = get_charts_dir();
+    println!("🔍 Processing charts directory: {}", charts_dir);
+    
+    // Create charts directory if it doesn't exist
+    create_dir_all(&charts_dir)?;
+    
+    // Step 1: Find and extract all .osz files
+    println!("📦 Step 1: Extracting .osz files...");
+    extract_all_osz_files(&charts_dir)?;
+    
+    // Step 2: Load songs from extracted folders
+    println!("📂 Step 2: Scanning for chart folders...");
+    let chart_folders = scan_charts_directories()?;
+    println!("📊 Found {} chart folders", chart_folders.len());
+    
+    let mut songs = Vec::new();
+    
+    for folder_name in chart_folders {
+        println!("🎵 Processing folder: {}", folder_name);
+        match parse_chart_folder(&folder_name) {
+            Ok(Some(song_info)) => {
+                println!("✅ Successfully parsed: {}", song_info.name);
+                songs.push(song_info);
+            },
+            Ok(None) => println!("⏭️ Skipped folder: {}", folder_name),
+            Err(e) => println!("❌ Error parsing folder {}: {}", folder_name, e),
+        }
+    }
+    
+    println!("🎉 Successfully loaded {} songs from charts with .osz extraction", songs.len());
+    Ok(songs)
+}
+
+/// Find and extract all .osz files in the charts directory
+fn extract_all_osz_files(charts_dir: &str) -> Result<(), Box<dyn std::error::Error>> {
+    println!("🔍 Searching for .osz files in: {}", charts_dir);
+    
+    if !Path::new(charts_dir).exists() {
+        println!("❗ Charts directory doesn't exist, creating: {}", charts_dir);
+        create_dir_all(charts_dir)?;
+        return Ok(());
+    }
+    
+    let mut osz_files = Vec::new();
+    find_osz_files(Path::new(charts_dir), &mut osz_files);
+    
+    println!("📈 Found {} .osz files", osz_files.len());
+    
+    if osz_files.is_empty() {
+        println!("⚠️ No .osz files found in directory: {}", charts_dir);
+        return Ok(());
+    }
+    
+    for osz_path in osz_files {
+        println!("📦 Processing .osz file: {}", osz_path.display());
+        if let Some(file_name) = osz_path.file_stem().and_then(|n| n.to_str()) {
+            let extract_dir = format!("{}/{}", charts_dir, file_name);
+            
+            // Skip if already extracted
+            if Path::new(&extract_dir).exists() {
+                println!("🔄 Already extracted: {}", file_name);
+                continue;
+            }
+            
+            println!("📂 Extracting: {} -> {}", osz_path.display(), extract_dir);
+            
+            match extract_osz(osz_path.to_str().unwrap(), &extract_dir) {
+                Ok(_) => println!("✅ Successfully extracted: {}", file_name),
+                Err(e) => println!("❌ Failed to extract {}: {}", file_name, e),
+            }
+        }
+    }
+    
+    Ok(())
 }

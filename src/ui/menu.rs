@@ -74,6 +74,28 @@ pub fn handle_button_clicks(
     }
 }
 
+/// Handle keyboard shortcuts in main menu
+pub fn handle_menu_shortcuts(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<GameState>>,
+    mut exit: EventWriter<AppExit>,
+) {
+    if keys.just_pressed(KeyCode::KeyP) {
+        info!("P key pressed - transitioning to SongSelect");
+        next_state.set(GameState::SongSelect);
+    }
+    
+    if keys.just_pressed(KeyCode::KeyE) || keys.just_pressed(KeyCode::Escape) {
+        info!("E/Escape key pressed - exiting game");
+        exit.send(AppExit::Success);
+    }
+    
+    if keys.just_pressed(KeyCode::KeyS) {
+        info!("S key pressed - opening settings (TODO)");
+        // TODO: Implement settings menu
+    }
+}
+
 /// Cleanup main menu
 pub fn cleanup_main_menu(
     mut commands: Commands,

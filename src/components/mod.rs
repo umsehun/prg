@@ -59,3 +59,12 @@ pub struct ResultUIMarker;
 
 #[derive(Component)]
 pub struct BackToMenuButton;
+
+#[derive(Component)]
+pub struct DifficultyDisplay;
+
+#[derive(Component)]
+pub struct DifficultyStars;
+
+#[derive(Component)]
+pub struct DifficultyValue;

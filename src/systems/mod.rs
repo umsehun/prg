@@ -531,8 +531,9 @@ pub fn spawn_song_select_ui(
     mut commands: Commands,
     song_library: Res<SongLibrary>,
     asset_server: Res<AssetServer>,
+    gameplay_settings: Res<crate::resources::GameplaySettings>,
 ) {
-    crate::ui::song_selection::spawn_song_select_ui(commands, song_library, asset_server);
+    crate::ui::song_selection::spawn_song_select_ui(commands, song_library, asset_server, gameplay_settings);
 }
 
 pub fn song_select_esc_handler(
