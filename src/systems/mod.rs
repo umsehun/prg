@@ -529,7 +529,7 @@ pub fn cleanup_menu_ui(
 
 pub fn spawn_song_select_ui(
     mut commands: Commands,
-    song_library: Res<SongLibrary>,
+    mut song_library: ResMut<SongLibrary>,
     asset_server: Res<AssetServer>,
     gameplay_settings: Res<crate::resources::GameplaySettings>,
 ) {

@@ -3,6 +3,7 @@ use zip::ZipArchive;
 use std::path::Path;
 use std::process::Command;
 use crate::resources::SongInfo;
+use bevy::log::info;
 
 #[derive(Default, Debug)]
 struct DifficultyInfo {
@@ -52,6 +53,25 @@ pub fn extract_osz(path: &str, out_dir: &str) -> Result<(), Box<dyn std::error::
 }
 
 pub fn get_charts_dir() -> String {
+    #[cfg(target_os = "macos")]
+    {
+        let home = std::env::var("HOME").unwrap_or_default();
+        format!("{}/Library/Application Support/pgr/charts", home)
+    }
+    #[cfg(target_os = "windows")]
+    {
+        let appdata = std::env::var("APPDATA").unwrap_or_default();
+        format!("{}/pgr/charts", appdata)
+    }
+    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
+    {
+        // Linux or other
+        let home = std::env::var("HOME").unwrap_or_default();
+        format!("{}/.local/share/pgr/charts", home)
+    }
+}
+
+pub fn get_source_assets_dir() -> String {
     // Get the project root directory (where Cargo.toml is located)
     if let Ok(manifest_dir) = std::env::var("CARGO_MANIFEST_DIR") {
         format!("{}/public/assets", manifest_dir)
@@ -520,75 +540,71 @@ pub fn load_songs_from_charts() -> Result<Vec<SongInfo>, Box<dyn std::error::Err
 
 /// NEW: Load songs with automatic .osz file extraction
 pub fn load_songs_with_osz_extraction() -> Result<Vec<SongInfo>, Box<dyn std::error::Error>> {
+    let source_dir = get_source_assets_dir();
     let charts_dir = get_charts_dir();
-    println!("🔍 Processing charts directory: {}", charts_dir);
+    info!("Source .osz directory: {}", source_dir);
+    info!("Target charts directory: {}", charts_dir);
     
     // Create charts directory if it doesn't exist
     create_dir_all(&charts_dir)?;
     
-    // Step 1: Find and extract all .osz files
-    println!("📦 Step 1: Extracting .osz files...");
-    extract_all_osz_files(&charts_dir)?;
+    // Step 1: Find and extract all .osz files from source to target
+    extract_all_osz_files_from_source(&source_dir, &charts_dir)?;
     
     // Step 2: Load songs from extracted folders
-    println!("📂 Step 2: Scanning for chart folders...");
     let chart_folders = scan_charts_directories()?;
-    println!("📊 Found {} chart folders", chart_folders.len());
-    
     let mut songs = Vec::new();
     
     for folder_name in chart_folders {
-        println!("🎵 Processing folder: {}", folder_name);
         match parse_chart_folder(&folder_name) {
             Ok(Some(song_info)) => {
-                println!("✅ Successfully parsed: {}", song_info.name);
+                info!("Successfully parsed: {}", song_info.name);
                 songs.push(song_info);
             },
-            Ok(None) => println!("⏭️ Skipped folder: {}", folder_name),
-            Err(e) => println!("❌ Error parsing folder {}: {}", folder_name, e),
+            Ok(None) => info!("Skipped folder: {}", folder_name),
+            Err(e) => info!("Error parsing folder {}: {}", folder_name, e),
         }
     }
     
-    println!("🎉 Successfully loaded {} songs from charts with .osz extraction", songs.len());
+    info!("Successfully loaded {} songs from charts with .osz extraction", songs.len());
     Ok(songs)
 }
 
-/// Find and extract all .osz files in the charts directory
-fn extract_all_osz_files(charts_dir: &str) -> Result<(), Box<dyn std::error::Error>> {
-    println!("🔍 Searching for .osz files in: {}", charts_dir);
+/// Find and extract all .osz files from source directory to target directory
+fn extract_all_osz_files_from_source(source_dir: &str, target_dir: &str) -> Result<(), Box<dyn std::error::Error>> {
+    info!("Searching for .osz files in source: {}", source_dir);
+    info!("Target extraction directory: {}", target_dir);
     
-    if !Path::new(charts_dir).exists() {
-        println!("❗ Charts directory doesn't exist, creating: {}", charts_dir);
-        create_dir_all(charts_dir)?;
+    if !Path::new(source_dir).exists() {
+        info!("Source directory doesn't exist: {}", source_dir);
         return Ok(());
+    }
+    
+    if !Path::new(target_dir).exists() {
+        info!("Target directory doesn't exist, creating: {}", target_dir);
+        create_dir_all(target_dir)?;
     }
     
     let mut osz_files = Vec::new();
-    find_osz_files(Path::new(charts_dir), &mut osz_files);
+    find_osz_files(Path::new(source_dir), &mut osz_files);
     
-    println!("📈 Found {} .osz files", osz_files.len());
-    
-    if osz_files.is_empty() {
-        println!("⚠️ No .osz files found in directory: {}", charts_dir);
-        return Ok(());
-    }
+    info!("Found {} .osz files in source directory", osz_files.len());
     
     for osz_path in osz_files {
-        println!("📦 Processing .osz file: {}", osz_path.display());
         if let Some(file_name) = osz_path.file_stem().and_then(|n| n.to_str()) {
-            let extract_dir = format!("{}/{}", charts_dir, file_name);
+            let extract_dir = format!("{}/{}", target_dir, file_name);
             
             // Skip if already extracted
             if Path::new(&extract_dir).exists() {
-                println!("🔄 Already extracted: {}", file_name);
+                info!("Already extracted: {}", file_name);
                 continue;
             }
             
-            println!("📂 Extracting: {} -> {}", osz_path.display(), extract_dir);
+            info!("Extracting: {} -> {}", osz_path.display(), extract_dir);
             
             match extract_osz(osz_path.to_str().unwrap(), &extract_dir) {
-                Ok(_) => println!("✅ Successfully extracted: {}", file_name),
-                Err(e) => println!("❌ Failed to extract {}: {}", file_name, e),
+                Ok(_) => info!("✓ Successfully extracted: {}", file_name),
+                Err(e) => info!("✗ Failed to extract {}: {}", file_name, e),
             }
         }
     }

@@ -43,10 +43,20 @@ pub struct PreloadedAudio {
 
 fn spawn_song_selection_ui(
     mut commands: Commands,
-    song_library: Res<SongLibrary>,
+    mut song_library: ResMut<SongLibrary>,
     asset_server: Res<AssetServer>,
     gameplay_settings: Res<GameplaySettings>,
 ) {
+    // Auto-load .osz files if no songs are available
+    if song_library.songs.is_empty() {
+        info!("🚀 Auto-loading .osz files on song select screen...");
+        if song_library.reload_osu_data() {
+            info!("✅ Auto-loaded {} songs from .osz files", song_library.songs.len());
+        } else {
+            warn!("❌ Failed to auto-load songs from .osz files");
+        }
+    }
+    
     // Preload all audio files for instant playback
     let mut preloaded_handles = Vec::new();
     for song in &song_library.songs {
@@ -266,10 +276,15 @@ fn spawn_song_selection_ui(
             BannerVideo,
             Text::new("🎵 Select a song"),
             TextFont {
-                font_size: 24.0,
+                font_size: 18.0,  // Reduced from 24.0 to fit better
                 ..default()
             },
             TextColor(Color::srgb(0.6, 0.6, 0.7)),
+            Node {
+                width: Val::Percent(90.0),  // Limit width to prevent overflow
+                max_width: Val::Px(400.0),   // Set max width
+                ..default()
+            },
         ))
         .id();
 
@@ -433,7 +448,7 @@ fn spawn_song_selection_ui(
 
 pub fn spawn_song_select_ui(
     mut commands: Commands,
-    song_library: Res<SongLibrary>,
+    mut song_library: ResMut<SongLibrary>,
     asset_server: Res<AssetServer>,
     gameplay_settings: Res<GameplaySettings>,
 ) {
@@ -498,13 +513,14 @@ pub fn carousel_activate(
     mut next: ResMut<NextState<crate::GameState>>,
 ) {
     if keys.just_pressed(KeyCode::Enter) {
+        info!("🔥 ENTER KEY PRESSED! Processing...");
         // First, try to load .osz files if no songs are available
         if lib.songs.is_empty() {
-            info!("No songs available, attempting to load .osz files...");
+            info!("🎵 No songs available, attempting to load .osz files...");
             if lib.reload_osu_data() {
-                info!("Successfully loaded {} songs from .osz files", lib.songs.len());
+                info!("✅ Successfully loaded {} songs from .osz files", lib.songs.len());
             } else {
-                warn!("Failed to load any songs from .osz files. Please check your charts directory.");
+                warn!("❌ Failed to load any songs from .osz files. Please check your charts directory.");
                 return;
             }
         }
@@ -656,7 +672,7 @@ pub fn update_song_preview(
         if song_library.songs.is_empty() {
             // Update banner with help message when no songs are available
             if let Ok(mut banner_text) = banner_query.single_mut() {
-                **banner_text = "🎵 No songs found! Press Enter to load .osz files from public/assets/".to_string();
+                **banner_text = "🎵 No songs found!\nPress Enter to load .osz files".to_string();
                 println!("Updated banner: No songs available, showing help message");
             }
         } else if state.selected < song_library.songs.len() {
