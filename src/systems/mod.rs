@@ -5,6 +5,11 @@ use crate::components::{Note, Pin, SongButton, MenuUIMarker, HudMarker, ScoreTex
 use crate::GameState;
 use std::time::Instant;
 
+pub fn setup_camera(mut commands: Commands) {
+    // Basic camera setup for standard Bevy UI
+    commands.spawn(Camera2d);
+}
+
 pub fn setup(mut commands: Commands) {
     // Spawn UI camera
     commands.spawn(Camera2d);
@@ -48,6 +53,7 @@ pub fn setup(mut commands: Commands) {
         Transform::from_xyz(0.0, 0.0, 0.0),
     ));
 
+    println!("Setup completed. Songs loaded: {}", songs.len());
     // Create UI after resources are set up
     // song_selection_ui(commands, SongLibrary { songs: songs }); // Moved to OnEnter(GameState::Menu)
 }
@@ -57,8 +63,11 @@ pub fn song_selection_ui(
     song_library: Res<SongLibrary>,
     existing_ui: Query<Entity, With<MenuUIMarker>>,
 ) {
+    println!("song_selection_ui called! Songs: {}", song_library.songs.len());
+    
     // Only create UI if it doesn't exist
     if existing_ui.is_empty() {
+        println!("Creating new menu UI...");
         // Root UI node
         commands.spawn((
             Node {
@@ -499,6 +508,40 @@ pub fn back_to_menu_system(
     }
 }
 
+pub fn result_esc_handler(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    if keys.just_pressed(KeyCode::Escape) {
+        next_state.set(GameState::Menu);
+    }
+}
+
+pub fn cleanup_menu_ui(
+    mut commands: Commands,
+    menu_ui_query: Query<Entity, With<MenuUIMarker>>,
+) {
+    // Despawn all menu UI entities when entering Playing state
+    for entity in menu_ui_query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
+pub fn spawn_song_select_ui(
+    mut commands: Commands,
+    song_library: Res<SongLibrary>,
+    asset_server: Res<AssetServer>,
+) {
+    crate::ui::song_selection::spawn_song_select_ui(commands, song_library, asset_server);
+}
+
+pub fn song_select_esc_handler(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    crate::ui::song_selection::song_select_esc_handler(keys, next_state);
+}
+
 pub fn spawn_approach_system(
     mut commands: Commands,
     mut song: ResMut<Song>,
@@ -627,5 +670,14 @@ pub fn input_system(
     if song.next_index >= song.note_times.len() && all_notes_hit {
         // Song finished, transition to result screen
         next_state.set(GameState::Result);
+    }
+}
+
+pub fn gameplay_esc_handler(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    if keys.just_pressed(KeyCode::Escape) {
+        next_state.set(GameState::Menu);
     }
 }

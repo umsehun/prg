@@ -14,6 +14,7 @@ pub struct Pin {
 }
 
 #[derive(Component)]
+#[allow(dead_code)]
 pub struct SongButton {
     pub song_index: usize,
 }
@@ -22,6 +23,7 @@ pub struct SongButton {
 pub struct MenuUIMarker;
 
 #[derive(Component)]
+#[allow(dead_code)]
 pub struct HudMarker;
 
 #[derive(Component)]

@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::fs::{File, create_dir_all, copy};
 use zip::ZipArchive;
 use std::path::Path;
 use std::process::Command;
@@ -110,6 +110,7 @@ pub fn parse_all_osz(assets_dir: &str) -> Result<Vec<SongInfo>, Box<dyn std::err
 
         let mut audio_path = None;
         let mut video_path = None;
+        let mut banner_path = None;
 
         // Convert non-standard extensions and find audio/video
         if let Ok(entries) = std::fs::read_dir(&extract_dir) {
@@ -118,8 +119,21 @@ pub fn parse_all_osz(assets_dir: &str) -> Result<Vec<SongInfo>, Box<dyn std::err
                 if let Some(ext) = path.extension().and_then(|s| s.to_str()) {
                     let is_video = matches!(ext, "avi" | "mp4" | "mkv" | "flv" | "wmv" | "mov" | "mpg" | "mpeg" | "3gp" | "asf" | "rm" | "rmvb" | "webm");
                     let is_audio = matches!(ext, "wav" | "ogg" | "flac" | "aac" | "wma" | "m4a" | "whem" | "mp3");
+                    let is_image = matches!(ext, "png" | "jpg" | "jpeg" | "webp");
                     
-                    if is_video || is_audio {
+                    if is_image {
+                        if banner_path.is_none() {
+                            // Copy banner into Bevy assets/banners so AssetServer can load it
+                            let filename = path.file_name().and_then(|s| s.to_str()).unwrap_or("banner");
+                            let dest_dir = Path::new("assets").join("banners");
+                            let _ = create_dir_all(&dest_dir);
+                            let dest_filename = format!("{}-{}", file_stem, filename);
+                            let dest_path = dest_dir.join(&dest_filename);
+                            // Ignore copy errors silently
+                            let _ = copy(&path, &dest_path);
+                            banner_path = Some(format!("banners/{}", dest_filename));
+                        }
+                    } else if is_video || is_audio {
                         let new_ext = if is_video { "webm" } else { "mp3" };
                         
                         // Skip if already the target format
@@ -168,6 +182,7 @@ pub fn parse_all_osz(assets_dir: &str) -> Result<Vec<SongInfo>, Box<dyn std::err
             name: file_stem.to_string(),
             audio_path,
             video_path,
+            banner_path,
             note_times,
         });
     }

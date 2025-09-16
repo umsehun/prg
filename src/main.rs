@@ -5,45 +5,63 @@ mod osu_loader;
 mod systems;
 mod components;
 mod resources;
+mod ui;
 
+use crate::ui::menu::{spawn_main_menu, handle_button_interaction, handle_button_clicks, cleanup_main_menu};
+use crate::ui::components::UITheme;
+use crate::ui::song_selection::{spawn_song_select_ui, song_select_esc_handler, carousel_keyboard_nav, carousel_apply_selection, carousel_activate};
+use crate::systems::{setup_camera, cleanup_menu_ui, gameplay_esc_handler, result_esc_handler};
 use crate::resources::SongLibrary;
 
-#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
-enum GameState {
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
+pub enum GameState {
     #[default]
     Menu,
+    SongSelect,
     Playing,
     Result,
 }
 
-use systems::{setup, spawn_approach_system, move_approach_system, input_system, song_selection_ui, song_button_system, gameplay_hud_ui, update_score_text_system, update_combo_text_system, update_health_bar_system, fade_in_system, fade_out_system, transition_system, result_screen_ui, back_to_menu_system};
-
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                title: "PinGame".into(),
-                resolution: (800., 600.).into(),
-                ..default()
-            }),
-            ..default()
-        }))
+        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_plugins(AudioPlugin)
         .init_state::<GameState>()
-        .add_systems(Startup, setup)
-        .add_systems(Update, song_selection_ui.run_if(in_state(GameState::Menu).and(resource_exists::<SongLibrary>)))
-        .add_systems(Update, song_button_system.run_if(in_state(GameState::Menu)))
-        .add_systems(Update, transition_system.run_if(in_state(GameState::Menu)))
-        .add_systems(Update, fade_in_system)
-        .add_systems(Update, fade_out_system)
-        .add_systems(OnEnter(GameState::Playing), gameplay_hud_ui)
-        .add_systems(Update, update_score_text_system.run_if(in_state(GameState::Playing)))
-        .add_systems(Update, update_combo_text_system.run_if(in_state(GameState::Playing)))
-        .add_systems(Update, update_health_bar_system.run_if(in_state(GameState::Playing)))
-        .add_systems(Update, spawn_approach_system.run_if(in_state(GameState::Playing)))
-        .add_systems(Update, move_approach_system.run_if(in_state(GameState::Playing)))
-        .add_systems(Update, input_system.run_if(in_state(GameState::Playing)))
-        .add_systems(OnEnter(GameState::Result), result_screen_ui)
-        .add_systems(Update, back_to_menu_system.run_if(in_state(GameState::Result)))
+        .init_resource::<SongLibrary>()
+        .init_resource::<UITheme>()
+        .add_systems(Startup, setup_camera)
+        // Menu state systems - Basic Bevy UI
+        .add_systems(OnEnter(GameState::Menu), spawn_main_menu)
+        .add_systems(
+            Update,
+            (handle_button_interaction, handle_button_clicks).run_if(in_state(GameState::Menu))
+        )
+        .add_systems(OnExit(GameState::Menu), cleanup_main_menu)
+        // Song selection state systems
+        .add_systems(OnEnter(GameState::SongSelect), spawn_song_select_ui)
+        .add_systems(
+            Update,
+            (
+                carousel_keyboard_nav,
+                carousel_apply_selection,
+                carousel_activate,
+                song_select_esc_handler,
+            ).run_if(in_state(GameState::SongSelect))
+        )
+        // Playing state systems
+        .add_systems(OnEnter(GameState::Playing), cleanup_menu_ui)
+        .add_systems(
+            Update,
+            (
+                gameplay_esc_handler,
+            ).run_if(in_state(GameState::Playing))
+        )
+        // Result state systems
+        .add_systems(
+            Update,
+            (
+                result_esc_handler,
+            ).run_if(in_state(GameState::Result))
+        )
         .run();
 }

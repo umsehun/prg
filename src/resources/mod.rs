@@ -16,7 +16,7 @@ pub struct Config {
     pub rotation_speed: f32,
 }
 
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct SongLibrary {
     pub songs: Vec<SongInfo>,
 }
@@ -30,9 +30,11 @@ pub struct GameScore {
 }
 
 #[derive(Clone, Debug)]
+#[allow(dead_code)]
 pub struct SongInfo {
     pub name: String,
     pub audio_path: Option<String>,
     pub video_path: Option<String>,
+    pub banner_path: Option<String>,
     pub note_times: Vec<u32>,
 }
