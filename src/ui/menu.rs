@@ -36,13 +36,13 @@ pub fn handle_button_interaction(
     for (interaction, mut color, _button) in &mut query {
         match *interaction {
             Interaction::Pressed => {
-                color.0 = theme.button_pressed;
+                *color = BackgroundColor(theme.button_pressed.into());
             }
             Interaction::Hovered => {
-                color.0 = theme.button_hovered;
+                *color = BackgroundColor(theme.button_hovered.into());
             }
             Interaction::None => {
-                color.0 = theme.button_normal;
+                *color = BackgroundColor(theme.button_normal.into());
             }
         }
     }

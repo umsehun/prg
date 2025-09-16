@@ -16,16 +16,16 @@ pub struct UITheme {
 impl Default for UITheme {
     fn default() -> Self {
         Self {
-            // Rich dark gradient background
-            background: Color::srgba(0.02, 0.02, 0.08, 1.0),  // Very dark blue
-            primary: Color::srgba(0.0, 1.0, 1.0, 1.0),        // Bright cyan
-            secondary: Color::srgba(1.0, 0.0, 1.0, 1.0),      // Bright magenta
-            accent: Color::srgba(0.0, 1.0, 0.5, 1.0),         // Neon green
-            text: Color::srgba(1.0, 1.0, 1.0, 1.0),           // Pure white
-            // Enhanced button colors with glow effect
-            button_normal: Color::srgba(0.0, 0.8, 1.0, 0.4),  // Cyan with transparency
-            button_hovered: Color::srgba(0.0, 0.9, 1.0, 0.7), // Brighter cyan
-            button_pressed: Color::srgba(0.0, 1.0, 1.0, 0.9), // Full bright cyan
+            // Rich dark gradient background - using solid colors for visibility
+            background: Color::srgb(0.1, 0.1, 0.2),           // Dark blue (visible)
+            primary: Color::srgb(0.0, 1.0, 1.0),              // Bright cyan
+            secondary: Color::srgb(1.0, 0.0, 1.0),            // Bright magenta
+            accent: Color::srgb(0.0, 1.0, 0.5),               // Neon green
+            text: Color::srgb(1.0, 1.0, 1.0),                 // Pure white
+            // Enhanced button colors - solid for debugging, transparency later
+            button_normal: Color::srgb(0.2, 0.8, 1.0),        // Solid cyan
+            button_hovered: Color::srgb(0.4, 0.9, 1.0),       // Brighter cyan
+            button_pressed: Color::srgb(0.6, 1.0, 1.0),       // Full bright cyan
         }
     }
 }
@@ -63,8 +63,14 @@ pub fn create_menu_button(
                 border: UiRect::all(Val::Px(3.0)),  // Thicker border
                 ..default()
             },
-            BackgroundColor(theme.button_normal),
-            BorderColor(theme.primary),
+            BackgroundColor(theme.button_normal.into()),
+            BorderColor(theme.primary.into()),
+            // Add debug outline to make buttons visible
+            Outline {
+                width: Val::Px(2.0),
+                offset: Val::Px(2.0),
+                color: theme.accent,
+            },
             MenuButton { action },
         ))
         .with_children(|parent| {
@@ -96,7 +102,13 @@ pub fn create_background_container(
                 flex_direction: FlexDirection::Column,
                 ..default()
             },
-            BackgroundColor(theme.background),
+            BackgroundColor(theme.background.into()),
+            // Add debug outline to confirm container is rendering
+            Outline {
+                width: Val::Px(5.0),
+                offset: Val::Px(0.0),
+                color: theme.secondary,
+            },
         ))
         .id()
 }
@@ -119,8 +131,8 @@ pub fn create_menu_container(
                 ..default()
             },
             // Semi-transparent dark background with subtle gradient feel
-            BackgroundColor(Color::srgba(0.05, 0.05, 0.15, 0.9)),
-            BorderColor(theme.primary),
+            BackgroundColor(Color::srgb(0.15, 0.15, 0.25)),  // Solid for debugging
+            BorderColor(theme.primary.into()),
         ))
         .id();
 

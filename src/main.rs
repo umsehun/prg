@@ -9,7 +9,7 @@ mod ui;
 
 use crate::ui::menu::{spawn_main_menu, handle_button_interaction, handle_button_clicks, cleanup_main_menu};
 use crate::ui::components::UITheme;
-use crate::ui::song_selection::{spawn_song_select_ui, song_select_esc_handler, carousel_keyboard_nav, carousel_apply_selection, carousel_activate};
+use crate::ui::song_selection::{spawn_song_select_ui, song_select_esc_handler, carousel_keyboard_nav, carousel_activate, update_song_preview, update_carousel_visuals, init_carousel_state};
 use crate::systems::{setup_camera, cleanup_menu_ui, gameplay_esc_handler, result_esc_handler};
 use crate::resources::SongLibrary;
 
@@ -25,6 +25,7 @@ pub enum GameState {
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        .insert_resource(ClearColor(Color::srgb(0.04, 0.04, 0.06)))
         .add_plugins(AudioPlugin)
         .init_state::<GameState>()
         .init_resource::<SongLibrary>()
@@ -37,14 +38,16 @@ fn main() {
             (handle_button_interaction, handle_button_clicks).run_if(in_state(GameState::Menu))
         )
         .add_systems(OnExit(GameState::Menu), cleanup_main_menu)
-        // Song selection state systems
-        .add_systems(OnEnter(GameState::SongSelect), spawn_song_select_ui)
+    // Song selection state systems
+    .add_systems(OnEnter(GameState::SongSelect), (spawn_song_select_ui, init_carousel_state))
+
         .add_systems(
             Update,
             (
                 carousel_keyboard_nav,
-                carousel_apply_selection,
                 carousel_activate,
+                update_song_preview,
+                update_carousel_visuals,
                 song_select_esc_handler,
             ).run_if(in_state(GameState::SongSelect))
         )

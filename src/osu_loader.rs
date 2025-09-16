@@ -189,3 +189,138 @@ pub fn parse_all_osz(assets_dir: &str) -> Result<Vec<SongInfo>, Box<dyn std::err
 
     Ok(songs)
 }
+
+/// Scan charts directory for extracted beatmap folders
+pub fn scan_charts_directories() -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let charts_dir = get_charts_dir();
+    let mut chart_folders = Vec::new();
+    
+    // Check if charts directory exists
+    if !Path::new(&charts_dir).exists() {
+        println!("Charts directory not found: {}", charts_dir);
+        return Ok(chart_folders);
+    }
+    
+    // Read all entries in charts directory
+    if let Ok(entries) = std::fs::read_dir(&charts_dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                if let Some(folder_name) = path.file_name().and_then(|n| n.to_str()) {
+                    chart_folders.push(folder_name.to_string());
+                    println!("Found chart folder: {}", folder_name);
+                }
+            }
+        }
+    }
+    
+    println!("Found {} chart folders in total", chart_folders.len());
+    Ok(chart_folders)
+}
+
+/// Parse a single chart folder and extract song information
+pub fn parse_chart_folder(folder_name: &str) -> Result<Option<SongInfo>, Box<dyn std::error::Error>> {
+    let charts_dir = get_charts_dir();
+    let folder_path = format!("{}/{}", charts_dir, folder_name);
+    
+    println!("Parsing chart folder: {}", folder_path);
+    
+    // Find .osu file for metadata
+    let mut osu_file_path = None;
+    let mut audio_file = None;
+    let mut video_file = None;
+    let mut banner_file = None;
+    
+    if let Ok(entries) = std::fs::read_dir(&folder_path) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if let Some(ext) = path.extension().and_then(|s| s.to_str()) {
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                
+                match ext.to_lowercase().as_str() {
+                    "osu" => {
+                        if osu_file_path.is_none() {
+                            osu_file_path = Some(path.clone());
+                        }
+                    },
+                    "mp3" | "wav" | "ogg" => {
+                        if audio_file.is_none() {
+                            audio_file = Some(format!("charts/{}/{}", folder_name, file_name));
+                        }
+                    },
+                    "webm" | "mp4" | "avi" | "mov" => {
+                        if video_file.is_none() {
+                            video_file = Some(format!("charts/{}/{}", folder_name, file_name));
+                        }
+                    },
+                    "jpg" | "jpeg" | "png" | "bmp" => {
+                        if banner_file.is_none() {
+                            banner_file = Some(format!("charts/{}/{}", folder_name, file_name));
+                        }
+                    },
+                    _ => {}
+                }
+            }
+        }
+    }
+    
+    // Parse .osu file for metadata and note times
+    let (song_name, note_times) = if let Some(ref osu_path) = osu_file_path {
+        let name = extract_song_title_from_osu(osu_path).unwrap_or_else(|_| folder_name.to_string());
+        let times = parse_osu_hit_times(osu_path.to_str().unwrap()).unwrap_or_default();
+        (name, times)
+    } else {
+        (folder_name.to_string(), vec![1000, 2000, 3000, 4000])
+    };
+    
+    let song_info = SongInfo {
+        name: song_name,
+        audio_path: audio_file,
+        video_path: video_file,
+        banner_path: banner_file,
+        note_times,
+    };
+    
+    println!("Parsed song: {} (audio: {:?}, video: {:?}, banner: {:?})", 
+             song_info.name, song_info.audio_path, song_info.video_path, song_info.banner_path);
+    
+    Ok(Some(song_info))
+}
+
+/// Extract song title from .osu file metadata
+fn extract_song_title_from_osu(osu_path: &Path) -> Result<String, Box<dyn std::error::Error>> {
+    let content = std::fs::read_to_string(osu_path)?;
+    
+    for line in content.lines() {
+        if line.starts_with("Title:") {
+            let title = line.trim_start_matches("Title:").trim();
+            if !title.is_empty() {
+                return Ok(title.to_string());
+            }
+        }
+    }
+    
+    // Fallback to filename if no title found
+    if let Some(file_name) = osu_path.file_stem().and_then(|s| s.to_str()) {
+        Ok(file_name.to_string())
+    } else {
+        Ok("Unknown Song".to_string())
+    }
+}
+
+/// Load all songs from charts directory  
+pub fn load_songs_from_charts() -> Result<Vec<SongInfo>, Box<dyn std::error::Error>> {
+    let chart_folders = scan_charts_directories()?;
+    let mut songs = Vec::new();
+    
+    for folder_name in chart_folders {
+        match parse_chart_folder(&folder_name) {
+            Ok(Some(song_info)) => songs.push(song_info),
+            Ok(None) => println!("Skipped folder: {}", folder_name),
+            Err(e) => println!("Error parsing folder {}: {}", folder_name, e),
+        }
+    }
+    
+    println!("Successfully loaded {} songs from charts", songs.len());
+    Ok(songs)
+}
